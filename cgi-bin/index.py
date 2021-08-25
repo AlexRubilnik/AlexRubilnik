@@ -61,5 +61,6 @@ rest_of_rows = cursor.fetchall()
 
 
 print("<h1>Привет, Фрегат!</h1>")
+print("<h2>Привет, Фрегат!</h2>")
 for i in range(1,9):
     print('<div>'+str(row[i])+'</div>')
