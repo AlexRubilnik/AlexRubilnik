@@ -1,1 +1,0 @@
-start C:\Users\a_ashcherbakov\AppData\Local\Programs\Python\Python39\python.exe Z:\Personals\ashcherbakov\Инженерия\FregatMonitoring\FregatMonitoring\Start_server_windows.py
