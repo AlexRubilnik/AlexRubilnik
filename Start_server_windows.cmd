@@ -1,2 +1,2 @@
-cd /d Z:\Personals\ashcherbakov\à≠¶•≠•‡®Ô\FregatMonitoring\FregatMonitoring\
+cd /d Z:\Personals\ashcherbakov\–ò–Ω–∂–µ–Ω–µ—Ä–∏—è\FregatMonitoring\FregatMonitoring\
 start Start_server_windows.py
