@@ -1,37 +1,57 @@
-Html='''<!DOCTYPE HTML>
+<!DOCTYPE HTML>
 <html>
 <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-      <link rel="stylesheet" type="text/css" href="style.css">
+      <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
 
-<div >
-       <table >
-       <tr >
-          <td class="header-brand"> ООО Фрегат </td>
-          <td >Cloud monitoring service</td>  
-          <td >Сервис дистанционного мониторинга и управления</td>
-          <td >
-            <table> 
-            <tr >
-               <td >
-                 <table>
+<div class="header-bgd">
+       <table width="100%">
+       <tr style="height:20px">
+          <td class="header-brand">ООО "Фрегат"</td>
+          <td class="orange-text cursive">Cloud monitoring service</td>  
+          <td class="white-text">Сервис дистанционного мониторинга и управления</td>
+          <td>
+            <table width="100%"> 
+            <tr>
+               <td><table>
                  <tr>
-                   <td > </td>
-                   <td > </td>
-                 </tr>      
-                 </table>
+                   <td class="white-text"> Пользователь: </td>
+                   <td>              </td>
+                 </tr>
+                    </table>
                </td>
             </tr>  
-            <tr>
-               <td> 
+            <td>
+               <td><table> 
+                  <tr class="white-text">
                     Оператор
+                  </tr>    
+                   </table> 
                </td>
             </tr>
             </table>
           </td>
        </tr>
        </table>
+</div>
+<div>
+  <table>
+    <tr>
+      <form id="ChangeDeltaT1Form" action="ChangeDeltaTMetod.py" method="post">
+      <td>Уставка дельта Т печь №1</td>
+      <td><input name="DeltaT1" value></td>
+      <td><input class="btn" name="ChangeDeltaT1_btn" value="Изменить"></td>
+      </form>
+    </tr>
+    <tr>
+      <form id="ChangeDeltaT2Form" action="ChangeDeltaTMetod.py" method="post">
+      <td>Уставка дельта Т печь №2</td>
+      <td><input name="DeltaT2" value></td>
+      <td><input class="btn" name="ChangeDeltaT2_btn" value="Изменить"></td>
+      </form>
+    </tr>
+  </table>
 </div>
 </body>
 </html>
