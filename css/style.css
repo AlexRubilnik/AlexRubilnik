@@ -95,6 +95,7 @@
     -moz-border-right-colors: none;
     -moz-border-top-colors: none;
     -moz-user-select: none;
+    user-select: none;
 }
 
 .btn:hover,
