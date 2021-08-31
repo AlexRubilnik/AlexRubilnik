@@ -1,5 +1,4 @@
-setInterval(
-    function(){
+    function DownloadData(){
         var curScr = document.getElementById('curScr')
         var XHR = new XMLHttpRequest()
         if(curScr !== null){
@@ -29,4 +28,6 @@ setInterval(
 
         };
         delete(XHR);   
-}, 3000)
+    }
+
+    setTimeout(DownloadData,1000);

@@ -30,3 +30,6 @@ print("Content-type: text/html\n")
 responseJson = json.dumps(response)
 print(responseJson)
 
+cursor.close()
+conn.close()
+
