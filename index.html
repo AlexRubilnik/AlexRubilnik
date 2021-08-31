@@ -19,7 +19,8 @@
                <td><table>
                  <tr>
                    <td class="white-text"> Пользователь: </td>
-                   <td>  Оператор            </td>
+
+                   <td class="white-text"> Оператор      </td>
                  </tr>
                     </table>
                </td>
@@ -41,23 +42,18 @@
   <input id='curScr' type='hidden' value='monitor_scr'> 
   <table>
     <tr>
-      <td>
-        <table>
-          <tr>
-            <form id="ChangeDeltaT1Form"> 
-            <td>Уставка дельта Т печь №1</td>
-            <td><input id="DeltaT1_stp" value></td>
-            <td><input class="btn" name="ChangeDeltaT1_btn" value="Изменить" onclick="ChangeDeltaT(this);"></td>
-            </form>
-            </td>
-            <form id="ChangeDeltaT2Form">
-            <td>Уставка дельта Т печь №2</td>
-            <td><input id="DeltaT2_stp" value></td>
-            <td><input class="btn" name="ChangeDeltaT2_btn" value="Изменить" onclick="ChangeDeltaT(this);"></td>
-            </form>
-          </tr>
-        </table>   
-      </td>   
+      <form id="ChangeDeltaT1Form"> 
+      <td>Уставка дельта Т печь №1</td>
+      <td><input id="DeltaT1_stp" value></td>
+      <td><input class="btn" name="ChangeDeltaT1_btn" value="Изменить" onclick="ChangeDeltaT(this);"></td>
+      </form>
+    </tr>
+    <tr>
+      <form id="ChangeDeltaT2Form">
+      <td>Уставка дельта Т печь №2</td>
+      <td><input id="DeltaT2_stp" value></td>
+      <td><input class="btn" name="ChangeDeltaT2_btn" value="Изменить" onclick="ChangeDeltaT(this);"></td>
+      </form>
     </tr>
   </table>
   <svg width="1160" height="400" xmlns="http://www.w3.org/2000/svg">
