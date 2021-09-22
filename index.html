@@ -39,19 +39,20 @@
        </table>
 </div>
 <div>
+  <input id='curScr' type='hidden' value='monitor_scr'> 
   <table>
     <tr>
-      <form id="ChangeDeltaT1Form" action="ChangeDeltaTMetod.py" method="post">
+      <form id="ChangeDeltaT1Form"> 
       <td>Уставка дельта Т печь №1</td>
-      <td><input name="DeltaT1" value></td>
-      <td><input class="btn" name="ChangeDeltaT1_btn" value="Изменить"></td>
+      <td><input id="DeltaT1_stp" value></td>
+      <td><input class="btn" name="ChangeDeltaT1_btn" value="Изменить" onclick="ChangeDeltaT(this);"></td>
       </form>
     </tr>
     <tr>
-      <form id="ChangeDeltaT2Form" action="ChangeDeltaTMetod.py" method="post">
+      <form id="ChangeDeltaT2Form">
       <td>Уставка дельта Т печь №2</td>
-      <td><input name="DeltaT2" value></td>
-      <td><input class="btn" name="ChangeDeltaT2_btn" value="Изменить"></td>
+      <td><input id="DeltaT2_stp" value></td>
+      <td><input class="btn" name="ChangeDeltaT2_btn" value="Изменить" onclick="ChangeDeltaT(this);"></td>
       </form>
     </tr>
   </table>
