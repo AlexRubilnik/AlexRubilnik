@@ -7,7 +7,7 @@ import cgi, cgitb # Not used, but will be needed later.
 print("""
 <!DOCTYPE html>
 <html>
-<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<head>
       <link rel="stylesheet" type="text/css" href="http://frgv006a:8000/css/style.css">
       <script src=http://frgv006a:8000/scripts/DataUpdate.js></script>
       <script src=http://frgv006a:8000/scripts/ChangeDeltaMethod.js></script>
