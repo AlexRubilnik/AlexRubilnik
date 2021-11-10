@@ -77,6 +77,17 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'production_fx': {
+        'ENGINE': 'sql_server.pyodbc',
+        'HOST': "FRGV202X\PRODUCTION",
+        'USER': "Operator",
+        'PASSWORD': "fregat",
+        'NAME': "FX_Hist",
+        'PORT': "",
+        'OPTIONS': {
+            'driver': 'SQL Server Native Client 11.0'
+        }
     }
 }
 
