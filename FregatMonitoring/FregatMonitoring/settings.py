@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'FregatMonitoringApp.apps.FregatmonitoringappConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -90,6 +91,8 @@ DATABASES = {
         }
     }
 }
+
+DATABASE_ROUTERS = ['FregatMonitoringApp.routers.FregatMonitoringAppRouter']
 
 
 # Password validation
