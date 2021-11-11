@@ -28,6 +28,14 @@
     opacity:0.8; 
     box-shadow:  0 0 20px rgba(0,0,0,0.8);
 }
+.left-side-bar{
+    display: inline-block;
+    vertical-align: top;
+}
+.current_scr_container{
+    display: inline-block;
+    vertical-align: top;
+}
 .white-text{
     color: rgb(255, 255, 255);
     font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;

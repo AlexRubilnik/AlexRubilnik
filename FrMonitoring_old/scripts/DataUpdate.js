@@ -2,7 +2,7 @@
         var curScr = document.getElementById('curScr')
         var XHR = new XMLHttpRequest()
         if(curScr !== null){
-            XHR.open('GET','cgi-bin/DataUpdate.py?curscr='+curScr.value, true);
+            XHR.open('GET','DataUpdate.py?curscr='+curScr.value, true);
 
             XHR.send();
         }
