@@ -65,7 +65,7 @@ class Tagtable(models.Model):
         db_table = 'TagTable'
 
     def __str__(self):
-        return self.tagname    
+        return self.tagname
 
 class Floattable(models.Model):
     dateandtime = models.DateTimeField(db_column='DateAndTime')  # Field name made lowercase.
