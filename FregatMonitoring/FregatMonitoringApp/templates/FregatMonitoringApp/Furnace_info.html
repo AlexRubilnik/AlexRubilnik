@@ -1,0 +1,11 @@
+{% if tags_values %}
+    <table border=1>
+    {% for name, index, value in tags_values %}
+        <tr>
+          <td> {{ name }} </td><td> {{ value }} </td>
+        </tr>
+    {% endfor %}    
+    </table>
+{% else %}
+    <p> Нет данных <p>
+{% endif %}
