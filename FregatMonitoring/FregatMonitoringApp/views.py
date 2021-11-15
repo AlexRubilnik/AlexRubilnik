@@ -5,7 +5,11 @@ from django.template import loader
 from .models import Floattable, Tagtable
 
 def index(request):
-    return HttpResponse("Hello! This is FregatMonitoring system")
+    template = loader.get_template('FregatMonitoringApp/base.html')
+
+    context = None
+
+    return HttpResponse(template.render(context, request))
 
 def Furnace_1_info(request):
     

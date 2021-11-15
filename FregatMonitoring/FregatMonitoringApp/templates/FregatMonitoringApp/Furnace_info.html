@@ -1,3 +1,7 @@
+{% extends "base.html" %}
+
+{% block furnace %}
+
 {% if tags_values %}
     <table border=1>
     {% for name, index, value in tags_values %}
@@ -9,3 +13,4 @@
 {% else %}
     <p> Нет данных <p>
 {% endif %}
+{% endblock %}
