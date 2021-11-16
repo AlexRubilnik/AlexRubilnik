@@ -41,24 +41,13 @@
 </div>
 <div class="main_container">  <!-- Содержимое полностью-->
   <div class="top_menu_bar">
-    <div id="furnace_1" class="top_menu_btn">
-      <p> Печь №1 </p> 
-    </div>
-    <div id="furnace_2" class="top_menu_btn">
-      <p> Печь №2 </p> 
-    </div>
-    <div id="raf_otdel" class="top_menu_btn">
-      <p> Рафинировка </p> 
-    </div>
-    <div id="Rozliv" class="top_menu_btn">
-      <p> Розлив </p> 
-    </div>
-    <div id="Shneka" class="top_menu_btn">
-      <p> Шнека </p> 
-    </div>
-    <div id="Reports" class="top_menu_btn">
-      <p> Отчёты </p> 
-    </div>
+    <a href="{% url 'Furnace_1_info' %}" class="top_menu_btn">Печь №1</a> 
+    <a href="{% url 'Furnace_2_info' %}" class="top_menu_btn">Печь №2</a> 
+    <a href="{% url 'Furnace_1_info' %}" class="top_menu_btn">Автоплавка</a> 
+    <a href="{% url 'Furnace_1_info' %}" class="top_menu_btn">Рафинировка</a> 
+    <a href="{% url 'Furnace_1_info' %}" class="top_menu_btn">Розлив</a> 
+    <a href="{% url 'Furnace_1_info' %}" class="top_menu_btn">Шнека</a> 
+    <a href="{% url 'Furnace_1_info' %}" class="top_menu_btn">Отчёты</a>    
   </div>
   <div class="left-side-bar" hidden>
     <ul style="visible: false;">
@@ -70,7 +59,7 @@
       <li>Отчёты</li>
     </ul>
   </div>
-  <div>{% block furnace %} {% endblock %}</div>
+  <div>{% block furnace_info %}{% endblock %}</div>
   <div class="current_scr_container">
     <input id='curScr' type='hidden' value='monitor_scr'> 
     <table>

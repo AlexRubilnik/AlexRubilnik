@@ -28,7 +28,7 @@ def Furnace_1_info(request):
     for tag in tag_list:
         tag.append(Floattable.objects.filter(tagindex=tag[1]).order_by('-dateandtime')[0].val)
 
-    template = loader.get_template('FregatMonitoringApp/Furnace_info.html')
+    template = loader.get_template('FregatMonitoringApp/furnace_info.html')
     tag_dict = {'tags_values': tag_list}
     context = tag_dict
 

@@ -1,7 +1,6 @@
-{% extends "base.html" %}
+{% extends "FregatMonitoringApp/base.html" %}
 
-{% block furnace %}
-
+{% block furnace_info %}
 {% if tags_values %}
     <table border=1>
     {% for name, index, value in tags_values %}
