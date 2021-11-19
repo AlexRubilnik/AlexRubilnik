@@ -83,3 +83,41 @@ class Floattable(models.Model):
 
     def __str__(self):
         return str(self.tagindex) + '=' + str(self.val)     
+
+
+class Meltsteps(models.Model):
+    melt = models.ForeignKey('Melttypes', models.DO_NOTHING, db_column='MELT_ID')  # IDплавки (по смыслу заключает в себе номер печи и номер плавки)
+    step_id = models.AutoField(db_column='STEP_ID', primary_key=True)  # ID шага плавки
+    step_num = models.SmallIntegerField(db_column='STEP_NUM')  # Номер шага плавки (совпадает с номером в шага ПЛК автоплавки)
+    cur_step_time = models.SmallIntegerField(db_column='CUR_STEP_TIME', blank=True, null=True)  # Текущее время с начала выполнения шага
+    step_name = models.CharField(db_column='STEP_NAME', max_length=20)  # Название шага
+
+    class Meta:
+        managed = False
+        db_table = 'MeltSteps'
+
+
+class Melttypes(models.Model):
+    melt_id = models.AutoField(db_column='MELT_ID', primary_key=True)  # IDплавки (нечётные - для 1 печи, чётные - тот же тип плавки, но для 2 печи)
+    melt_num = models.SmallIntegerField(db_column='MELT_NUM')  # Номер плавки по порядку (соответствует номеру плавки в ПЛК, одинаков для обоих печей для одинаковых типов плавки)
+    melt_furnace = models.SmallIntegerField(db_column='MELT_FURNACE')  # Номер печи, ддля которой эта плавка
+    melt_name = models.CharField(db_column='MELT_NAME', max_length=50)  # Название плавки(одинаковый для обоих печей для одинаковых типов плавки)
+
+    class Meta:
+        managed = False
+        db_table = 'MeltTypes'
+
+
+class Substeps(models.Model):
+    step = models.ForeignKey(Meltsteps, models.DO_NOTHING, db_column='STEP_ID')  # ID шага плавки 
+    substep_id = models.AutoField(db_column='SUBSTEP_ID', primary_key=True)  # ID подшага
+    sub_step_num = models.SmallIntegerField(db_column='SUB_STEP_NUM')  # Номер подшага для данного шага
+    sub_step_time = models.SmallIntegerField(db_column='SUB_STEP_TIME')  # Время выполнения подшага
+    power_sp = models.IntegerField(db_column='POWER_SP', blank=True, null=True)  # Уставка мощности
+    rotation_sp = models.IntegerField(db_column='ROTATION_SP', blank=True, null=True)  # Уставка вращения
+    hotgate_sp = models.IntegerField(db_column='HOTGATE_SP', blank=True, null=True)  # Уставка открытия гор. газохода
+    alpha_sp = models.IntegerField(db_column='ALPHA_SP', blank=True, null=True)  # Уставка Alpha
+
+    class Meta:
+        managed = False
+        db_table = 'SubSteps'

@@ -1,6 +1,6 @@
 from django import template
 from django.http import HttpResponse
-from django.template import loader
+from django.template import context, loader
 
 from .models import Floattable, Tagtable
 
@@ -29,8 +29,7 @@ def Furnace_1_info(request):
         tag.append(Floattable.objects.filter(tagindex=tag[1]).order_by('-dateandtime')[0].val)
 
     template = loader.get_template('FregatMonitoringApp/furnace_info.html')
-    tag_dict = {'tags_values': tag_list}
-    context = tag_dict
+    context = {'tags_values': tag_list}
 
     return HttpResponse(template.render(context, request))
 
@@ -52,7 +51,12 @@ def Furnace_2_info(request):
         tag.append(Floattable.objects.filter(tagindex=tag[1]).order_by('-dateandtime')[0].val)
 
     template = loader.get_template('FregatMonitoringApp/Furnace_info.html')
-    tag_dict = {'tags_values': tag_list}
-    context = tag_dict
+    context = {'tags_values': tag_list}
+
+    return HttpResponse(template.render(context, request))
+
+def MeltModeCard_info(request):
+
+    context
 
     return HttpResponse(template.render(context, request))
