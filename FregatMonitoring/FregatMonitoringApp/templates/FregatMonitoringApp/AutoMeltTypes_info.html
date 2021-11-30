@@ -1,0 +1,98 @@
+{% extends "FregatMonitoringApp/base.html" %}
+
+{% block Automelts_info %}
+    <div class="top_menu_bar"> 
+    {% for melt in melt_types_1 %} <!-- Типы плавок выводим только для первой печи, для второй такие же-->
+        <a href="{% url 'Automelts_info' melt.melt_id %}" class="btn"> {{ melt.melt_name }} </a>
+    {% endfor %} 
+    </div>
+    <div >
+    <table>
+    <tr><td class=" area-name bottom-line">
+      <p> Печь №1 </p>
+    </td>
+    <td width="100px"></td>
+    <td class=" area-name bottom-line">
+      <p> Печь №2 </p>
+    </td></tr>
+    <tr><td>
+    <table><tr><td>
+    {% for step in melt_steps_1 %}
+        <table class="melt_step_container">
+        <tr>
+           <td class=" area-name bottom-line"> {{ step.step_name }} </td>   
+        </tr>  
+        <tr><td> 
+            <table>  
+            <tr><td width='70px'></td><td></td>
+                <td></td>
+                <td class="setpoints_text">Время</td>
+                <td class="setpoints_text">Мощность</td>
+                <td class="setpoints_text">Вращение</td>
+                <td class="setpoints_text" >Обогащение</td>
+            </tr>
+            {% for substep in substeps_1 %}
+              {% if substep.step == step %}
+                <tr>  
+                <td>  </td> <td>  </td>
+                <td class="setpoints_text" width='70px'> Шаг {{substep.sub_step_num}} </td> 
+                <td> <input size="5" class="melt_setpoints" value={{substep.sub_step_time}}> </td> 
+                <td> <input size="5" class="melt_setpoints" value={{substep.power_sp}}> </td> 
+                <td> <input size="5" class="melt_setpoints" value={{substep.rotation_sp}}> </td>
+                <td> <input size="5" class="melt_setpoints" value={{substep.alpha_sp}}> </td>
+                </tr>
+              {% endif %}  
+            {% endfor %} 
+            <tr class="melt_step_add">
+            <td> </td> <td>  </td><td>  </td><td>  </td><td>  </td><td>  </td> <td><input type=button class="btn" value="Добавить шаг"></td>        
+            </tr>
+            </table>
+            </td>
+        </tr> 
+        </table>       
+    {% endfor %}  
+    </td></tr>            
+    </table>
+    </td>
+    <td width="100px"></td>
+    <td>
+    <table>
+    {% for step in melt_steps_2 %}
+        <table class="melt_step_container">
+        <tr>
+           <td class=" area-name bottom-line"> {{ step.step_name }} </td>   
+        </tr>  
+        <tr><td> 
+            <table>  
+            <tr><td width='70px'></td><td></td>
+                <td></td>
+                <td class="setpoints_text">Время</td>
+                <td class="setpoints_text">Мощность</td>
+                <td class="setpoints_text">Вращение</td>
+                <td class="setpoints_text" >Обогащение</td>
+            </tr>
+            {% for substep in substeps_2 %}
+              {% if substep.step == step %}
+                <tr>  
+                <td>  </td> <td>  </td>
+                <td class="setpoints_text" width='70px'> Шаг {{substep.sub_step_num}} </td> 
+                <td> <input size="5" class="melt_setpoints" value={{substep.sub_step_time}}> </td> 
+                <td> <input size="5" class="melt_setpoints" value={{substep.power_sp}}> </td> 
+                <td> <input size="5" class="melt_setpoints" value={{substep.rotation_sp}}> </td>
+                <td> <input size="5" class="melt_setpoints" value={{substep.alpha_sp}}> </td>
+                </tr>
+              {% endif %}  
+            {% endfor %} 
+            <tr class="melt_step_add">
+            <td> </td> <td>  </td><td>  </td><td>  </td><td>  </td><td>  </td> <td><input type=button class="btn" value="Добавить шаг"></td>        
+            </tr>
+            </table>
+            </td>
+        </tr> 
+        </table>       
+    {% endfor %}              
+    </table>
+    </td></tr>
+    </table>
+    </div>
+{% endblock %}

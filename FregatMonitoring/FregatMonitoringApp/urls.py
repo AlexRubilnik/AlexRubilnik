@@ -6,4 +6,5 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('Furnace_1_info/', views.Furnace_1_info, name='Furnace_1_info'),
     path('Furnace_2_info/', views.Furnace_2_info, name='Furnace_2_info'),
+    path('Automelts_info/<int:meltID_1>/', views.AutoMeltTypes_info, name='Automelts_info'),
 ]   

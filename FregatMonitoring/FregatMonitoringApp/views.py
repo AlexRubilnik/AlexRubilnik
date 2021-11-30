@@ -1,8 +1,10 @@
 from django import template
+from django.db.models.query_utils import subclasses
 from django.http import HttpResponse
 from django.template import context, loader
 
 from .models import Floattable, Tagtable
+from .models import Melttypes, Meltsteps, Substeps
 
 def index(request):
     template = loader.get_template('FregatMonitoringApp/base.html')
@@ -55,8 +57,37 @@ def Furnace_2_info(request):
 
     return HttpResponse(template.render(context, request))
 
-def MeltModeCard_info(request):
+def AutoMeltTypes_info(request, meltID_1):
 
-    context
+    melt_type_list_1 = Melttypes.objects.filter(melt_furnace=1) #Выбираем типы плавок для первой печи(для второй такие же)
+    melt_type_list_2 = Melttypes.objects.filter(melt_furnace=2)
+
+    melt_type_name = Melttypes.objects.filter(melt_id=meltID_1)[0].melt_name #Узнаём, как называется этот тип плавки
+    meltID_2 = Melttypes.objects.filter(melt_name=melt_type_name, melt_furnace=2)[0].melt_id #По имени вытаскиваем id аналогичной плавки для второй печи
+
+     
+    melt_steps_list_1 = Meltsteps.objects.filter(melt=meltID_1) #Выбираем шаги для нужных плавок
+    melt_steps_list_2 = Meltsteps.objects.filter(melt=meltID_2)
+    
+    #Выбираем подшаги для каждого шага каждой плавки
+    substeps_list_1 = list() 
+    for melt_step in melt_steps_list_1: 
+        for substep in [Substeps.objects.filter(step=melt_step.step_id)]:
+            substeps_list_1.extend(substep)
+
+    substeps_list_2 = list()
+    for melt_step in melt_steps_list_2: 
+        for substep in [Substeps.objects.filter(step=melt_step.step_id)]:
+            substeps_list_2.extend(substep)
+
+    template = loader.get_template('FregatMonitoringApp/AutoMeltTypes_info.html')
+    context = {
+        'melt_types_1': melt_type_list_1,
+        'melt_types_2': melt_type_list_2,
+        'melt_steps_1': melt_steps_list_1,
+        'melt_steps_2': melt_steps_list_2,
+        'substeps_1' : substeps_list_1,
+        'substeps_2' : substeps_list_2
+    }
 
     return HttpResponse(template.render(context, request))

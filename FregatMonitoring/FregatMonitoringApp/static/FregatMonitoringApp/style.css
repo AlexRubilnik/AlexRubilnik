@@ -33,13 +33,23 @@
     vertical-align: top;
 }
 .current_scr_container{
-    display: inline-block;
-    vertical-align: top;
+    display: block;
+    margin-left: 10px;
+    margin-right: 10px;
+    text-align: -webkit-center;
 }
 .white-text{
     color: rgb(255, 255, 255);
     font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
     font-weight: 400;
+}
+.melt_step_container{
+    box-shadow: rgb(0 0 0 / 20%) 0px 1px 5px 0px;
+    margin-top: 5px;
+    border-radius: 7px;
+}
+.melt_setpoints{
+    width: 50 px;
 }
 .orange-text{
     color: rgb(255, 127, 0);
@@ -48,6 +58,10 @@
 }
 .cursive{
     font-style:italic;
+}
+.setpoints_text{
+    font-family:    Helvetica,Arial,sans-serif;
+    font-size: 12px;
 }
 .top_menu_bar{
     justify-content: center;
@@ -63,8 +77,8 @@
 
 }
 
-.top_menu_btn,
-.btn{
+.top_menu_btn
+    {
     background-color: #696969;
     background-image: none;
     border-bottom-color: #696969;
@@ -92,7 +106,7 @@
     color: rgb(255, 255, 255);
     cursor: pointer;
     display: inline-block;
-    font-family:    Helvetica,Arial,sans-serif;;
+    font-family:    Helvetica,Arial,sans-serif;
     font-size: 15px;
     font-weight: 400;
     line-height: 21.4333px;
@@ -120,6 +134,24 @@
     user-select: none;
 }
 
+.btn{
+    background-color: #696969;
+    color: rgb(255, 255, 255);
+    cursor: pointer;
+    display: inline-block;
+    font-family:    Helvetica,Arial,sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    margin-top: 5px;
+    padding-bottom: 3px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 3px;
+    text-align: center;
+    vertical-align: middle;
+ }
+
+
 .top_menu_btn:hover,
 .top_menu_btn:focus,
 .top_menu_btn:active,
@@ -133,8 +165,8 @@
 
 .area-name,
 .bottom-line{
-    font-family: "Roboto Slab Bold";
-	font-size: 22px;
+    font-family: Helvetica,Arial,sans-serif;
+	font-size: 16px;
 	font-weight: bold;
 	padding-bottom: 10px;
 	border-bottom: 2px solid #ecedee;

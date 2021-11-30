@@ -43,7 +43,7 @@
   <div class="top_menu_bar">
     <a href="{% url 'Furnace_1_info' %}" class="top_menu_btn">Печь №1</a> 
     <a href="{% url 'Furnace_2_info' %}" class="top_menu_btn">Печь №2</a> 
-    <a href="{% url 'Furnace_1_info' %}" class="top_menu_btn">Автоплавка</a> 
+    <a href="{% url 'Automelts_info' 1 %}" class="top_menu_btn">Автоплавка</a> 
     <a href="{% url 'Furnace_1_info' %}" class="top_menu_btn">Рафинировка</a> 
     <a href="{% url 'Furnace_1_info' %}" class="top_menu_btn">Розлив</a> 
     <a href="{% url 'Furnace_1_info' %}" class="top_menu_btn">Шнека</a> 
@@ -59,9 +59,11 @@
       <li>Отчёты</li>
     </ul>
   </div>
-  <div>{% block furnace_info %}{% endblock %}</div>
   <div class="current_scr_container">
     <input id='curScr' type='hidden' value='monitor_scr'> 
+    {% block furnace_info %}{% endblock %}
+    {% block Automelts_info %}{% endblock %}
+    {% block MeltModeCard_info %} {% endblock %}
     <table>
       <tr>
         <form id="ChangeDeltaT1Form"> 
