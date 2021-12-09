@@ -1,16 +1,20 @@
 from django import template
 from django.db.models.query_utils import subclasses
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import context, loader
+from django.urls import reverse
 
 from .models import Floattable, Tagtable
 from .models import Melttypes, Meltsteps, Substeps
 
 def index(request):
     template = loader.get_template('FregatMonitoringApp/base.html')
-
     context = None
+    return HttpResponse(template.render(context, request))
 
+def error_message(request):
+    template = loader.get_template('FregatMonitoringApp/ErrorMessage.html')
+    context = None
     return HttpResponse(template.render(context, request))
 
 def Furnace_1_info(request):
@@ -82,6 +86,7 @@ def AutoMeltTypes_info(request, meltID_1):
 
     template = loader.get_template('FregatMonitoringApp/AutoMeltTypes_info.html')
     context = {
+        'melts_id': [meltID_1, meltID_2],
         'melt_types_1': melt_type_list_1,
         'melt_types_2': melt_type_list_2,
         'melt_steps_1': melt_steps_list_1,
@@ -91,3 +96,28 @@ def AutoMeltTypes_info(request, meltID_1):
     }
 
     return HttpResponse(template.render(context, request))
+
+def AutoMelts_SetPoints(request):
+    
+    template = loader.get_template('FregatMonitoringApp/AutoMeltsSetPoints.html')
+    context=None
+    return HttpResponse(template.render(context, request))
+
+def AutoMeltsSaveSettings(request, meltID_1, meltID_2):
+    
+    melt_steps_list = Meltsteps.objects.filter(melt__in=[meltID_1, meltID_2]) #Выбираем шаги для нужных плавок
+
+    #Выбираем подшаги для каждого шага каждой плавки
+    for melt_step in melt_steps_list: 
+        for substep in Substeps.objects.filter(step=melt_step.step_id):
+            try:
+                substep.sub_step_time = request.POST["Time_substepid_"+str(substep.substep_id)] if request.POST["Time_substepid_"+str(substep.substep_id)]!="" else None
+                substep.power_sp = request.POST["Power_substepid_"+str(substep.substep_id)] if request.POST["Power_substepid_"+str(substep.substep_id)]!="" else None
+                substep.rotation_sp = request.POST["Rotation_substepid_"+str(substep.substep_id)] if request.POST["Rotation_substepid_"+str(substep.substep_id)]!="" else None
+                substep.alpha_sp = request.POST["Alpha_substepid_"+str(substep.substep_id)] if request.POST["Alpha_substepid_"+str(substep.substep_id)]!="" else None
+            except (KeyError, substep.DoesNotExist):
+                return error_message(request) #Ой, что-то пошло не так
+            else:
+                substep.save()
+
+    return HttpResponseRedirect(reverse('FregatMonitoringApp:Automelts_info', args=(meltID_1,)))

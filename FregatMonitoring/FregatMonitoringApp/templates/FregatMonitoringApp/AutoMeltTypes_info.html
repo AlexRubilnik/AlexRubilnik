@@ -1,9 +1,21 @@
 {% extends "FregatMonitoringApp/base.html" %}
 
+{% block LeftSideBar%}
+<div class="left-side-bar">
+    <ul style="padding-left: 0px;">
+      <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:Automelts_info' 1 %}"> Журнал плавок </a></li>
+      <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:AutoMeltsSetPoints' %}"> Уставки </a></li>
+    </ul>
+</div>
+{% endblock%}   
+
 {% block Automelts_info %}
-    <div class="top_menu_bar"> 
-    {% for melt in melt_types_1 %} <!-- Типы плавок выводим только для первой печи, для второй такие же-->
-        <a href="{% url 'Automelts_info' melt.melt_id %}" class="btn"> {{ melt.melt_name }} </a>
+<div class="content-box">
+<form action="{% url 'FregatMonitoringApp:AutoMeltsSaveSettings' melts_id.0 melts_id.1 %}" method="post">
+{% csrf_token %}
+    <div> 
+    {% for melt in melt_types_1 %} <!--Типы плавок выводим только для первой печи, для второй такие же-->
+        <a href="{% url 'FregatMonitoringApp:Automelts_info' melt.melt_id %}" class="btn"> {{ melt.melt_name }} </a>
     {% endfor %} 
     </div>
     <div >
@@ -20,7 +32,7 @@
     {% for step in melt_steps_1 %}
         <table class="melt_step_container">
         <tr>
-           <td class=" area-name bottom-line"> {{ step.step_name }} </td>   
+           <td id="stepid_{{step.step_id}}" class="area-name bottom-line" > {{ step.step_name }} </td>   
         </tr>  
         <tr><td> 
             <table>  
@@ -36,15 +48,15 @@
                 <tr>  
                 <td>  </td> <td>  </td>
                 <td class="setpoints_text" width='70px'> Шаг {{substep.sub_step_num}} </td> 
-                <td> <input size="5" class="melt_setpoints" value={{substep.sub_step_time}}> </td> 
-                <td> <input size="5" class="melt_setpoints" value={{substep.power_sp}}> </td> 
-                <td> <input size="5" class="melt_setpoints" value={{substep.rotation_sp}}> </td>
-                <td> <input size="5" class="melt_setpoints" value={{substep.alpha_sp}}> </td>
+                <td> <input name="Time_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.sub_step_time %} value= {{substep.sub_step_time}}> {% else %} value="" {% endif %} </td> 
+                <td> <input name="Power_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.power_sp %} value= {{substep.power_sp}}> {% else %} value="" {% endif %} </td> 
+                <td> <input name="Rotation_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.rotation_sp %} value= {{substep.rotation_sp}}> {% else %} value="" {% endif %} </td> 
+                <td> <input name="Alpha_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.alpha_sp %} value= {{substep.alpha_sp}}> {% else %} value="" {% endif %} </td> 
                 </tr>
               {% endif %}  
             {% endfor %} 
             <tr class="melt_step_add">
-            <td> </td> <td>  </td><td>  </td><td>  </td><td>  </td><td>  </td> <td><input type=button class="btn" value="Добавить шаг"></td>        
+            <td> </td> <td>  </td><td>  </td><td>  </td><td>  </td><td>  </td> <td><input type=submit class="btn" value="Добавить шаг"></td>        
             </tr>
             </table>
             </td>
@@ -60,7 +72,7 @@
     {% for step in melt_steps_2 %}
         <table class="melt_step_container">
         <tr>
-           <td class=" area-name bottom-line"> {{ step.step_name }} </td>   
+           <td id="stepid_{{step.step_id}}" class=" area-name bottom-line"> {{ step.step_name }} </td>   
         </tr>  
         <tr><td> 
             <table>  
@@ -76,10 +88,10 @@
                 <tr>  
                 <td>  </td> <td>  </td>
                 <td class="setpoints_text" width='70px'> Шаг {{substep.sub_step_num}} </td> 
-                <td> <input size="5" class="melt_setpoints" value={{substep.sub_step_time}}> </td> 
-                <td> <input size="5" class="melt_setpoints" value={{substep.power_sp}}> </td> 
-                <td> <input size="5" class="melt_setpoints" value={{substep.rotation_sp}}> </td>
-                <td> <input size="5" class="melt_setpoints" value={{substep.alpha_sp}}> </td>
+                <td> <input name="Time_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.sub_step_time %} value= {{substep.sub_step_time}}> {% else %} value="" {% endif %} </td> 
+                <td> <input name="Power_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.power_sp %} value= {{substep.power_sp}}> {% else %} value="" {% endif %} </td> 
+                <td> <input name="Rotation_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.rotation_sp %} value= {{substep.rotation_sp}}> {% else %} value="" {% endif %} </td> 
+                <td> <input name="Alpha_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.alpha_sp %} value= {{substep.alpha_sp}}> {% else %} value="" {% endif %} </td> 
                 </tr>
               {% endif %}  
             {% endfor %} 
@@ -95,4 +107,9 @@
     </td></tr>
     </table>
     </div>
+    <div class="save_btn_bar"> 
+        <input class="btn" type="submit" value="Сохранить изменения">
+    </div>
+</form>
+</div>
 {% endblock %}

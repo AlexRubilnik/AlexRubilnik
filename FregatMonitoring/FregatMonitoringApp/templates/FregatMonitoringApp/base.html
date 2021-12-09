@@ -41,45 +41,22 @@
 </div>
 <div class="main_container">  <!-- Содержимое полностью-->
   <div class="top_menu_bar">
-    <a href="{% url 'Furnace_1_info' %}" class="top_menu_btn">Печь №1</a> 
-    <a href="{% url 'Furnace_2_info' %}" class="top_menu_btn">Печь №2</a> 
-    <a href="{% url 'Automelts_info' 1 %}" class="top_menu_btn">Автоплавка</a> 
-    <a href="{% url 'Furnace_1_info' %}" class="top_menu_btn">Рафинировка</a> 
-    <a href="{% url 'Furnace_1_info' %}" class="top_menu_btn">Розлив</a> 
-    <a href="{% url 'Furnace_1_info' %}" class="top_menu_btn">Шнека</a> 
-    <a href="{% url 'Furnace_1_info' %}" class="top_menu_btn">Отчёты</a>    
-  </div>
-  <div class="left-side-bar" hidden>
-    <ul style="visible: false;">
-      <li>Печь №1</li>
-      <li>Печь №2</li>
-      <li>Линия розлива</li>
-      <li>Рафинирование</li>
-      <li>Тренды</li>
-      <li>Отчёты</li>
-    </ul>
+    <a href="{% url 'FregatMonitoringApp:Furnace_1_info' %}" class="top_menu_btn">Печь №1</a> 
+    <a href="{% url 'FregatMonitoringApp:Furnace_2_info' %}" class="top_menu_btn">Печь №2</a> 
+    <a href="{% url 'FregatMonitoringApp:Automelts_info' 1 %}" class="top_menu_btn">Автоплавка</a> 
+    <a href="{% url 'FregatMonitoringApp:Furnace_1_info' %}" class="top_menu_btn">Рафинировка</a> 
+    <a href="{% url 'FregatMonitoringApp:Furnace_1_info' %}" class="top_menu_btn">Розлив</a> 
+    <a href="{% url 'FregatMonitoringApp:Furnace_1_info' %}" class="top_menu_btn">Шнека</a> 
+    <a href="{% url 'FregatMonitoringApp:Furnace_1_info' %}" class="top_menu_btn">Отчёты</a>    
   </div>
   <div class="current_scr_container">
     <input id='curScr' type='hidden' value='monitor_scr'> 
+    {% block LeftSideBar %}{% endblock %}
+    {% block error_message %}{% endblock %}
     {% block furnace_info %}{% endblock %}
     {% block Automelts_info %}{% endblock %}
-    {% block MeltModeCard_info %} {% endblock %}
-    <table>
-      <tr>
-        <form id="ChangeDeltaT1Form"> 
-        <td>Уставка дельта Т печь №1</td>
-        <td><input id="DeltaT1_stp" value></td>
-        <td><input class="btn" name="ChangeDeltaT1_btn" value="Изменить" onclick="ChangeDeltaT(this);"></td>
-        </form>
-      </tr>
-      <tr>
-        <form id="ChangeDeltaT2Form">
-        <td>Уставка дельта Т печь №2</td>
-        <td><input id="DeltaT2_stp" value></td>
-        <td><input class="btn" name="ChangeDeltaT2_btn" value="Изменить" onclick="ChangeDeltaT(this);"></td>
-        </form>
-      </tr>
-    </table>
+    {% block MeltModeCard_info %}{% endblock %}
+    {% block AutoMeltsSetPoints %}{% endblock %}
   </div>
 </div>
 
