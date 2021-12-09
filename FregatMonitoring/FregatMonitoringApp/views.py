@@ -17,6 +17,11 @@ def error_message(request):
     context = None
     return HttpResponse(template.render(context, request))
 
+def sorry_page(request):
+    template = loader.get_template('FregatMonitoringApp/SorryPage.html')
+    context = None
+    return HttpResponse(template.render(context, request))
+
 def Furnace_1_info(request):
     
     tag_list = list()
@@ -35,7 +40,9 @@ def Furnace_1_info(request):
         tag.append(Floattable.objects.filter(tagindex=tag[1]).order_by('-dateandtime')[0].val)
 
     template = loader.get_template('FregatMonitoringApp/furnace_info.html')
-    context = {'tags_values': tag_list}
+    context = {'furnace_num': [1],
+               'tags_values': tag_list
+              }
 
     return HttpResponse(template.render(context, request))
 
@@ -57,7 +64,9 @@ def Furnace_2_info(request):
         tag.append(Floattable.objects.filter(tagindex=tag[1]).order_by('-dateandtime')[0].val)
 
     template = loader.get_template('FregatMonitoringApp/Furnace_info.html')
-    context = {'tags_values': tag_list}
+    context = {'furnace_num': [2],
+               'tags_values': tag_list
+              }
 
     return HttpResponse(template.render(context, request))
 

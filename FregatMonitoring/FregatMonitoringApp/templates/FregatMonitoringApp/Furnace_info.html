@@ -1,14 +1,175 @@
 {% extends "FregatMonitoringApp/base.html" %}
 
+{% block LeftSideBar%}
+<div class="left-side-bar">
+    <ul style="padding-left: 0px;">
+      <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:SorryPage' %}"> Тренды </a></li>
+      <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:Automelts_info' 1 %}"> Режимы плавок </a></li>
+    </ul>
+</div>
+{% endblock%}  
+
 {% block furnace_info %}
 {% if tags_values %}
-    <table border=1>
-    {% for name, index, value in tags_values %}
-        <tr>
-          <td> {{ name }} </td><td> {{ value }} </td>
-        </tr>
-    {% endfor %}    
-    </table>
+<div class="content-box">
+<div class="content-page-header">Печь №{{ furnace_num.0 }}</div>
+<table>
+    <tr>
+        <td><!--Основная таблица с картинкой печи-->
+            <table class="furnace-info-tab" border=0>
+                <tr height="20%">
+                    <td width="15%"></td>
+                    <td width="20%" class="furnace-info-tab-td-top">
+                                    <table width="170px" align="left" class="furnace-info-tab-2" border=0>
+                                    <tr><td class="area-name bottom-line">Дымосос</td><td></td></tr>
+                                    <tr><td>Перепад</td><td>3200 Па</td></tr>
+                                    <tr><td>Частота</td><td> 38% </td></tr>
+                                    <tr><td>Дроссель</td><td> 100% </td></tr>
+                                    </table>
+                    </td>
+                    <td width="20%"></td>
+                    <td width="25%" class="furnace-info-tab-td-top">
+                                    <table align="left" class="furnace-info-tab-2" border=0>
+                                    <tr><td class="area-name bottom-line">Горячий газоход</td><td></td></tr>
+                                    <tr><td>Рязряжение</td><td>53.1 Па</td></tr>
+                                    <tr><td>Дроссель ГГ</td><td> 40% </td></tr>
+                                    </table>
+                    </td>
+                    <td width="20%"></td>
+                </tr>
+                <tr height="20%">
+                    <td></td>
+                    <td class="furnace-info-tab-td-top">
+                                    <table width="170px" align="left" class="furnace-info-tab-2" border=0>
+                                    <tr><td class="area-name bottom-line">Фильтр</td><td></td></tr>
+                                    <tr><td>Перепад</td><td>1500 Па</td></tr>
+                                    <tr><td>Температура перед</td><td> 155 С </td></tr>
+                                    <tr><td></td><td>  </td></tr>
+                                    </table>
+                    </td>
+                    <td class="furnace-info-tab-td-top">
+                                    <table class="furnace-info-tab-3" border=0>                                   
+                                    <tr><td>      </td>      <td></td></tr>
+                                    <tr><td>      </td>      <td></td></tr>
+                                    <tr><td>      </td>      <td></td></tr>
+                                    <tr><td>      </td>      <td></td></tr>
+                                    <tr><td>      </td>      <td></td></tr>
+                                    <tr><td>На 3 фильтр</td> <td></td></tr>
+                                    <tr><td>20%</td>         <td></td></tr>
+                                    </table>
+                    </td>
+                    <td class="furnace-info-tab-td-top">
+                                    <table class="furnace-info-tab-3" border=0>                                   
+                                    <tr><td>      </td>      <td></td></tr>
+                                    <tr><td>      </td>      <td></td></tr>
+                                    <tr><td>      </td>      <td></td></tr>
+                                    <tr><td>      </td>      <td></td></tr>
+                                    <tr><td>      </td>      <td></td><td width="30px"></td><td></td><td></td><td>Сливной</td><td></td></tr>                                   
+                                    <tr><td>Круглый</td>     <td>70%</td><td></td><td></td><td></td><td>открыт</td><td></td></tr> 
+                                    </table>
+                    </td>
+                    <td class="furnace-info-tab-td-top">
+                                    <table class="furnace-info-tab-3" border=0>                                   
+                                    <tr><td>      </td>      <td></td></tr>
+                                    <tr><td>      </td>      <td></td></tr>
+                                    <tr><td>      </td>      <td></td></tr>                                                                      
+                                    <tr><td>      </td>      <td></td></tr>
+                                    <tr><td>      </td>      <td></td></tr>
+                                    <tr><td>Над дверью</td>     <td>29%</td></tr>                                    
+                                    </table>
+                    </td>
+                </tr>
+                <tr height="20%">
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr height="20%">
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr height="20%">
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        </td>
+        <td class="furnace-info-tab-td-top"> <!--Правая таблица-->
+            <table border=0>
+                <tr height="195px">
+                    <td class="furnace-info-tab-td-top">
+                       <table class="furnace-info-tab-2" border=0>
+                            <tr><td width="200px" class="area-name bottom-line">Автоплавка</td><td></td></tr>
+                            <tr><td>Режим</td>       <td>Автомат</td></tr>
+                            <tr><td>Плавка</td>      <td>Паста 8 часов</td></tr>
+                            <tr><td>Стадия</td>      <td>Расплав 2</td></tr>
+                            <tr><td>Время стадии</td><td>1ч. 30мин.</td></tr>
+                            <tr><td>Осталось</td>    <td>15 мин.</td></tr>
+                            <tr><td>Дельта</td>      <td>18 С</td></tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr height="20%"><td></td>
+                </tr>
+                <tr height="195px">
+                    <td class="furnace-info-tab-td-top">
+                        <table class="furnace-info-tab-2" border=0>
+                            <tr><td class="area-name bottom-line">Горелка</td><td></td></tr>
+                            <tr><td>Мощность</td>       <td>2500</td></tr>
+                            <tr><td>Газ</td>      <td>250 НМ3/ч</td></tr>
+                            <tr><td>Кислород</td> <td>25 НМ3/ч</td></tr>
+                            <tr><td>Воздух</td>   <td>1400 НМ3/ч</td></tr>
+                            <tr><td>Альфа</td>    <td>50%</td></tr>
+                            <tr><td>Лямбда</td>      <td>0.95</td></tr>
+                            <tr><td>Дежурный режим</td><td></td></tr>
+                            <tr><td>Основной режим</td><td></td></tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr height="20%"><td></td>
+                </tr>
+                <tr height="20%"><td></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td> <!--Нижняя таблица-->
+            <table width="100%" border=0>
+                <tr>
+                    <td width="15%"></td>
+                    <td width="40%"></td>
+                    <td width="15%" class="furnace-info-tab-td-top">
+                       <table class="furnace-info-tab-2" border=0>
+                            <tr><td class="area-name bottom-line">Поезд</td><td></td></tr>
+                            <tr><td>Движение</td> <td>Есть</td></tr>
+                            <tr><td>Направление</td> <td>Влево</td></tr>
+                        </table>
+                    </td>
+                    <td width="20%" class="furnace-info-tab-td-top">
+                       <table class="furnace-info-tab-2" border=0>
+                            <tr><td class="area-name bottom-line">Печь</td><td></td></tr>
+                            <tr><td>Вращение</td>    <td>65 %</td></tr>
+                            <tr><td>Направление</td> <td>По часовой</td></tr>
+                        </table>
+                    </td>
+                    <td width="10%"></td>
+                </tr>
+            </table>
+        </td>
+        <td>
+        </td>
+    </tr>
+</table> 
+</div>   
 {% else %}
     <p> Нет данных <p>
 {% endif %}

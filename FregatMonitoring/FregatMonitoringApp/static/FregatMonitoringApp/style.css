@@ -1,3 +1,26 @@
+.furnace-info-tab{
+    background: url("images/Печь1.PNG") round;
+    font-size: 10px;
+    width: 924px;
+    height: 483px;
+}
+
+.furnace-info-tab-td-top{
+    vertical-align: top;
+}
+.furnace-info-tab-td-bottom{
+    vertical-align: bottom;
+}
+
+.furnace-info-tab-2{
+    font-size: 12px;
+    border: outset;
+}
+.furnace-info-tab-3{
+    font-size: 12px;
+}
+
+
 .content-box{
     float: left;
     border: 1px solid #d6d9dc;
@@ -8,6 +31,14 @@
     padding-left: 40px;
     margin-left: 200px;
 }
+.content-page-header{
+    font-size: 32px;
+    font-family: sans-serif;
+    font-weight: bold;
+    margin-bottom: 30px;
+
+}
+
 .header-brand{
     background-color: transparent;
     box-sizing: border-box;
@@ -114,7 +145,7 @@
 }
 .top_menu_btn{
     width: 500px; /* Ширина */
-    height: 50px;
+    height: 40px;
     /*display: inline-block;  Строчно-блочный элемент */
     box-shadow:  0 6px 3px 0px rgba(0,0,0,0.8);
     margin-left: 0px;
@@ -224,7 +255,7 @@
 	border-bottom: 2px solid #ecedee;
 	line-height: 28px;
 	margin: 30px 30px 10px 30px;
-	padding-left: 10px;
+	padding-left: 0px;
 	padding-right: 0; 
  }
 
