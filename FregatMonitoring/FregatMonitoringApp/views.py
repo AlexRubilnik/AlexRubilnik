@@ -8,9 +8,10 @@ from .models import Floattable, Tagtable, Automelts
 from .models import Melttypes, Meltsteps, Substeps
 
 def index(request):
-    template = loader.get_template('FregatMonitoringApp/base.html')
-    context = None
-    return HttpResponse(template.render(context, request))
+    #template = loader.get_template('FregatMonitoringApp/base.html')
+    #context = None
+    #return HttpResponse(template.render(context, request))
+    return Furnace_1_info(request)
 
 def error_message(request):
     template = loader.get_template('FregatMonitoringApp/ErrorMessage.html')
