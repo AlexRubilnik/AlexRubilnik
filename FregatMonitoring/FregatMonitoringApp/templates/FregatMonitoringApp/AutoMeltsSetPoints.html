@@ -13,17 +13,19 @@
 <div class="content-box">
 <table>
       <tr>
-        <form id="ChangeDeltaT1Form"> 
+        <form id="ChangeDeltaT1Form" action="{% url 'FregatMonitoringApp:AutoMeltsSaveSetpoints' 1  %}" method="post"> 
+        {% csrf_token %}
         <td class="setpoints-table">Уставка дельта Т печь №1</td>
-        <td><input id="DeltaT1_stp" value></td>
-        <td><input class="btn" name="ChangeDeltaT1_btn" value="Изменить" onclick="ChangeDeltaT(this);"></td>
+        <td><input name="DeltaT1_stp" value={{deltaT1_stp}}></td>
+        <td><input class="btn" name="ChangeDeltaT1_btn" value="Изменить" type="submit" ></td>
         </form>
       </tr>
       <tr>
-        <form id="ChangeDeltaT2Form">
+        <form id="ChangeDeltaT2Form" action="{% url 'FregatMonitoringApp:AutoMeltsSaveSetpoints' 2 %}" method="post">
+        {% csrf_token %}
         <td class="setpoints-table">Уставка дельта Т печь №2</td>
-        <td><input id="DeltaT2_stp" value></td>
-        <td><input class="btn" name="ChangeDeltaT2_btn" value="Изменить" onclick="ChangeDeltaT(this);"></td>
+        <td><input name="DeltaT2_stp" value={{deltaT2_stp}}></td>
+        <td><input class="btn" name="ChangeDeltaT2_btn" value="Изменить" type="submit" ></td>
         </form>
       </tr>
 </table>

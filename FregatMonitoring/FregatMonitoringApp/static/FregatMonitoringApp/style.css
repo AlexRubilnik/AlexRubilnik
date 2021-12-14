@@ -1,3 +1,18 @@
+.black-lamp{
+    background: url("images/black_lamp.PNG");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 15px 15px;
+}
+
+.red-lamp{
+    background: url("images/red_lamp.PNG");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 15px 15px;
+}
+
+
 .furnace-info-tab{
     background: url("images/Печь1.PNG") round;
     font-size: 10px;
