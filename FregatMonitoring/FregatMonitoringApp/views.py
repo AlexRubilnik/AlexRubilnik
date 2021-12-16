@@ -110,7 +110,7 @@ def Furnace_1_info(request):
     except:
         melt_step = "---"
     step_total_time = Automelt_info[0].step_total_time
-    step_time_remain = Automelt_info[0].step_time_remain
+    step_time_remain = step_total_time - Automelt_info[0].step_time_remain
     deltat_stp = Automelt_info[0].deltat
 
     template = loader.get_template('FregatMonitoringApp/furnace_info.html')
@@ -240,7 +240,7 @@ def Furnace_2_info(request):
     except:
         melt_step = "---"
     step_total_time = Automelt_info[0].step_total_time
-    step_time_remain = Automelt_info[0].step_time_remain
+    step_time_remain = step_total_time - Automelt_info[0].step_time_remain
     deltat_stp = Automelt_info[0].deltat
 
 
