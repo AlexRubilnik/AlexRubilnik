@@ -1,5 +1,10 @@
 {% extends "FregatMonitoringApp/base.html" %}
 
+{% block furnace_info_script %}
+{% load static %}
+<script src="{% static 'FregatMonitoringApp/scripts/FurnaceInfoUpdate.js' %}"> </script>
+{% endblock %}
+
 {% block LeftSideBar%}
 <div class="left-side-bar">
     <ul style="padding-left: 0px;">
@@ -11,42 +16,35 @@
 
 {% block furnace_info %}
 <div class="content-box">
-<div class="content-page-header">Печь №{{ furnace_num }}</div>
+<div id="FurnaceNo" class="content-page-header">Печь №{{ furnace_num }}</div>
 <table>
     <tr>
         <td><!--Основная таблица с картинкой печи-->
             <table class="furnace-info-tab" border=0>
                 <tr height="20%">
-                    <td width="15%"></td>
+                    <td width="15%"></td>                   
                     <td width="20%" class="furnace-info-tab-td-top">
                                     <table width="170px" align="left" class="furnace-info-tab-2" border=0>
-                                    <tr><td class="area-name bottom-line">Дымосос</td><td></td></tr>
-                                    <tr><td>Перепад</td><td>{{exhauster_dp}} Па</td></tr>
-                                    <tr><td>Частота</td><td> {{exhauster_pc}}% </td></tr>
-                                    <tr><td>Дроссель</td><td> {{exhauster_gate}}% </td></tr>
+                                    <tr><td class="area-name bottom-line">Фильтр</td><td></td></tr>
+                                    <tr><td>Перепад</td><td> <span id={{ filter_dp.1 }} class="UpdSign">{{filter_dp.0}}</span><span> Па</span></td></tr>
+                                    <tr><td>Температура перед</td><td> <span id={{ t_before_filter.1 }} class="UpdSign"> {{t_before_filter.0}}</span><span> С</span></td></tr>
+                                    <tr><td></td><td>  </td></tr>
                                     </table>
                     </td>
                     <td width="20%"></td>
                     <td width="25%" class="furnace-info-tab-td-top">
                                     <table align="left" class="furnace-info-tab-2" border=0>
                                     <tr><td class="area-name bottom-line">Горячий газоход</td><td></td></tr>
-                                    <tr><td>Рязряжение</td><td>{{hotflue_p}} Па</td></tr>
-                                    <tr><td>Дроссель ГГ</td><td> {{hot_flue_gate}}% </td></tr>
-                                    <tr><td>Температура ГГ</td><td> {{hotflue_t}} С </td></tr>
+                                    <tr><td>Рязряжение</td><td> <span id={{ hotflue_p.1 }} class="UpdSign">{{hotflue_p.0}}</span><span> Па</span></td></tr>
+                                    <tr><td>Дроссель ГГ</td><td> <span id={{ hot_flue_gate.1 }} class="UpdSign"> {{hot_flue_gate.0}}</span><span> %</span></td></tr>
+                                    <tr><td>Температура ГГ</td><td> <span id={{ hotflue_t.1 }} class="UpdSign"> {{hotflue_t.0}}</span><span> С</span></td></tr>
                                     </table>
                     </td>
                     <td width="20%"></td>
                 </tr>
                 <tr height="20%">
                     <td></td>
-                    <td class="furnace-info-tab-td-top">
-                                    <table width="170px" align="left" class="furnace-info-tab-2" border=0>
-                                    <tr><td class="area-name bottom-line">Фильтр</td><td></td></tr>
-                                    <tr><td>Перепад</td><td>{{filter_dp}} Па</td></tr>
-                                    <tr><td>Температура перед</td><td> {{t_before_filter}} С </td></tr>
-                                    <tr><td></td><td>  </td></tr>
-                                    </table>
-                    </td>
+                    <td></td>
                     <td class="furnace-info-tab-td-top">
                                     <table class="furnace-info-tab-3" border=0>                                   
                                     <tr><td>      </td>      <td></td></tr>
@@ -55,7 +53,7 @@
                                     <tr><td>      </td>      <td></td></tr>
                                     <tr><td>      </td>      <td></td></tr>
                                     <tr><td>На 3 фильтр</td> <td></td></tr>
-                                    <tr><td>{{filter3_gate}}%</td>         <td></td></tr>
+                                    <tr><td> <span id={{ filter3_gate.1 }} class="UpdSign">{{filter3_gate.0}}</span><span> %</span></td>         <td></td></tr>
                                     </table>
                     </td>
                     <td class="furnace-info-tab-td-top">
@@ -65,7 +63,7 @@
                                     <tr><td>      </td>      <td></td></tr>
                                     <tr><td>      </td>      <td></td></tr>
                                     <tr><td>      </td>      <td></td><td width="30px"></td><td></td><td></td><td>Сливной</td><td></td></tr>                                   
-                                    <tr><td>Круглый</td>     <td>{{round_gate}}%</td><td></td><td></td><td></td><td>{{drain_gate}}</td><td></td></tr> 
+                                    <tr><td>Круглый</td>     <td> <span id={{ round_gate.1 }} class="UpdSign">{{round_gate.0}}</span><span> %</span></td><td></td><td></td><td></td><td> <span id={{ drain_gate.1 }} class="UpdSign">{{drain_gate.0}}</td><td></td></tr> 
                                     </table>
                     </td>
                     <td class="furnace-info-tab-td-top">
@@ -75,7 +73,7 @@
                                     <tr><td>      </td>      <td></td></tr>                                                                      
                                     <tr><td>      </td>      <td></td></tr>
                                     <tr><td>      </td>      <td></td></tr>
-                                    <tr><td>Над дверью</td>     <td>{{over_door_gate}}%</td></tr>                                    
+                                    <tr><td>Над дверью</td>     <td> <span id={{ over_door_gate.1 }} class="UpdSign">{{over_door_gate.0}}</span><span> %</span></td></tr>                                    
                                     </table>
                     </td>
                 </tr>
@@ -94,7 +92,13 @@
                     <td></td>
                 </tr>
                 <tr height="20%">
-                    <td></td>
+                    <td class="furnace-info-tab-td-top">
+                                    <table width="170px" align="left" class="furnace-info-tab-2" border=0>
+                                    <tr><td class="area-name bottom-line">Дымосос</td><td></td></tr>
+                                    <tr><td>Перепад</td><td> <span id={{ exhauster_dp.1 }} class="UpdSign" >{{exhauster_dp.0}}</span><span> Па</span></td></tr>
+                                    <tr><td>Частота</td><td> <span id={{exhauster_pc.1}} class="UpdSign"> {{exhauster_pc.0}}</span><span> %</span></td></tr>
+                                    <tr><td>Дроссель</td><td> <span id={{exhauster_gate.1}} class="UpdSign"> {{exhauster_gate.0}}</span><span> %</span></td></tr>
+                                    </table></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -108,13 +112,13 @@
                     <td class="furnace-info-tab-td-top">
                        <table class="furnace-info-tab-2" border=0>
                             <tr><td width="200px" class="area-name bottom-line">Автоплавка</td><td></td></tr>
-                            <tr><td>Режим</td>       <td>{{auto_mode}}</td></tr>
-                            <tr><td>Плавка</td>      <td>{{melt_type}}</td></tr>
-                            <tr><td>Стадия</td>      <td>{{melt_step}}</td></tr>
-                            <tr><td>Время стадии</td><td>{{step_total_time}} мин.</td></tr>
-                            <tr><td>Осталось</td>    <td>{{step_time_remain}} мин.</td></tr>
-                            <tr><td>Дельта</td>      <td>{{deltaT}} С</td></tr>
-                            <tr><td>Дельта(уст.)</td>      <td>{{deltat_stp}} С</td></tr>
+                            <tr><td>Режим</td>       <td> <span id="auto_mode" class="UpdSign_1">{{auto_mode}}</span></td></tr>
+                            <tr><td>Плавка</td>      <td> <span id="melt_name" class="UpdSign_1">{{melt_type}}</span></td></tr>
+                            <tr><td>Стадия</td>      <td> <span id="step_name" class="UpdSign_1">{{melt_step}}</span></td></tr>
+                            <tr><td>Время стадии</td><td> <span id="step_total_time" class="UpdSign_1">{{step_total_time}}</span><span> мин.</span></td></tr>
+                            <tr><td>Осталось</td>    <td> <span id="step_time_remain" class="UpdSign_1">{{step_time_remain}}</span><span> мин.</span></td></tr>
+                            <tr><td>Дельта</td>      <td><span id="deltat" class="UpdSign_1">{{deltaT}}</span><span> С</span></td></tr>
+                            <tr><td>Дельта(уст.)</td><td><span id="deltat_stp" class="UpdSign_1">{{deltat_stp}}</span><span> С</span></td></tr>
                         </table>
                     </td>
                 </tr>
@@ -124,17 +128,17 @@
                     <td class="furnace-info-tab-td-top">
                         <table width="200px" class="furnace-info-tab-2" border=0>
                             <tr><td class="area-name bottom-line">Горелка</td><td></td></tr>
-                            <tr><td>Мощность</td>       <td>{{ power_sp }}</td></tr>
-                            <tr><td>Газ</td>      <td>{{ gas_flow }} нм3/ч</td></tr>
-                            <tr><td>Кислород</td> <td>{{ o2_flow }} нм3/ч</td></tr>
-                            <tr><td>Воздух</td>   <td>{{ air_flow }} нм3/ч</td></tr>
-                            <tr><td>Альфа</td>    <td>{{ alpha }}%</td></tr>
-                            <tr><td>Лямбда</td>      <td>{{ lambda }}</td></tr>
-                            <tr><td>Дежурный режим</td>{% if standby %}<td class="red-lamp"> </td></tr>
-                                                       {% else %}<td class="black-lamp"> </td></tr>
+                            <tr><td>Мощность</td>       <td id={{ power_sp.1 }} class="UpdSign">{{ power_sp.0 }}</td></tr>
+                            <tr><td>Газ</td>      <td> <span id={{ gas_flow.1 }} class="UpdSign">{{ gas_flow.0 }}</span><span> нм3/ч</span></td></tr>
+                            <tr><td>Кислород</td> <td> <span id={{ o2_flow.1 }}  class="UpdSign">{{ o2_flow.0 }}</span><span> нм3/ч</span></td></tr>
+                            <tr><td>Воздух</td>   <td> <span id={{ air_flow.1 }}  class="UpdSign">{{ air_flow.0 }}</span><span> нм3/ч</span></td></tr>
+                            <tr><td>Альфа</td>    <td> <span id={{ alpha.1 }}  class="UpdSign">{{ alpha.0 }}</span><span> %</span></td></tr>
+                            <tr><td>Лямбда</td>      <td id={{ lambda.1 }} class="UpdSign"> {{ lambda.0 }}</td></tr>
+                            <tr><td>Дежурный режим</td>{% if standby.0 %}<td id={{ standby.1 }} class="UpdSign red-lamp"> </td></tr>
+                                                       {% else %}<td id={{ standby.1 }} class="UpdSign black-lamp"> </td></tr>
                                                        {% endif %}
-                            <tr><td>Основной режим</td>{% if power_mode %}<td class="red-lamp"> </td></tr>
-                                                       {% else %}<td class="black-lamp"> </td></tr>
+                            <tr><td>Основной режим</td>{% if power_mode.0 %}<td id={{ power_mode.1 }} class="UpdSign red-lamp"> </td></tr>
+                                                       {% else %}<td id={{ power_mode.1 }}class="UpdSign black-lamp"> </td></tr>
                                                        {% endif %}                             
                         </table>
                     </td>
@@ -145,12 +149,12 @@
                     <td class="furnace-info-tab-td-top">
                         <table width="200px" class="furnace-info-tab-2" border=0>
                             <tr><td class="area-name bottom-line">ШЗМ</td><td></td></tr>
-                            <tr><td>Позиция</td>       <td>{{shzm_position}}</td></tr>
+                            <tr><td>Позиция</td>       <td{{shzm_position}}</td></tr>
                             <tr><td>Из печи/ в печь</td>      <td> </td></tr>
-                            <tr><td>Вибрация</td> {% if vibrator_shzm %}<td class="red-lamp"> </td></tr>
+                            <tr><td>Вибрация</td> {% if vibrator_shzm %}<td  class="red-lamp"> </td></tr>
                                                        {% else %}<td class="black-lamp"> </td></tr>
                                                        {% endif %}
-                            <tr><td>Вес</td>   <td>13.2 т</td></tr>
+                            <tr><td>Вес</td>   <td><span id={{ weight_in_shzm.1 }} class="UpdSign">{{ weight_in_shzm.0 }}</span><span> т</span></td></tr>
                         </table>
                     </td>
                 </tr>
@@ -173,8 +177,8 @@
                     <td width="20%" class="furnace-info-tab-td-top">
                        <table class="furnace-info-tab-2" border=0>
                             <tr><td class="area-name bottom-line">Печь</td><td></td></tr>
-                            <tr><td>Вращение</td> <td>{{furnace_rotation}} %</td></tr>
-                            <tr><td>Нагрузка</td> <td>{{furnace_current}} %</td></tr>
+                            <tr><td>Вращение</td> <td><span id={{ furnace_rotation.1 }} class="UpdSign">{{furnace_rotation.0}}</span><span>  %</span></td></tr>
+                            <tr><td>Нагрузка</td> <td><span id={{ furnace_current.1 }} class="UpdSign">{{furnace_current.0}}</span><span>  %</span></td></tr>
                         </table>
                     </td>
                     <td width="10%"></td>

@@ -3,8 +3,7 @@
 <html>
 <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
       <link rel="stylesheet" type="text/css" href="{% static 'FregatMonitoringApp/style.css' %}">
-      <script src="{% static 'FregatMonitoringApp/scripts/DataUpdate.js' %}"> </script>
-      <script src="{% static 'FregatMonitoringApp/scripts/ChangeDeltaMethod.js' %}"> </script>
+      {% block furnace_info_script %}{% endblock %}
 </head>
 <body>
 

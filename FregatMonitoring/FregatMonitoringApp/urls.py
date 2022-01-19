@@ -12,5 +12,7 @@ urlpatterns = [
     path('Automelts_info/<int:meltID_1>/', views.AutoMeltTypes_info, name='Automelts_info'),
     path('AutoMeltsSaveSettings/<int:meltID_1>/<int:meltID_2>/', views.AutoMeltsSaveSettings, name='AutoMeltsSaveSettings'),
     path('AutoMeltsSetPoints/', views.AutoMelts_SetPoints, name='AutoMeltsSetPoints'),
-    path('AutoMeltsSaveSetpoints/<int:furnace_num>/', views.AutoMeltsSaveSetpoints, name='AutoMeltsSaveSetpoints')
+    path('AutoMeltsSaveSetpoints/<int:furnace_num>/', views.AutoMeltsSaveSetpoints, name='AutoMeltsSaveSetpoints'),
+    path('Furnace_info_s/<int:SignalIndex>/', views.Furnace_info_s, name='Furnace_info_s'),
+    path('Furnace_info_a/<int:FurnaceNo>/', views.Furnace_info_a, name='Furnace_info_a')
 ]   
