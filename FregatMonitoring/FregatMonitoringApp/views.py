@@ -1,11 +1,16 @@
 from django import template
 from django.db.models.query_utils import subclasses
-from django.http import HttpResponse, HttpResponseRedirect
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.template import context, loader
 from django.urls import reverse
+from django.db.models import F
 
-from .models import Floattable, Tagtable, Automelts
+from rest_framework.parsers import JSONParser
+
+from .models import Floattable, Tagtable, Automelts, AutoMeltsInfo
 from .models import Melttypes, Meltsteps, Substeps
+from .serializers import FloattableSerializer, AutomeltsSerializer
 
 def index(request):
     #template = loader.get_template('FregatMonitoringApp/base.html')
@@ -25,58 +30,70 @@ def sorry_page(request):
 
 def Furnace_1_info(request):
     
-    tag_list = list()
-    tag_list.append(['Задание мощности', Tagtable.objects.filter(tagname='MEASURES\HY_F711')[0].tagindex])
-    tag_list.append(['Расход газа', Tagtable.objects.filter(tagname='MEASURES\FL710_NG')[0].tagindex])
-    tag_list.append(['Расход воздуха', Tagtable.objects.filter(tagname='MEASURES\FL710_AIR')[0].tagindex])
-    tag_list.append(['Расход кислорода', Tagtable.objects.filter(tagname='MEASURES\O1Flow')[0].tagindex])
-    tag_list.append(['Альфа', Tagtable.objects.filter(tagname='MEASURES\Alpha_p1')[0].tagindex])
-    tag_list.append(['Лямбда', Tagtable.objects.filter(tagname='MEASURES\Lambda_p1')[0].tagindex])
-    tag_list.append(['Перепад на фильтре', Tagtable.objects.filter(tagname='MEASURES\PDI_720')[0].tagindex])
-    tag_list.append(['Перепад на дымососе', Tagtable.objects.filter(tagname='MEASURES\PDI_724')[0].tagindex])
-    tag_list.append(['Разяряжение в гор. газоходе', Tagtable.objects.filter(tagname='MEASURES\PI_701')[0].tagindex])
-    tag_list.append(['Частота ПЧ дымососа', Tagtable.objects.filter(tagname='MEASURES\SI_U720')[0].tagindex])
-
-    for tag in tag_list:
-        tag.append(Floattable.objects.filter(tagindex=tag[1]).order_by('-dateandtime')[0].val)
-
     #горелка
-    power_sp = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\HY_F711')[0].tagindex).order_by('-dateandtime')[0].val
-    gas_flow = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\FL710_NG')[0].tagindex).order_by('-dateandtime')[0].val
-    air_flow = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\FL710_AIR')[0].tagindex).order_by('-dateandtime')[0].val
-    o2_flow =  Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\O1Flow')[0].tagindex).order_by('-dateandtime')[0].val
-    alpha = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\Alpha_p1')[0].tagindex).order_by('-dateandtime')[0].val
-    lambd = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\Lambda_p1')[0].tagindex).order_by('-dateandtime')[0].val
-    standby = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='GENERAL\F710_LOCK')[0].tagindex).order_by('-dateandtime')[0].val
-    power_mode = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='IO\HS1_F710')[0].tagindex).order_by('-dateandtime')[0].val
+    
+    power_sp = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\HY_F711')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\HY_F711')[0].tagindex]
+    gas_flow = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\FL710_NG')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\FL710_NG')[0].tagindex]
+    air_flow = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\FL710_AIR')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\FL710_AIR')[0].tagindex]
+    o2_flow =  [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\O1Flow')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\O1Flow')[0].tagindex]
+    alpha = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\Alpha_p1')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\Alpha_p1')[0].tagindex]
+    lambd = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\Lambda_p1')[0].tagindex).order_by('-dateandtime')[0].val,2),
+    Tagtable.objects.filter(tagname='MEASURES\Lambda_p1')[0].tagindex]
+    standby = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='GENERAL\F710_LOCK')[0].tagindex).order_by('-dateandtime')[0].val,
+    Tagtable.objects.filter(tagname='GENERAL\F710_LOCK')[0].tagindex]
+    power_mode = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='IO\HS1_F710')[0].tagindex).order_by('-dateandtime')[0].val,
+    Tagtable.objects.filter(tagname='IO\HS1_F710')[0].tagindex]
+    
 
     #горячий газоход
-    hotflue_p = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PI_701')[0].tagindex).order_by('-dateandtime')[0].val
-    hotflue_t = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_703B')[0].tagindex).order_by('-dateandtime')[0].val
-
+    hotflue_p = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PI_701')[0].tagindex).order_by('-dateandtime')[0].val,1),
+    Tagtable.objects.filter(tagname='MEASURES\PI_701')[0].tagindex]
+    hotflue_t = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_703B')[0].tagindex).order_by('-dateandtime')[0].val,1),
+    Tagtable.objects.filter(tagname='MEASURES\TI_703B')[0].tagindex]
+    
     #фильтр
-    filter_dp = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PDI_720')[0].tagindex).order_by('-dateandtime')[0].val 
-    t_before_filter = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_704')[0].tagindex).order_by('-dateandtime')[0].val 
+    filter_dp = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PDI_720')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\PDI_720')[0].tagindex] 
+    t_before_filter = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_704')[0].tagindex).order_by('-dateandtime')[0].val,1), 
+    Tagtable.objects.filter(tagname='MEASURES\TI_704')[0].tagindex]
+    
     #дымосос
-    exhauster_dp = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PDI_724')[0].tagindex).order_by('-dateandtime')[0].val
-    exhauster_pc = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\SI_U720')[0].tagindex).order_by('-dateandtime')[0].val
+    exhauster_dp = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PDI_724')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\PDI_724')[0].tagindex]
+    exhauster_pc = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\SI_U720')[0].tagindex).order_by('-dateandtime')[0].val,
+    Tagtable.objects.filter(tagname='MEASURES\SI_U720')[0].tagindex]
+
     #дроссели
-    hot_flue_gate = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\ZI_701')[0].tagindex).order_by('-dateandtime')[0].val
-    over_door_gate = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\p1_mct2_rez')[0].tagindex).order_by('-dateandtime')[0].val - 512
-    exhauster_gate = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\p1_mct7_rez')[0].tagindex).order_by('-dateandtime')[0].val - 1792
-    round_gate = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\p1_mct1_rez')[0].tagindex).order_by('-dateandtime')[0].val - 256
-    filter3_gate = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\p1_mct5_rez')[0].tagindex).order_by('-dateandtime')[0].val - 1280
-    drain_gate = "открыт" if not Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='VALVES\XV701_ZL')[0].tagindex).order_by('-dateandtime')[0].val else "закрыт"
+    hot_flue_gate = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\ZI_701')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\ZI_701')[0].tagindex]
+    over_door_gate = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\p1_mct2_rez')[0].tagindex).order_by('-dateandtime')[0].val - 512),
+    Tagtable.objects.filter(tagname='MEASURES\p1_mct2_rez')[0].tagindex]
+    exhauster_gate = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\p1_mct7_rez')[0].tagindex).order_by('-dateandtime')[0].val - 1792,
+    Tagtable.objects.filter(tagname='MEASURES\p1_mct7_rez')[0].tagindex]
+    round_gate = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\p1_mct1_rez')[0].tagindex).order_by('-dateandtime')[0].val - 256,
+    Tagtable.objects.filter(tagname='MEASURES\p1_mct1_rez')[0].tagindex]
+    filter3_gate = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\p1_mct5_rez')[0].tagindex).order_by('-dateandtime')[0].val - 1280,
+    Tagtable.objects.filter(tagname='MEASURES\p1_mct5_rez')[0].tagindex]
+    drain_gate = ["открыт" if not Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='VALVES\XV701_ZL')[0].tagindex).order_by('-dateandtime')[0].val else "закрыт",
+    Tagtable.objects.filter(tagname='VALVES\XV701_ZL')[0].tagindex]
 
     #дельта
     over_door_t = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_712Y')[0].tagindex).order_by('-dateandtime')[0].val
     cold_air_t = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_712X')[0].tagindex).order_by('-dateandtime')[0].val
-    deltaT = over_door_t - cold_air_t
+    deltaT = round(over_door_t - cold_air_t,1)
 
     #печь
-    furnace_rotation = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\SY_KL710')[0].tagindex).order_by('-dateandtime')[0].val
-    furnace_current = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\SI_KL710')[0].tagindex).order_by('-dateandtime')[0].val
-    loading_door_half = "открыта" if Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='VALVES\XVF710P_ZL')[0].tagindex).order_by('-dateandtime')[0].val == 0 else "закрыта"
+    furnace_rotation = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\SY_KL710')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\SY_KL710')[0].tagindex]
+    furnace_current = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\SI_KL710')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\SI_KL710')[0].tagindex]
+    loading_door_half = ["открыта" if Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='VALVES\XVF710P_ZL')[0].tagindex).order_by('-dateandtime')[0].val == 0 else "закрыта",
+    Tagtable.objects.filter(tagname='VALVES\XVF710P_ZL')[0].tagindex]
     
     #поезд - не прописан в History
     #train_move = "Едет" if Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MOTORS\H750_FB')[0].tagindex).order_by('-dateandtime')[0].val else "Стоит"
@@ -115,31 +132,31 @@ def Furnace_1_info(request):
 
     template = loader.get_template('FregatMonitoringApp/furnace_info.html')
     context = {'furnace_num': 1,
-               'power_sp': round(power_sp),
-               'gas_flow': round(gas_flow),
-               'air_flow': round(air_flow),
-               'o2_flow': round(o2_flow),
-               'alpha': round(alpha),
-               'lambda': round(lambd,2),
+               'power_sp': power_sp,
+               'gas_flow': gas_flow,
+               'air_flow': air_flow,
+               'o2_flow': o2_flow,
+               'alpha': alpha,
+               'lambda': lambd,
                'standby': standby,
                'power_mode': power_mode,
-               'filter_dp': round(filter_dp),
-               'exhauster_dp': round(exhauster_dp),
-               't_before_filter': round(t_before_filter,1),
-               'hotflue_p': round(hotflue_p),
-               'hotflue_t': round(hotflue_t,1),
-               'exhauster_pc': round(exhauster_pc,1),
-               'hot_flue_gate': round(hot_flue_gate),
-               'over_door_gate': round(over_door_gate),
-               'exhauster_gate': round(exhauster_gate),
-               'round_gate': round(round_gate),
-               'filter3_gate': round(filter3_gate),
+               'filter_dp': filter_dp,
+               'exhauster_dp': exhauster_dp,
+               't_before_filter': t_before_filter,
+               'hotflue_p': hotflue_p,
+               'hotflue_t': hotflue_t,
+               'exhauster_pc': exhauster_pc,
+               'hot_flue_gate': hot_flue_gate,
+               'over_door_gate': over_door_gate,
+               'exhauster_gate': exhauster_gate,
+               'round_gate': round_gate,
+               'filter3_gate': filter3_gate,
                'drain_gate': drain_gate,    
-               'over_door_t': round(over_door_t),
-               'cold_air_t': round(cold_air_t,1),
-               'deltaT': round(deltaT,1),
-               'furnace_rotation': round(furnace_rotation, 1),
-               'furnace_current': round(furnace_current,1),
+               'over_door_t': over_door_t,
+               'cold_air_t': cold_air_t,
+               'deltaT': deltaT,
+               'furnace_rotation': furnace_rotation,
+               'furnace_current': furnace_current,
                'loading_door_half': loading_door_half,
                'auto_mode': auto_mode,
                'melt_type' : melt_type,
@@ -154,59 +171,69 @@ def Furnace_1_info(request):
 
 def Furnace_2_info(request):
     
-    tag_list = list()
-    tag_list.append(['Задание мощности', Tagtable.objects.filter(tagname='MEASURES\HY_F710')[0].tagindex])
-    tag_list.append(['Расход газа', Tagtable.objects.filter(tagname='MEASURES\TI_810B')[0].tagindex])
-    tag_list.append(['Расход воздуха', Tagtable.objects.filter(tagname='MEASURES\TI_810C')[0].tagindex])
-    tag_list.append(['Расход кислорода', Tagtable.objects.filter(tagname='MEASURES\O2Flow')[0].tagindex])
-    tag_list.append(['Альфа', Tagtable.objects.filter(tagname='MEASURES\Alpha')[0].tagindex])
-    tag_list.append(['Лямбда', Tagtable.objects.filter(tagname='MEASURES\Lambda')[0].tagindex])
-    tag_list.append(['Перепад на фильтре', Tagtable.objects.filter(tagname='MEASURES\PDI_725')[0].tagindex])
-    tag_list.append(['Перепад на дымососе', Tagtable.objects.filter(tagname='MEASURES\PDI_729')[0].tagindex])
-    tag_list.append(['Разяряжение в гор. газоходе', Tagtable.objects.filter(tagname='MEASURES\PI_702')[0].tagindex])
-    tag_list.append(['Частота ПЧ дымососа', Tagtable.objects.filter(tagname='MEASURES\SI_U721')[0].tagindex])
-
-    for tag in tag_list:
-        tag.append(Floattable.objects.filter(tagindex=tag[1]).order_by('-dateandtime')[0].val)
-
     #горелка
-    power_sp = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\HY_F710')[0].tagindex).order_by('-dateandtime')[0].val
-    gas_flow = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_810B')[0].tagindex).order_by('-dateandtime')[0].val
-    air_flow = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_810C')[0].tagindex).order_by('-dateandtime')[0].val
-    o2_flow =  Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\O2Flow')[0].tagindex).order_by('-dateandtime')[0].val
-    alpha = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\Alpha')[0].tagindex).order_by('-dateandtime')[0].val
-    lambd = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\Lambda')[0].tagindex).order_by('-dateandtime')[0].val
-    standby = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='GENERAL\F711_LOCK')[0].tagindex).order_by('-dateandtime')[0].val
-    power_mode = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='IO\HS1_F711')[0].tagindex).order_by('-dateandtime')[0].val
+    power_sp = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\HY_F710')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\HY_F710')[0].tagindex]
+    gas_flow = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_810B')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\TI_810B')[0].tagindex]
+    air_flow = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_810C')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\TI_810C')[0].tagindex]
+    o2_flow =  [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\O2Flow')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\O2Flow')[0].tagindex]
+    alpha = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\Alpha')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\Alpha')[0].tagindex]
+    lambd = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\Lambda')[0].tagindex).order_by('-dateandtime')[0].val,2),
+    Tagtable.objects.filter(tagname='MEASURES\Lambda')[0].tagindex]
+    standby = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='GENERAL\F711_LOCK')[0].tagindex).order_by('-dateandtime')[0].val,
+    Tagtable.objects.filter(tagname='GENERAL\F711_LOCK')[0].tagindex]
+    power_mode = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='IO\HS1_F711')[0].tagindex).order_by('-dateandtime')[0].val,
+    Tagtable.objects.filter(tagname='IO\HS1_F711')[0].tagindex]
+    
 
     #горячий газоход
-    hotflue_p = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PI_702')[0].tagindex).order_by('-dateandtime')[0].val
-    hotflue_t = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_705A')[0].tagindex).order_by('-dateandtime')[0].val
-
+    hotflue_p = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PI_702')[0].tagindex).order_by('-dateandtime')[0].val,1),
+    Tagtable.objects.filter(tagname='MEASURES\PI_702')[0].tagindex]
+    hotflue_t = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_705A')[0].tagindex).order_by('-dateandtime')[0].val,1),
+    Tagtable.objects.filter(tagname='MEASURES\TI_705A')[0].tagindex]
+    
     #фильтр
-    filter_dp = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PDI_725')[0].tagindex).order_by('-dateandtime')[0].val 
-    t_before_filter = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_708')[0].tagindex).order_by('-dateandtime')[0].val
+    filter_dp = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PDI_725')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\PDI_725')[0].tagindex] 
+    t_before_filter = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_708')[0].tagindex).order_by('-dateandtime')[0].val,1), 
+    Tagtable.objects.filter(tagname='MEASURES\TI_708')[0].tagindex]
+    
     #дымосос
-    exhauster_dp = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PDI_729')[0].tagindex).order_by('-dateandtime')[0].val
-    exhauster_pc = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\SI_U721')[0].tagindex).order_by('-dateandtime')[0].val
+    exhauster_dp = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PDI_729')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\PDI_729')[0].tagindex]
+    exhauster_pc = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\SI_U721')[0].tagindex).order_by('-dateandtime')[0].val,
+    Tagtable.objects.filter(tagname='MEASURES\SI_U721')[0].tagindex]
 
     #дроссели
-    hot_flue_gate = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PY_702')[0].tagindex).order_by('-dateandtime')[0].val
-    over_door_gate = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\ZI_704')[0].tagindex).order_by('-dateandtime')[0].val
-    exhauster_gate = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\ZI_706')[0].tagindex).order_by('-dateandtime')[0].val
-    round_gate = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\\xvi_v_cech')[0].tagindex).order_by('-dateandtime')[0].val
-    filter3_gate = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\XVI_708')[0].tagindex).order_by('-dateandtime')[0].val
-    drain_gate = "открыт" if not Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='VALVES\XV702_ZL')[0].tagindex).order_by('-dateandtime')[0].val else "закрыт"
+    hot_flue_gate = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PY_702')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\PY_702')[0].tagindex]
+    over_door_gate = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\ZI_704')[0].tagindex).order_by('-dateandtime')[0].val,
+    Tagtable.objects.filter(tagname='MEASURES\ZI_704')[0].tagindex]
+    exhauster_gate = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\ZI_706')[0].tagindex).order_by('-dateandtime')[0].val,
+    Tagtable.objects.filter(tagname='MEASURES\ZI_706')[0].tagindex]
+    round_gate = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\\xvi_v_cech')[0].tagindex).order_by('-dateandtime')[0].val,
+    Tagtable.objects.filter(tagname='MEASURES\\xvi_v_cech')[0].tagindex]
+    filter3_gate = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\XVI_708')[0].tagindex).order_by('-dateandtime')[0].val,
+    Tagtable.objects.filter(tagname='MEASURES\XVI_708')[0].tagindex]
+    drain_gate = ["открыт" if not Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='VALVES\XV702_ZL')[0].tagindex).order_by('-dateandtime')[0].val else "закрыт",
+    Tagtable.objects.filter(tagname='VALVES\XV702_ZL')[0].tagindex]
 
     #дельта
     over_door_t = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_711Y')[0].tagindex).order_by('-dateandtime')[0].val
     cold_air_t = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_711X')[0].tagindex).order_by('-dateandtime')[0].val
-    deltaT = over_door_t - cold_air_t
+    deltaT = round(over_door_t - cold_air_t,1)
 
     #печь
-    furnace_rotation = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\SY_KL711')[0].tagindex).order_by('-dateandtime')[0].val
-    furnace_current = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\SI_KL711')[0].tagindex).order_by('-dateandtime')[0].val
-    loading_door_half = "открыта" if Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='VALVES\XVF711P_ZL')[0].tagindex).order_by('-dateandtime')[0].val else "закрыта"
+    furnace_rotation = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\SY_KL711')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\SY_KL711')[0].tagindex]
+    furnace_current = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\SI_KL711')[0].tagindex).order_by('-dateandtime')[0].val),
+    Tagtable.objects.filter(tagname='MEASURES\SI_KL711')[0].tagindex]
+    loading_door_half = ["открыта" if Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='VALVES\XVF711P_ZL')[0].tagindex).order_by('-dateandtime')[0].val == 0 else "закрыта",
+    Tagtable.objects.filter(tagname='VALVES\XVF711P_ZL')[0].tagindex]
     
     #поезд - не прописан в History
     #train_move = "Едет" if Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MOTORS\H750_FB')[0].tagindex).order_by('-dateandtime')[0].val else "Стоит"
@@ -243,34 +270,33 @@ def Furnace_2_info(request):
     step_time_remain = step_total_time - Automelt_info[0].step_time_remain
     deltat_stp = Automelt_info[0].deltat
 
-
-    template = loader.get_template('FregatMonitoringApp/Furnace_info.html')
+    template = loader.get_template('FregatMonitoringApp/furnace_info.html')
     context = {'furnace_num': 2,
-               'power_sp': round(power_sp),
-               'gas_flow': round(gas_flow),
-               'air_flow': round(air_flow),
-               'o2_flow': round(o2_flow),
-               'alpha': round(alpha),
-               'lambda': round(lambd,2),
+               'power_sp': power_sp,
+               'gas_flow': gas_flow,
+               'air_flow': air_flow,
+               'o2_flow': o2_flow,
+               'alpha': alpha,
+               'lambda': lambd,
                'standby': standby,
                'power_mode': power_mode,
-               'filter_dp': round(filter_dp),
-               't_before_filter': round(t_before_filter,1),
-               'exhauster_dp': round(exhauster_dp),
-               'hotflue_p': round(hotflue_p),
-               'hotflue_t': round(hotflue_t,1),
-               'exhauster_pc': round(exhauster_pc,1),
-               'hot_flue_gate': round(hot_flue_gate),
-               'over_door_gate': round(over_door_gate),
-               'exhauster_gate': round(exhauster_gate),
-               'round_gate': round(round_gate),
-               'filter3_gate': round(filter3_gate),
+               'filter_dp': filter_dp,
+               'exhauster_dp': exhauster_dp,
+               't_before_filter': t_before_filter,
+               'hotflue_p': hotflue_p,
+               'hotflue_t': hotflue_t,
+               'exhauster_pc': exhauster_pc,
+               'hot_flue_gate': hot_flue_gate,
+               'over_door_gate': over_door_gate,
+               'exhauster_gate': exhauster_gate,
+               'round_gate': round_gate,
+               'filter3_gate': filter3_gate,
                'drain_gate': drain_gate,    
-               'over_door_t': round(over_door_t),
-               'cold_air_t': round(cold_air_t,1),
-               'deltaT': round(deltaT,1),
-               'furnace_rotation': round(furnace_rotation, 1),
-               'furnace_current': round(furnace_current,1),
+               'over_door_t': over_door_t,
+               'cold_air_t': cold_air_t,
+               'deltaT': deltaT,
+               'furnace_rotation': furnace_rotation,
+               'furnace_current': furnace_current,
                'loading_door_half': loading_door_half,
                'auto_mode': auto_mode,
                'melt_type' : melt_type,
@@ -364,6 +390,87 @@ def AutoMeltsSaveSetpoints(request, furnace_num): #сохраняет измен
     except: #не удалось записать в базу
         return error_message(request) #Ой, что-то пошло не так
     else:
-        Melt.save()
+        Melt.save() 
 
     return HttpResponseRedirect(reverse('FregatMonitoringApp:AutoMeltsSetPoints'))
+
+
+
+#----------ОТОБРАЖЕНИЯ ЧЕРЕЗ СЕРИАЛАЙЗЕРЫ-------------------
+def Furnace_info_s(request, SignalIndex): # API для обновления данных на экране "Печь 1(2)"
+    
+    tag_val = Floattable.objects.filter(tagindex=SignalIndex).order_by('-dateandtime')[:1]
+
+    serializer = FloattableSerializer(tag_val, many=True)
+
+    #----Исключения 1 печь----------------
+    if SignalIndex == 13: #нагрузка на печь
+        serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
+    if SignalIndex == 51: #вращение печи
+        serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
+    if SignalIndex == 52: #дроссель горячего газохода
+        serializer.data[0]['val'] = round(serializer.data[0]['val'],0)
+    if SignalIndex == 25: #температура гор.газохода
+        serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
+    if SignalIndex == 26: #температура перед фильтром
+        serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
+    if SignalIndex == 115: #лямбда
+        serializer.data[0]['val'] = round(serializer.data[0]['val'],2)
+    if SignalIndex == 85: #сливной дроссель
+        serializer.data[0]['val'] = "открыт" if not serializer.data[0]['val'] else "закрыт"
+    if SignalIndex == 117: #дроссель круглый
+        serializer.data[0]['val'] = serializer.data[0]['val']-256
+    if SignalIndex == 118: #дроссель над дверью
+        serializer.data[0]['val'] = serializer.data[0]['val']-512
+    if SignalIndex == 121: #дроссель на 3 фильтр
+        serializer.data[0]['val'] = serializer.data[0]['val']-1280
+    if SignalIndex == 123: #дроссель дымососа
+        serializer.data[0]['val'] = serializer.data[0]['val']-1792
+
+    #----Исключения 1 печь----------------
+    if SignalIndex == 14: #нагрузка на печь
+        serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
+    if SignalIndex == 17: #вращение печи
+        serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
+    if SignalIndex == 75: #дроссель горячего газохода
+        serializer.data[0]['val'] = round(serializer.data[0]['val'],0)
+    if SignalIndex == 27: #температура гор.газохода
+        serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
+    if SignalIndex == 31: #температура перед фильтром
+        serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
+    if SignalIndex == 63: #лямбда
+        serializer.data[0]['val'] = round(serializer.data[0]['val'],2)
+    if SignalIndex == 81: #сливной дроссель
+        serializer.data[0]['val'] = "открыт" if not serializer.data[0]['val'] else "закрыт"
+    if SignalIndex == 9: #перепад на дымососе
+        serializer.data[0]['val'] = round(serializer.data[0]['val'])
+    if SignalIndex == 12: #разряжение в гор. газоходе
+        serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
+
+    return JsonResponse(serializer.data, safe=False)
+
+def Furnace_info_a(request, FurnaceNo): # API для обновления данных о автоплавке на экране "Печь 1(2)"
+
+    melt_inst = Automelts.objects.filter(furnace_no=FurnaceNo)[0]
+    melt_type_inst = Melttypes.objects.filter(melt_num = melt_inst.melt_type)[0]
+    step_type_inst = Meltsteps.objects.filter(step_num = melt_inst.melt_step).filter(melt = melt_type_inst.melt_id)[0]
+
+    #дельта
+    over_door_t = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_712Y')[0].tagindex).order_by('-dateandtime')[0].val
+    cold_air_t = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_712X')[0].tagindex).order_by('-dateandtime')[0].val
+    deltaT = over_door_t - cold_air_t
+    
+    AMmodel = AutoMeltsInfo(
+        furnace_no = FurnaceNo,
+        auto_mode = "Автомат" if melt_inst.auto_mode else "Ручной",
+        melt_name = melt_type_inst.melt_name,
+        step_name = step_type_inst.step_name,
+        step_total_time = melt_inst.step_total_time,
+        step_time_remain = melt_inst.step_total_time - melt_inst.step_time_remain,
+        deltat = round(deltaT,1),
+        deltat_stp = melt_inst.deltat
+    )
+
+    serializer = AutomeltsSerializer(AMmodel)
+
+    return JsonResponse(serializer.data, safe=False)

@@ -11,8 +11,8 @@ from django.db import models
 class Automelts(models.Model):
     furnace_no = models.SmallIntegerField(db_column='Furnace_No', primary_key=True)  # Field name made lowercase.
     auto_mode = models.BooleanField(db_column='Auto_mode', blank=True, null=True)  # Field name made lowercase.
-    melt_type = models.SmallIntegerField(db_column='Melt_type', blank=True, null=True)  # Field name made lowercase.
-    melt_step = models.SmallIntegerField(db_column='Melt_step', blank=True, null=True)  # Field name made lowercase.
+    melt_type = models.SmallIntegerField(db_column='Melt_type', blank=True, null=True)  # Соответствует melt_num в Melttypes(вместе с furnace_no определяет плавку однозначно)
+    melt_step = models.SmallIntegerField(db_column='Melt_step', blank=True, null=True)  # соответствует step_num в Meltsteps
     step_total_time = models.IntegerField(db_column='Step_total_time', blank=True, null=True)  # Field name made lowercase.
     step_time_remain = models.SmallIntegerField(db_column='Step_time_remain', blank=True, null=True)  # Field name made lowercase.
     deltat = models.SmallIntegerField(db_column='DeltaT', blank=True, null=True)  # Field name made lowercase.
@@ -20,7 +20,6 @@ class Automelts(models.Model):
     class Meta:
         managed = False
         db_table = 'AutoMelts'
-
 
 class Melts(models.Model):
     id = models.BigAutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
@@ -42,7 +41,6 @@ class Melts(models.Model):
     class Meta:
         managed = False
         db_table = 'Melts'
-
 
 class Rarefaction(models.Model):
     id = models.BigAutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
@@ -84,7 +82,6 @@ class Floattable(models.Model):
     def __str__(self):
         return str(self.tagindex) + '=' + str(self.val)     
 
-
 class Meltsteps(models.Model):
     melt = models.ForeignKey('Melttypes', models.DO_NOTHING, db_column='MELT_ID')  # IDплавки (по смыслу заключает в себе номер печи и номер плавки)
     step_id = models.AutoField(db_column='STEP_ID', primary_key=True)  # ID шага плавки
@@ -96,17 +93,15 @@ class Meltsteps(models.Model):
         managed = False
         db_table = 'MeltSteps'
 
-
 class Melttypes(models.Model):
     melt_id = models.AutoField(db_column='MELT_ID', primary_key=True)  # IDплавки (нечётные - для 1 печи, чётные - тот же тип плавки, но для 2 печи)
     melt_num = models.SmallIntegerField(db_column='MELT_NUM')  # Номер плавки по порядку (соответствует номеру плавки в ПЛК, одинаков для обоих печей для одинаковых типов плавки)
-    melt_furnace = models.SmallIntegerField(db_column='MELT_FURNACE')  # Номер печи, ддля которой эта плавка
+    melt_furnace = models.SmallIntegerField(db_column='MELT_FURNACE')  # Номер печи, для которой эта плавка
     melt_name = models.CharField(db_column='MELT_NAME', max_length=50)  # Название плавки(одинаковый для обоих печей для одинаковых типов плавки)
 
     class Meta:
         managed = False
         db_table = 'MeltTypes'
-
 
 class Substeps(models.Model):
     step = models.ForeignKey(Meltsteps, models.DO_NOTHING, db_column='STEP_ID')  # ID шага плавки 
@@ -121,3 +116,13 @@ class Substeps(models.Model):
     class Meta:
         managed = False
         db_table = 'SubSteps'
+
+class AutoMeltsInfo(models.Model): #Класс для сериализатора данных о текущем состоянии автоплавок
+    furnace_no = models.IntegerField(blank=True, null=True)
+    auto_mode = models.CharField(max_length=7, blank=True, null=True, default='')
+    melt_name = models.CharField(max_length=50, blank=True, null=True, default='')
+    step_name = models.CharField(max_length=20, blank=True, null=True, default='')
+    step_total_time = models.IntegerField(blank=True, null=True, default='')
+    step_time_remain = models.IntegerField(blank=True, null=True, default='')
+    deltat = models.FloatField(blank=True, null=True, default='')
+    deltat_stp = models.IntegerField(blank=True, null=True, default='')
