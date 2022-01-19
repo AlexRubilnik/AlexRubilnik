@@ -111,6 +111,9 @@ def Furnace_1_info(request):
     except:
         shzm_position = "---"
 
+    weight_in_shzm= [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\WI_710')[0].tagindex).order_by('-dateandtime')[0].val,2),
+    Tagtable.objects.filter(tagname='MEASURES\WI_710')[0].tagindex]
+
     #автоплавка
     Automelt_info = Automelts.objects.filter(furnace_no=1)
     auto_mode = "Автомат" if Automelt_info[0].auto_mode else "Ручной"
@@ -165,6 +168,7 @@ def Furnace_1_info(request):
                'step_time_remain' : step_time_remain,
                'deltat_stp' : deltat_stp,
                'shzm_position': shzm_position,
+               'weight_in_shzm': weight_in_shzm,
               }
 
     return HttpResponse(template.render(context, request))
@@ -251,6 +255,9 @@ def Furnace_2_info(request):
     except:
         shzm_position = "---"
 
+    weight_in_shzm= [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\WI_710')[0].tagindex).order_by('-dateandtime')[0].val,2),
+    Tagtable.objects.filter(tagname='MEASURES\WI_710')[0].tagindex]
+
     #автоплавка
     Automelt_info = Automelts.objects.filter(furnace_no=2)
     auto_mode = "Автомат" if Automelt_info[0].auto_mode else "Ручной"
@@ -305,6 +312,7 @@ def Furnace_2_info(request):
                'step_time_remain' : step_time_remain,
                'deltat_stp' : deltat_stp,
                'shzm_position': shzm_position,
+               'weight_in_shzm' : weight_in_shzm,
               }
 
     return HttpResponse(template.render(context, request))
@@ -446,6 +454,10 @@ def Furnace_info_s(request, SignalIndex): # API для обновления да
         serializer.data[0]['val'] = round(serializer.data[0]['val'])
     if SignalIndex == 12: #разряжение в гор. газоходе
         serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
+
+    #----Исключения ШЗМ---------------
+    if SignalIndex == 48: #вес в бункере ШЗМ
+        serializer.data[0]['val'] = round(serializer.data[0]['val'],2)
 
     return JsonResponse(serializer.data, safe=False)
 
