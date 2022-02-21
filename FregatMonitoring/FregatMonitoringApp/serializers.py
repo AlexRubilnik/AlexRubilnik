@@ -29,3 +29,10 @@ class AutomeltsSerializer(serializers.Serializer):
         Create and return a new `Snippet` instance, given the validated data.
         """
         return AutoMeltsInfo.objects.create(**validated_data)
+
+
+
+"""class FurnaceBaseTrendsSerializer(serializers.Serialize):
+    name = serializers.CharField(max_length=100)
+    values = {**}
+"""

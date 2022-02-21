@@ -4,6 +4,7 @@
 <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
       <link rel="stylesheet" type="text/css" href="{% static 'FregatMonitoringApp/style.css' %}">
       {% block furnace_info_script %}{% endblock %}
+      {% block furnace_trends_scripts %}{% endblock %}
 </head>
 <body>
 
@@ -53,6 +54,7 @@
     {% block LeftSideBar %}{% endblock %}
     {% block error_message %}{% endblock %}
     {% block furnace_info %}{% endblock %}
+    {% block FurnaceBaseTrends%}{% endblock %}
     {% block Automelts_info %}{% endblock %}
     {% block MeltModeCard_info %}{% endblock %}
     {% block AutoMeltsSetPoints %}{% endblock %}

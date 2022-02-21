@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta
+import time
+import random
 from django import template
 from django.db.models.query_utils import subclasses
 from django.views.decorators.csrf import csrf_exempt
@@ -18,15 +21,57 @@ def index(request):
     #return HttpResponse(template.render(context, request))
     return Furnace_1_info(request)
 
+
+def FurnaceBaseTrends(request):
+    template = loader.get_template('FregatMonitoringApp/FurnaceTrendsPage.html')
+    context = None
+    return HttpResponse(template.render(context, request))
+
+
+def FurnaceBaseTrendsData(request):
+    start_period = (datetime.now()-timedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S')#предыдущий час
+    stop_period = datetime.now().strftime('%Y-%m-%d %H:%M:%S')#текущий момент
+
+    def LoadSignalValuesByPeriod(signal_name, period_start, period_stop, **kwards):
+        minus_mod = kwards.get('minus') if kwards.get('minus') is not None else 0
+        signal_value = Floattable.objects.annotate(value=F('val')-minus_mod).filter(
+                        tagindex=Tagtable.objects.filter(tagname=signal_name)[0].tagindex
+                        ).filter(dateandtime__range=(period_start,period_stop)).order_by('dateandtime')
+        return signal_value
+    
+    #Список сигналов, отображаемых на тренде. Чтобы добавить новый сигнал, нужно внести для него строку в этот блок
+    signals = list()
+    signals.append(("Мощность", LoadSignalValuesByPeriod('MEASURES\HY_F711', start_period, stop_period)))
+    signals.append(("Ток двигателя", LoadSignalValuesByPeriod('MEASURES\SI_KL710', start_period, stop_period)))
+    signals.append(("Расход газа", LoadSignalValuesByPeriod('MEASURES\FL710_NG', start_period, stop_period)))
+    signals.append(("Расход О2", LoadSignalValuesByPeriod('MEASURES\O1Flow', start_period, stop_period)))
+    signals.append(("Расход воздуха", LoadSignalValuesByPeriod('MEASURES\FL710_AIR', start_period, stop_period)))
+    signals.append(("Альфа", LoadSignalValuesByPeriod('MEASURES\Alpha_p1', start_period, stop_period)))
+    signals.append(("Лямбда", LoadSignalValuesByPeriod('MEASURES\Lambda_p1', start_period, stop_period)))
+    signals.append(("Круглый дроссель", LoadSignalValuesByPeriod('MEASURES\p1_mct1_rez', start_period, stop_period, minus=256)))
+ 
+    series = list()
+    for i in range(len(signals)):
+        series.append([[signals[i][0]], []])
+        for j in range(len(signals[i][1])):
+            dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S+00:00')
+            point={"date":dat.timestamp()*1000, "value":signals[i][1][j].value}
+            series[i][1].append(point)
+
+    return JsonResponse(series, safe=False)
+
+
 def error_message(request):
     template = loader.get_template('FregatMonitoringApp/ErrorMessage.html')
     context = None
     return HttpResponse(template.render(context, request))
 
+
 def sorry_page(request):
     template = loader.get_template('FregatMonitoringApp/SorryPage.html')
     context = None
     return HttpResponse(template.render(context, request))
+
 
 def Furnace_1_info(request):
     
@@ -173,6 +218,7 @@ def Furnace_1_info(request):
 
     return HttpResponse(template.render(context, request))
 
+
 def Furnace_2_info(request):
     
     #горелка
@@ -317,6 +363,7 @@ def Furnace_2_info(request):
 
     return HttpResponse(template.render(context, request))
 
+
 def AutoMeltTypes_info(request, meltID_1):
 
     melt_type_list_1 = Melttypes.objects.filter(melt_furnace=1) #Выбираем типы плавок для первой печи(для второй такие же)
@@ -353,6 +400,7 @@ def AutoMeltTypes_info(request, meltID_1):
 
     return HttpResponse(template.render(context, request))
 
+
 def AutoMelts_SetPoints(request):
     
     template = loader.get_template('FregatMonitoringApp/AutoMeltsSetPoints.html')
@@ -367,6 +415,7 @@ def AutoMelts_SetPoints(request):
         'deltaT2_stp':deltaT2_stp,
     }
     return HttpResponse(template.render(context, request))
+
 
 def AutoMeltsSaveSettings(request, meltID_1, meltID_2): #сохраняет изменение режимов автоплаки в базе
     
@@ -387,6 +436,7 @@ def AutoMeltsSaveSettings(request, meltID_1, meltID_2): #сохраняет из
 
     return HttpResponseRedirect(reverse('FregatMonitoringApp:Automelts_info', args=(meltID_1,)))
 
+
 def AutoMeltsSaveSetpoints(request, furnace_num): #сохраняет изменение уставки Дельты в базе
     try:
         try: 
@@ -403,14 +453,16 @@ def AutoMeltsSaveSetpoints(request, furnace_num): #сохраняет измен
     return HttpResponseRedirect(reverse('FregatMonitoringApp:AutoMeltsSetPoints'))
 
 
-
 #----------ОТОБРАЖЕНИЯ ЧЕРЕЗ СЕРИАЛАЙЗЕРЫ-------------------
+
 def Furnace_info_s(request, SignalIndex): # API для обновления данных на экране "Печь 1(2)"
     
+    #В общем виде ищем последнее значение в таблице для каждого сигнала
     tag_val = Floattable.objects.filter(tagindex=SignalIndex).order_by('-dateandtime')[:1]
 
     serializer = FloattableSerializer(tag_val, many=True)
 
+    # если значение сигнала нужно пред-обработать, обрабатываем значение уже внутри сериалайзера
     #----Исключения 1 печь----------------
     if SignalIndex == 13: #нагрузка на печь
         serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
@@ -460,6 +512,7 @@ def Furnace_info_s(request, SignalIndex): # API для обновления да
         serializer.data[0]['val'] = round(serializer.data[0]['val'],2)
 
     return JsonResponse(serializer.data, safe=False)
+
 
 def Furnace_info_a(request, FurnaceNo): # API для обновления данных о автоплавке на экране "Печь 1(2)"
 

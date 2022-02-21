@@ -35,6 +35,11 @@
     font-size: 12px;
 }
 
+#chartdiv {
+    width: 80%;
+    height: 500px;
+    max-width: 80%;
+  }
 
 .content-box{
     float: left;

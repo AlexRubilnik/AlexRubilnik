@@ -126,3 +126,13 @@ class AutoMeltsInfo(models.Model): #Класс для сериализатора
     step_time_remain = models.IntegerField(blank=True, null=True, default='')
     deltat = models.FloatField(blank=True, null=True, default='')
     deltat_stp = models.IntegerField(blank=True, null=True, default='')
+
+
+"""class FurnaceBaseTrendsData:
+
+    def __init__(self, series_list):
+        self.series_names = dict()
+        for name in series_names_list
+        self.series_names[name] = data
+
+"""
