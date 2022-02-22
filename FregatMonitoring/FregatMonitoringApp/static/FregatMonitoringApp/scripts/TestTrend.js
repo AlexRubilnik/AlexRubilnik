@@ -1,8 +1,9 @@
 am5.ready(function() {
 function FurnaceBaseTrendsDataUpdate(){ 
+  furnace_no = document.getElementById('Furnace_No').innerText
   var XHR = new XMLHttpRequest()
-      XHR.open('GET', '/FregatMonitoringApp/FurnaceBaseTrendsData/', true);
-      XHR.timeout = 2000;
+      XHR.open('GET', '/FregatMonitoringApp/FurnaceBaseTrendsData/'+furnace_no+'/', true);
+      //XHR.timeout = 2000;
       XHR.send();
 
 
@@ -27,14 +28,12 @@ function RenderTrends(series_data){
             // https://www.amcharts.com/docs/v5/getting-started/#Root_element 
             var root = am5.Root.new("chartdiv");
             
-            
             // Set themes
             // https://www.amcharts.com/docs/v5/concepts/themes/ 
             root.setThemes([
               am5themes_Animated.new(root),
               am5themes_Kelly.new(root)
-            ]);
-            
+            ]);           
             
             // Create chart
             // https://www.amcharts.com/docs/v5/charts/xy-chart/
@@ -45,30 +44,7 @@ function RenderTrends(series_data){
               wheelY: "zoomX",
               maxTooltipDistance: 0
             }));
-            
-            
-            var date = new Date();
-            date.setHours(0, 0, 0, 0);
-            var value = 100;
-            
-            function generateData() {
-              value = Math.round((Math.random() * 10 - 4.2) + value);
-              am5.time.add(date, "day", 1);
-              return {
-                date: date.getTime(),
-                value: value
-              };
-            }
-            
-            function generateDatas(count) {
-              var data = [];
-              for (var i = 0; i < count; ++i) {
-                data.push(generateData());
-              }
-              return data;
-            }
-            
-            
+       
             // Create axes
             // https://www.amcharts.com/docs/v5/charts/xy-chart/axes/
             var xAxis = chart.xAxes.push(am5xy.DateAxis.new(root, {
@@ -101,11 +77,7 @@ function RenderTrends(series_data){
                   labelText: "[bold]{name}[/]\n{categoryX}: {valueY}"
                 })
               }));
-            
-              date = new Date();
-              date.setHours(0, 0, 0, 0);
-              value = 0;
-            
+                  
               //var data = generateDatas(100);
               //series.data.setAll(data);
               series.data.setAll(series_data[i][1]);
@@ -115,14 +87,12 @@ function RenderTrends(series_data){
               series.appear();
             }
             
-            
             // Add cursor
             // https://www.amcharts.com/docs/v5/charts/xy-chart/cursor/
             var cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
               behavior: "none"
             }));
             cursor.lineY.set("visible", false);
-            
             
             // Add scrollbar
             // https://www.amcharts.com/docs/v5/charts/xy-chart/scrollbars/
@@ -138,9 +108,9 @@ function RenderTrends(series_data){
             // Add legend
             // https://www.amcharts.com/docs/v5/charts/xy-chart/legend-xy-series/
             var legend = chart.rightAxesContainer.children.push(am5.Legend.new(root, {
-              width: 200,
+              width: 250,
               paddingLeft: 15,
-              height: am5.percent(100)
+              height: am5.percent(120)
             }));
             
             // When legend item container is hovered, dim all the series except the hovered one
@@ -180,8 +150,15 @@ function RenderTrends(series_data){
             
             legend.itemContainers.template.set("width", am5.p100);
             legend.valueLabels.template.setAll({
+              //width: am5.p100,
+              textAlign: "right",
+              fontSize: 15,
+              fontWeight: "400"
+            });
+            legend.labels.template.setAll({
               width: am5.p100,
-              textAlign: "right"
+              fontSize: 15,
+              fontWeight: "400"
             });
             
             // It's is important to set legend data after all the events are set on template, otherwise events won't be copied

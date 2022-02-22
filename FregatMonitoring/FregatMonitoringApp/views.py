@@ -22,14 +22,16 @@ def index(request):
     return Furnace_1_info(request)
 
 
-def FurnaceBaseTrends(request):
+def FurnaceBaseTrends(request, Furnace_No):
     template = loader.get_template('FregatMonitoringApp/FurnaceTrendsPage.html')
-    context = None
+    context = {
+        'Furnace_No': Furnace_No
+    }
     return HttpResponse(template.render(context, request))
 
 
-def FurnaceBaseTrendsData(request):
-    start_period = (datetime.now()-timedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S')#предыдущий час
+def FurnaceBaseTrendsData(request, Furnace_No):
+    start_period = (datetime.now()-timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')#предыдущий час
     stop_period = datetime.now().strftime('%Y-%m-%d %H:%M:%S')#текущий момент
 
     def LoadSignalValuesByPeriod(signal_name, period_start, period_stop, **kwards):
@@ -41,22 +43,64 @@ def FurnaceBaseTrendsData(request):
     
     #Список сигналов, отображаемых на тренде. Чтобы добавить новый сигнал, нужно внести для него строку в этот блок
     signals = list()
-    signals.append(("Мощность", LoadSignalValuesByPeriod('MEASURES\HY_F711', start_period, stop_period)))
-    signals.append(("Ток двигателя", LoadSignalValuesByPeriod('MEASURES\SI_KL710', start_period, stop_period)))
-    signals.append(("Расход газа", LoadSignalValuesByPeriod('MEASURES\FL710_NG', start_period, stop_period)))
-    signals.append(("Расход О2", LoadSignalValuesByPeriod('MEASURES\O1Flow', start_period, stop_period)))
-    signals.append(("Расход воздуха", LoadSignalValuesByPeriod('MEASURES\FL710_AIR', start_period, stop_period)))
-    signals.append(("Альфа", LoadSignalValuesByPeriod('MEASURES\Alpha_p1', start_period, stop_period)))
-    signals.append(("Лямбда", LoadSignalValuesByPeriod('MEASURES\Lambda_p1', start_period, stop_period)))
-    signals.append(("Круглый дроссель", LoadSignalValuesByPeriod('MEASURES\p1_mct1_rez', start_period, stop_period, minus=256)))
- 
+
+    #сигналы для первой печи
+    if Furnace_No == 1:
+        signals.append(("Мощность", LoadSignalValuesByPeriod('MEASURES\HY_F711', start_period, stop_period)))
+        signals.append(("Ток двигателя", LoadSignalValuesByPeriod('MEASURES\SI_KL710', start_period, stop_period)))
+        signals.append(("Расход газа", LoadSignalValuesByPeriod('MEASURES\FL710_NG', start_period, stop_period)))
+        signals.append(("Расход О2", LoadSignalValuesByPeriod('MEASURES\O1Flow', start_period, stop_period)))
+        signals.append(("Расход воздуха", LoadSignalValuesByPeriod('MEASURES\FL710_AIR', start_period, stop_period)))
+        signals.append(("Альфа", LoadSignalValuesByPeriod('MEASURES\Alpha_p1', start_period, stop_period)))
+        signals.append(("Лямбда", LoadSignalValuesByPeriod('MEASURES\Lambda_p1', start_period, stop_period)))
+        signals.append(("Круглый дроссель", LoadSignalValuesByPeriod('MEASURES\p1_mct1_rez', start_period, stop_period, minus=256)))
+        signals.append(("На 3 фильтр", LoadSignalValuesByPeriod('MEASURES\p1_mct5_rez', start_period, stop_period, minus=1280)))
+        signals.append(("Над дверью", LoadSignalValuesByPeriod('MEASURES\p1_mct2_rez', start_period, stop_period, minus=512)))
+        signals.append(("Горячий дроссель", LoadSignalValuesByPeriod('MEASURES\ZI_701', start_period, stop_period)))
+        signals.append(("dP на фильтре", LoadSignalValuesByPeriod('MEASURES\PDI_720', start_period, stop_period)))
+        signals.append(("dP на дымососе", LoadSignalValuesByPeriod('MEASURES\PDI_724', start_period, stop_period)))
+        signals.append(("Частота дымососа", LoadSignalValuesByPeriod('MEASURES\SI_U720', start_period, stop_period)))
+        signals.append(("Т перед фильтром", LoadSignalValuesByPeriod('MEASURES\TI_704', start_period, stop_period)))
+
+        signals.append(("Т над дверью", LoadSignalValuesByPeriod('MEASURES\TI_712Y', start_period, stop_period))) #эти два сигнала должны быть в списке последними
+        signals.append(("Т воздух цех", LoadSignalValuesByPeriod('MEASURES\TI_712X', start_period, stop_period))) #эти два сигнала должны быть в списке последними
+
+    elif Furnace_No == 2:
+        signals.append(("Мощность", LoadSignalValuesByPeriod('MEASURES\HY_F710', start_period, stop_period)))
+        signals.append(("Ток двигателя", LoadSignalValuesByPeriod('MEASURES\SI_KL711', start_period, stop_period)))
+        signals.append(("Расход газа", LoadSignalValuesByPeriod('MEASURES\TI_810B', start_period, stop_period)))
+        signals.append(("Расход О2", LoadSignalValuesByPeriod('MEASURES\O2Flow', start_period, stop_period)))
+        signals.append(("Расход воздуха", LoadSignalValuesByPeriod('MEASURES\TI_810C', start_period, stop_period)))
+        signals.append(("Альфа", LoadSignalValuesByPeriod('MEASURES\Alpha', start_period, stop_period)))
+        signals.append(("Лямбда", LoadSignalValuesByPeriod('MEASURES\Lambda', start_period, stop_period)))
+        signals.append(("Круглый дроссель", LoadSignalValuesByPeriod('MEASURES\\xvi_v_cech', start_period, stop_period)))
+        signals.append(("На 3 фильтр", LoadSignalValuesByPeriod('MEASURES\XVI_708', start_period, stop_period)))
+        signals.append(("Над дверью", LoadSignalValuesByPeriod('MEASURES\ZI_704', start_period, stop_period)))
+        signals.append(("Горячий дроссель", LoadSignalValuesByPeriod('MEASURES\PY_702', start_period, stop_period)))
+        signals.append(("dP на фильтре", LoadSignalValuesByPeriod('MEASURES\PDI_725', start_period, stop_period)))
+        signals.append(("dP на дымососе", LoadSignalValuesByPeriod('MEASURES\PDI_729', start_period, stop_period)))
+        signals.append(("Частота дымососа", LoadSignalValuesByPeriod('MEASURES\SI_U721', start_period, stop_period)))
+        signals.append(("Т перед фильтром", LoadSignalValuesByPeriod('MEASURES\TI_708', start_period, stop_period)))
+
+        signals.append(("Т над дверью", LoadSignalValuesByPeriod('MEASURES\TI_711Y', start_period, stop_period))) #эти два сигнала должны быть в списке последними
+        signals.append(("Т воздух цех", LoadSignalValuesByPeriod('MEASURES\TI_711X', start_period, stop_period))) #эти два сигнала должны быть в списке последними
+
+    detalization = 1
+
     series = list()
     for i in range(len(signals)):
-        series.append([[signals[i][0]], []])
-        for j in range(len(signals[i][1])):
-            dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S+00:00')
-            point={"date":dat.timestamp()*1000, "value":signals[i][1][j].value}
-            series[i][1].append(point)
+        if signals[i][0] not in {"Т над дверью","Т воздух цех"}: #для случая вычисления разности(или другой операции) между двумя сигналами
+            series.append([[signals[i][0]], []])
+            for j in range(0, len(signals[i][1]), detalization):
+                dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S+00:00')
+                point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value, 2)}
+                series[i][1].append(point)
+        elif signals[i][0] in {"Т над дверью"}: #исключение для вычисления дельты температур
+            series.append([["Дельта Т"], []])
+            for j in range(0, len(signals[i][1]), detalization):
+                dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S+00:00')
+                point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value-signals[i+1][1][j].value, 2)}
+                series[i][1].append(point)
 
     return JsonResponse(series, safe=False)
 

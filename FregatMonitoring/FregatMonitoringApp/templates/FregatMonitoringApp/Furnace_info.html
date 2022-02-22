@@ -8,7 +8,11 @@
 {% block LeftSideBar%}
 <div class="left-side-bar">
     <ul style="padding-left: 0px;">
-      <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:FurnaceBaseTrends' %}"> Тренды </a></li>
+      {% if furnace_num == 1 %}                                                                                            
+          <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:FurnaceBaseTrends' 1%}"> Тренды </a></li>
+      {% elif furnace_num == 2%}
+          <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:FurnaceBaseTrends' 2%}"> Тренды </a></li>
+      {% endif %}
       <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:Automelts_info' 1 %}"> Режимы плавок </a></li>
     </ul>
 </div>
@@ -16,7 +20,7 @@
 
 {% block furnace_info %}
 <div class="content-box">
-<div id="FurnaceNo" class="content-page-header">Печь №{{ furnace_num }}</div>
+<div id="FurnaceNo" class="content-page-header">Печь №{{ furnace_num }}. Основные параметры</div>
 <table>
     <tr>
         <td><!--Основная таблица с картинкой печи-->
