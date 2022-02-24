@@ -22,17 +22,26 @@ def index(request):
     return Furnace_1_info(request)
 
 
-def FurnaceBaseTrends(request, Furnace_No):
+def FurnaceBaseTrends(request, Furnace_No, **kwards):  #отображает шаблон экрана трендов для печи
     template = loader.get_template('FregatMonitoringApp/FurnaceTrendsPage.html')
+    if(kwards.get('start_time') is not None and kwards.get('stop_time') is not None):
+        start_period = kwards.get('start_time') 
+        stop_period = kwards.get('stop_time')
+    else:    
+        start_period = (datetime.now()-timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M:%S')#предыдущий час
+        stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')#текущий момент
     context = {
-        'Furnace_No': Furnace_No
+        'Furnace_No': Furnace_No,
+        'Start_time': start_period,
+        'Stop_time': stop_period
     }
     return HttpResponse(template.render(context, request))
 
 
-def FurnaceBaseTrendsData(request, Furnace_No):
-    start_period = (datetime.now()-timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')#предыдущий час
-    stop_period = datetime.now().strftime('%Y-%m-%d %H:%M:%S')#текущий момент
+def FurnaceBaseTrendsData(request, Furnace_No): #готовит и отправляет данные сигналов для трендов за указанный период времени
+    if request.method == 'GET':
+        start_period = request.GET['start']
+        stop_period = request.GET['stop']
 
     def LoadSignalValuesByPeriod(signal_name, period_start, period_stop, **kwards):
         minus_mod = kwards.get('minus') if kwards.get('minus') is not None else 0
@@ -62,8 +71,8 @@ def FurnaceBaseTrendsData(request, Furnace_No):
         signals.append(("Частота дымососа", LoadSignalValuesByPeriod('MEASURES\SI_U720', start_period, stop_period)))
         signals.append(("Т перед фильтром", LoadSignalValuesByPeriod('MEASURES\TI_704', start_period, stop_period)))
 
-        signals.append(("Т над дверью", LoadSignalValuesByPeriod('MEASURES\TI_712Y', start_period, stop_period))) #эти два сигнала должны быть в списке последними
-        signals.append(("Т воздух цех", LoadSignalValuesByPeriod('MEASURES\TI_712X', start_period, stop_period))) #эти два сигнала должны быть в списке последними
+       # signals.append(("Т над дверью", LoadSignalValuesByPeriod('MEASURES\TI_712Y', start_period, stop_period))) #эти два сигнала должны быть в списке последними
+       # signals.append(("Т воздух цех", LoadSignalValuesByPeriod('MEASURES\TI_712X', start_period, stop_period))) #эти два сигнала должны быть в списке последними
 
     elif Furnace_No == 2:
         signals.append(("Мощность", LoadSignalValuesByPeriod('MEASURES\HY_F710', start_period, stop_period)))
@@ -82,8 +91,8 @@ def FurnaceBaseTrendsData(request, Furnace_No):
         signals.append(("Частота дымососа", LoadSignalValuesByPeriod('MEASURES\SI_U721', start_period, stop_period)))
         signals.append(("Т перед фильтром", LoadSignalValuesByPeriod('MEASURES\TI_708', start_period, stop_period)))
 
-        signals.append(("Т над дверью", LoadSignalValuesByPeriod('MEASURES\TI_711Y', start_period, stop_period))) #эти два сигнала должны быть в списке последними
-        signals.append(("Т воздух цех", LoadSignalValuesByPeriod('MEASURES\TI_711X', start_period, stop_period))) #эти два сигнала должны быть в списке последними
+       # signals.append(("Т над дверью", LoadSignalValuesByPeriod('MEASURES\TI_711Y', start_period, stop_period))) #эти два сигнала должны быть в списке последними
+       # signals.append(("Т воздух цех", LoadSignalValuesByPeriod('MEASURES\TI_711X', start_period, stop_period))) #эти два сигнала должны быть в списке последними
 
     detalization = 1
 
