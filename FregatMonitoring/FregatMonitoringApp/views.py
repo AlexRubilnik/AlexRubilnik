@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta
+import time
+import random
 from django import template
 from django.db.models.query_utils import subclasses
 from django.views.decorators.csrf import csrf_exempt
@@ -18,15 +21,110 @@ def index(request):
     #return HttpResponse(template.render(context, request))
     return Furnace_1_info(request)
 
+
+def FurnaceBaseTrends(request, Furnace_No, **kwards):  #отображает шаблон экрана трендов для печи
+    template = loader.get_template('FregatMonitoringApp/FurnaceTrendsPage.html')
+    if(kwards.get('start_time') is not None and kwards.get('stop_time') is not None):
+        start_period = kwards.get('start_time') 
+        stop_period = kwards.get('stop_time')
+    else:    
+        start_period = (datetime.now()-timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M:%S')#предыдущий час
+        stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')#текущий момент
+    context = {
+        'Furnace_No': Furnace_No,
+        'Start_time': start_period,
+        'Stop_time': stop_period
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def FurnaceBaseTrendsData(request, Furnace_No): #готовит и отправляет данные сигналов для трендов за указанный период времени
+    if request.method == 'GET':
+        start_period = request.GET['start']
+        stop_period = request.GET['stop']
+
+    def LoadSignalValuesByPeriod(signal_name, period_start, period_stop, **kwards):
+        minus_mod = kwards.get('minus') if kwards.get('minus') is not None else 0
+        signal_value = Floattable.objects.annotate(value=F('val')-minus_mod).filter(
+                        tagindex=Tagtable.objects.filter(tagname=signal_name)[0].tagindex
+                        ).filter(dateandtime__range=(period_start,period_stop)).order_by('dateandtime')
+        return signal_value
+    
+    #Список сигналов, отображаемых на тренде. Чтобы добавить новый сигнал, нужно внести для него строку в этот блок
+    signals = list()
+
+    #сигналы для первой печи
+    if Furnace_No == 1:
+        signals.append(("Мощность", LoadSignalValuesByPeriod('MEASURES\HY_F711', start_period, stop_period)))
+        signals.append(("Ток двигателя", LoadSignalValuesByPeriod('MEASURES\SI_KL710', start_period, stop_period)))
+        signals.append(("Расход газа", LoadSignalValuesByPeriod('MEASURES\FL710_NG', start_period, stop_period)))
+        signals.append(("Расход О2", LoadSignalValuesByPeriod('MEASURES\O1Flow', start_period, stop_period)))
+        signals.append(("Расход воздуха", LoadSignalValuesByPeriod('MEASURES\FL710_AIR', start_period, stop_period)))
+        signals.append(("Альфа", LoadSignalValuesByPeriod('MEASURES\Alpha_p1', start_period, stop_period)))
+        signals.append(("Лямбда", LoadSignalValuesByPeriod('MEASURES\Lambda_p1', start_period, stop_period)))
+        signals.append(("Круглый дроссель", LoadSignalValuesByPeriod('MEASURES\p1_mct1_rez', start_period, stop_period, minus=256)))
+        signals.append(("На 3 фильтр", LoadSignalValuesByPeriod('MEASURES\p1_mct5_rez', start_period, stop_period, minus=1280)))
+        signals.append(("Над дверью", LoadSignalValuesByPeriod('MEASURES\p1_mct2_rez', start_period, stop_period, minus=512)))
+        signals.append(("Горячий дроссель", LoadSignalValuesByPeriod('MEASURES\ZI_701', start_period, stop_period)))
+        signals.append(("dP на фильтре", LoadSignalValuesByPeriod('MEASURES\PDI_720', start_period, stop_period)))
+        signals.append(("dP на дымососе", LoadSignalValuesByPeriod('MEASURES\PDI_724', start_period, stop_period)))
+        signals.append(("Частота дымососа", LoadSignalValuesByPeriod('MEASURES\SI_U720', start_period, stop_period)))
+        signals.append(("Т перед фильтром", LoadSignalValuesByPeriod('MEASURES\TI_704', start_period, stop_period)))
+
+       # signals.append(("Т над дверью", LoadSignalValuesByPeriod('MEASURES\TI_712Y', start_period, stop_period))) #эти два сигнала должны быть в списке последними
+       # signals.append(("Т воздух цех", LoadSignalValuesByPeriod('MEASURES\TI_712X', start_period, stop_period))) #эти два сигнала должны быть в списке последними
+
+    elif Furnace_No == 2:
+        signals.append(("Мощность", LoadSignalValuesByPeriod('MEASURES\HY_F710', start_period, stop_period)))
+        signals.append(("Ток двигателя", LoadSignalValuesByPeriod('MEASURES\SI_KL711', start_period, stop_period)))
+        signals.append(("Расход газа", LoadSignalValuesByPeriod('MEASURES\TI_810B', start_period, stop_period)))
+        signals.append(("Расход О2", LoadSignalValuesByPeriod('MEASURES\O2Flow', start_period, stop_period)))
+        signals.append(("Расход воздуха", LoadSignalValuesByPeriod('MEASURES\TI_810C', start_period, stop_period)))
+        signals.append(("Альфа", LoadSignalValuesByPeriod('MEASURES\Alpha', start_period, stop_period)))
+        signals.append(("Лямбда", LoadSignalValuesByPeriod('MEASURES\Lambda', start_period, stop_period)))
+        signals.append(("Круглый дроссель", LoadSignalValuesByPeriod('MEASURES\\xvi_v_cech', start_period, stop_period)))
+        signals.append(("На 3 фильтр", LoadSignalValuesByPeriod('MEASURES\XVI_708', start_period, stop_period)))
+        signals.append(("Над дверью", LoadSignalValuesByPeriod('MEASURES\ZI_704', start_period, stop_period)))
+        signals.append(("Горячий дроссель", LoadSignalValuesByPeriod('MEASURES\PY_702', start_period, stop_period)))
+        signals.append(("dP на фильтре", LoadSignalValuesByPeriod('MEASURES\PDI_725', start_period, stop_period)))
+        signals.append(("dP на дымососе", LoadSignalValuesByPeriod('MEASURES\PDI_729', start_period, stop_period)))
+        signals.append(("Частота дымососа", LoadSignalValuesByPeriod('MEASURES\SI_U721', start_period, stop_period)))
+        signals.append(("Т перед фильтром", LoadSignalValuesByPeriod('MEASURES\TI_708', start_period, stop_period)))
+
+       # signals.append(("Т над дверью", LoadSignalValuesByPeriod('MEASURES\TI_711Y', start_period, stop_period))) #эти два сигнала должны быть в списке последними
+       # signals.append(("Т воздух цех", LoadSignalValuesByPeriod('MEASURES\TI_711X', start_period, stop_period))) #эти два сигнала должны быть в списке последними
+
+    detalization = 1
+
+    series = list()
+    for i in range(len(signals)):
+        if signals[i][0] not in {"Т над дверью","Т воздух цех"}: #для случая вычисления разности(или другой операции) между двумя сигналами
+            series.append([[signals[i][0]], []])
+            for j in range(0, len(signals[i][1]), detalization):
+                dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S+00:00')
+                point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value, 2)}
+                series[i][1].append(point)
+        elif signals[i][0] in {"Т над дверью"}: #исключение для вычисления дельты температур
+            series.append([["Дельта Т"], []])
+            for j in range(0, len(signals[i][1]), detalization):
+                dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S+00:00')
+                point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value-signals[i+1][1][j].value, 2)}
+                series[i][1].append(point)
+
+    return JsonResponse(series, safe=False)
+
+
 def error_message(request):
     template = loader.get_template('FregatMonitoringApp/ErrorMessage.html')
     context = None
     return HttpResponse(template.render(context, request))
 
+
 def sorry_page(request):
     template = loader.get_template('FregatMonitoringApp/SorryPage.html')
     context = None
     return HttpResponse(template.render(context, request))
+
 
 def Furnace_1_info(request):
     
@@ -111,6 +209,9 @@ def Furnace_1_info(request):
     except:
         shzm_position = "---"
 
+    weight_in_shzm= [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\WI_710')[0].tagindex).order_by('-dateandtime')[0].val,2),
+    Tagtable.objects.filter(tagname='MEASURES\WI_710')[0].tagindex]
+
     #автоплавка
     Automelt_info = Automelts.objects.filter(furnace_no=1)
     auto_mode = "Автомат" if Automelt_info[0].auto_mode else "Ручной"
@@ -165,9 +266,11 @@ def Furnace_1_info(request):
                'step_time_remain' : step_time_remain,
                'deltat_stp' : deltat_stp,
                'shzm_position': shzm_position,
+               'weight_in_shzm': weight_in_shzm,
               }
 
     return HttpResponse(template.render(context, request))
+
 
 def Furnace_2_info(request):
     
@@ -251,6 +354,9 @@ def Furnace_2_info(request):
     except:
         shzm_position = "---"
 
+    weight_in_shzm= [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\WI_710')[0].tagindex).order_by('-dateandtime')[0].val,2),
+    Tagtable.objects.filter(tagname='MEASURES\WI_710')[0].tagindex]
+
     #автоплавка
     Automelt_info = Automelts.objects.filter(furnace_no=2)
     auto_mode = "Автомат" if Automelt_info[0].auto_mode else "Ручной"
@@ -305,9 +411,11 @@ def Furnace_2_info(request):
                'step_time_remain' : step_time_remain,
                'deltat_stp' : deltat_stp,
                'shzm_position': shzm_position,
+               'weight_in_shzm' : weight_in_shzm,
               }
 
     return HttpResponse(template.render(context, request))
+
 
 def AutoMeltTypes_info(request, meltID_1):
 
@@ -345,6 +453,7 @@ def AutoMeltTypes_info(request, meltID_1):
 
     return HttpResponse(template.render(context, request))
 
+
 def AutoMelts_SetPoints(request):
     
     template = loader.get_template('FregatMonitoringApp/AutoMeltsSetPoints.html')
@@ -359,6 +468,7 @@ def AutoMelts_SetPoints(request):
         'deltaT2_stp':deltaT2_stp,
     }
     return HttpResponse(template.render(context, request))
+
 
 def AutoMeltsSaveSettings(request, meltID_1, meltID_2): #сохраняет изменение режимов автоплаки в базе
     
@@ -379,6 +489,7 @@ def AutoMeltsSaveSettings(request, meltID_1, meltID_2): #сохраняет из
 
     return HttpResponseRedirect(reverse('FregatMonitoringApp:Automelts_info', args=(meltID_1,)))
 
+
 def AutoMeltsSaveSetpoints(request, furnace_num): #сохраняет изменение уставки Дельты в базе
     try:
         try: 
@@ -395,14 +506,16 @@ def AutoMeltsSaveSetpoints(request, furnace_num): #сохраняет измен
     return HttpResponseRedirect(reverse('FregatMonitoringApp:AutoMeltsSetPoints'))
 
 
-
 #----------ОТОБРАЖЕНИЯ ЧЕРЕЗ СЕРИАЛАЙЗЕРЫ-------------------
+
 def Furnace_info_s(request, SignalIndex): # API для обновления данных на экране "Печь 1(2)"
     
+    #В общем виде ищем последнее значение в таблице для каждого сигнала
     tag_val = Floattable.objects.filter(tagindex=SignalIndex).order_by('-dateandtime')[:1]
 
     serializer = FloattableSerializer(tag_val, many=True)
 
+    # если значение сигнала нужно пред-обработать, обрабатываем значение уже внутри сериалайзера
     #----Исключения 1 печь----------------
     if SignalIndex == 13: #нагрузка на печь
         serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
@@ -447,7 +560,12 @@ def Furnace_info_s(request, SignalIndex): # API для обновления да
     if SignalIndex == 12: #разряжение в гор. газоходе
         serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
 
+    #----Исключения ШЗМ---------------
+    if SignalIndex == 48: #вес в бункере ШЗМ
+        serializer.data[0]['val'] = round(serializer.data[0]['val'],2)
+
     return JsonResponse(serializer.data, safe=False)
+
 
 def Furnace_info_a(request, FurnaceNo): # API для обновления данных о автоплавке на экране "Печь 1(2)"
 

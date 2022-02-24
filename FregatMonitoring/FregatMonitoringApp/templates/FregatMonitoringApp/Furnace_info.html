@@ -8,7 +8,11 @@
 {% block LeftSideBar%}
 <div class="left-side-bar">
     <ul style="padding-left: 0px;">
-      <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:SorryPage' %}"> Тренды </a></li>
+      {% if furnace_num == 1 %}                                                                                            
+          <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:FurnaceBaseTrends' 1%}"> Тренды </a></li>
+      {% elif furnace_num == 2%}
+          <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:FurnaceBaseTrends' 2%}"> Тренды </a></li>
+      {% endif %}
       <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:Automelts_info' 1 %}"> Режимы плавок </a></li>
     </ul>
 </div>
@@ -16,7 +20,7 @@
 
 {% block furnace_info %}
 <div class="content-box">
-<div id="FurnaceNo" class="content-page-header">Печь №{{ furnace_num }}</div>
+<div id="FurnaceNo" class="content-page-header">Печь №{{ furnace_num }}. Основные параметры</div>
 <table>
     <tr>
         <td><!--Основная таблица с картинкой печи-->
@@ -154,7 +158,7 @@
                             <tr><td>Вибрация</td> {% if vibrator_shzm %}<td  class="red-lamp"> </td></tr>
                                                        {% else %}<td class="black-lamp"> </td></tr>
                                                        {% endif %}
-                            <tr><td>Вес</td>   <td>13.2 т</td></tr>
+                            <tr><td>Вес</td>   <td><span id={{ weight_in_shzm.1 }} class="UpdSign">{{ weight_in_shzm.0 }}</span><span> т</span></td></tr>
                         </table>
                     </td>
                 </tr>
