@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
-import time
-import random
+import itertools 
 from django import template
 from django.db.models.query_utils import subclasses
 from django.views.decorators.csrf import csrf_exempt
@@ -71,8 +70,8 @@ def FurnaceBaseTrendsData(request, Furnace_No): #готовит и отправ�
         signals.append(("Частота дымососа", LoadSignalValuesByPeriod('MEASURES\SI_U720', start_period, stop_period)))
         signals.append(("Т перед фильтром", LoadSignalValuesByPeriod('MEASURES\TI_704', start_period, stop_period)))
 
-       # signals.append(("Т над дверью", LoadSignalValuesByPeriod('MEASURES\TI_712Y', start_period, stop_period))) #эти два сигнала должны быть в списке последними
-       # signals.append(("Т воздух цех", LoadSignalValuesByPeriod('MEASURES\TI_712X', start_period, stop_period))) #эти два сигнала должны быть в списке последними
+        signals.append(("Т над дверью", LoadSignalValuesByPeriod('MEASURES\TI_712Y', start_period, stop_period))) #эти два сигнала должны быть в списке последними
+        signals.append(("Т воздух цех", LoadSignalValuesByPeriod('MEASURES\TI_712X', start_period, stop_period))) #эти два сигнала должны быть в списке последними
 
     elif Furnace_No == 2:
         signals.append(("Мощность", LoadSignalValuesByPeriod('MEASURES\HY_F710', start_period, stop_period)))
@@ -91,8 +90,8 @@ def FurnaceBaseTrendsData(request, Furnace_No): #готовит и отправ�
         signals.append(("Частота дымососа", LoadSignalValuesByPeriod('MEASURES\SI_U721', start_period, stop_period)))
         signals.append(("Т перед фильтром", LoadSignalValuesByPeriod('MEASURES\TI_708', start_period, stop_period)))
 
-       # signals.append(("Т над дверью", LoadSignalValuesByPeriod('MEASURES\TI_711Y', start_period, stop_period))) #эти два сигнала должны быть в списке последними
-       # signals.append(("Т воздух цех", LoadSignalValuesByPeriod('MEASURES\TI_711X', start_period, stop_period))) #эти два сигнала должны быть в списке последними
+        signals.append(("Т над дверью", LoadSignalValuesByPeriod('MEASURES\TI_711Y', start_period, stop_period))) #эти два сигнала должны быть в списке последними
+        signals.append(("Т воздух цех", LoadSignalValuesByPeriod('MEASURES\TI_711X', start_period, stop_period))) #эти два сигнала должны быть в списке последними
 
     detalization = 1
 
@@ -106,9 +105,9 @@ def FurnaceBaseTrendsData(request, Furnace_No): #готовит и отправ�
                 series[i][1].append(point)
         elif signals[i][0] in {"Т над дверью"}: #исключение для вычисления дельты температур
             series.append([["Дельта Т"], []])
-            for j in range(0, len(signals[i][1]), detalization):
-                dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S+00:00')
-                point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value-signals[i+1][1][j].value, 2)}
+            for a,b in itertools.zip_longest(signals[i][1], signals[i+1][1]): #шагаем сразу по двум спискам. Для ускорения вычислений
+                dat = datetime.strptime(str(a.dateandtime), '%Y-%m-%d %H:%M:%S+00:00')
+                point={"date":dat.timestamp()*1000, "value":round(a.value-b.value, 2)}
                 series[i][1].append(point)
 
     return JsonResponse(series, safe=False)
