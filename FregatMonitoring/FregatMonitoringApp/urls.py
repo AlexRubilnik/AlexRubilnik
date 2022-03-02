@@ -1,3 +1,4 @@
+from unicodedata import name
 from django.urls import path
 
 from . import views
@@ -16,5 +17,7 @@ urlpatterns = [
     path('AutoMeltsSetPoints/', views.AutoMelts_SetPoints, name='AutoMeltsSetPoints'),
     path('AutoMeltsSaveSetpoints/<int:furnace_num>/', views.AutoMeltsSaveSetpoints, name='AutoMeltsSaveSetpoints'),
     path('Furnace_info_s/<int:SignalIndex>/', views.Furnace_info_s, name='Furnace_info_s'),
-    path('Furnace_info_a/<int:FurnaceNo>/', views.Furnace_info_a, name='Furnace_info_a')
+    path('Furnace_info_a/<int:FurnaceNo>/', views.Furnace_info_a, name='Furnace_info_a'),
+    path('ReportsPage/', views.ReportsPage, name='ReportsPage'),
+    path('GasesUsage/', views.GasesUsage, name='GasesUsage')
 ]   

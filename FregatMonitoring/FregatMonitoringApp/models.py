@@ -7,6 +7,16 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 
+class Daily_gases_consumption(models.Model):
+    id = models.SmallIntegerField(db_column='Id', primary_key=True)
+    data = models.DateField(db_column='Data', blank=False, null=False)
+    daily_consumption = models.FloatField(db_column='Daily_consumption', blank=False, null=True)
+    gasname = models.CharField(db_column='GasName', blank=False, null=False, max_length=20)
+
+    class Meta:
+        managed = False
+        db_table = 'DailyGasesConsumption'
+
 
 class Automelts(models.Model):
     furnace_no = models.SmallIntegerField(db_column='Furnace_No', primary_key=True)  # Field name made lowercase.
@@ -127,12 +137,3 @@ class AutoMeltsInfo(models.Model): #Класс для сериализатора
     deltat = models.FloatField(blank=True, null=True, default='')
     deltat_stp = models.IntegerField(blank=True, null=True, default='')
 
-
-"""class FurnaceBaseTrendsData:
-
-    def __init__(self, series_list):
-        self.series_names = dict()
-        for name in series_names_list
-        self.series_names[name] = data
-
-"""

@@ -40,6 +40,10 @@
     height: 700px;
   }
 
+#container {
+    display: flex;
+}
+
 .content-box{
     float: left;
     border: 1px solid #d6d9dc;
@@ -129,6 +133,7 @@
 }
 .main_container{
     padding-top: 120px;
+    position: fixed;
 }
 .melt_step_container{
     box-shadow: rgb(0 0 0 / 20%) 0px 1px 5px 0px;

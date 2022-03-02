@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Daily_gases_consumption',
             fields=[
-                ('id', models.SmallIntegerField(db_column='Furnace_No', primary_key=True, serialize=False)),
+                ('id', models.SmallIntegerField(db_column='Id', primary_key=True, serialize=False)),
                 ('data', models.DateField(db_column='Data')),
                 ('daily_consumption', models.FloatField(db_column='Daily_consumption', null=True)),
                 ('gasname', models.CharField(db_column='GasName', max_length=20)),

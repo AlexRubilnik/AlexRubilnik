@@ -1,3 +1,4 @@
+from calendar import month
 from datetime import datetime, timedelta
 import itertools 
 from django import template
@@ -9,16 +10,47 @@ from django.urls import reverse
 from django.db.models import F
 
 from rest_framework.parsers import JSONParser
-
-from .models import Floattable, Tagtable, Automelts, AutoMeltsInfo
-from .models import Melttypes, Meltsteps, Substeps
+from .models import Melttypes, Meltsteps, Substeps, Floattable, Tagtable, Automelts, AutoMeltsInfo, Daily_gases_consumption
 from .serializers import FloattableSerializer, AutomeltsSerializer
 
 def index(request):
-    #template = loader.get_template('FregatMonitoringApp/base.html')
-    #context = None
-    #return HttpResponse(template.render(context, request))
     return Furnace_1_info(request)
+
+def ReportsPage(request):
+    template = loader.get_template('FregatMonitoringApp/ReportsPage.html')
+    context = None
+
+    return HttpResponse(template.render(context, request))
+
+
+def GasesUsage(request, **kwards):    
+    template = loader.get_template('FregatMonitoringApp/GasesUsage.html')
+    
+    if(kwards.get('start_time') is not None and kwards.get('stop_time') is not None):
+        start_period = kwards.get('start_time') 
+        stop_period = kwards.get('stop_time')
+    else:    
+        #start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%dT%H:%M:%S')#предыдущий месяц
+        #stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')#текущий момент
+        start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%d')#предыдущий месяц
+        stop_period = datetime.now().strftime('%Y-%m-%d')#текущий момент
+
+    gas_furnace_1_consumption = Daily_gases_consumption.objects.filter(gasname = 'Gas_P1').filter(data__range=(start_period,stop_period)).order_by('data')
+    gas_furnace_2_consumption = Daily_gases_consumption.objects.filter(gasname = 'Gas_P2').filter(data__range=(start_period,stop_period)).order_by('data')
+    o2_furnace_1_consumption = Daily_gases_consumption.objects.filter(gasname = 'O2_P1').filter(data__range=(start_period,stop_period)).order_by('data')
+    o2_furnace_2_consumption = Daily_gases_consumption.objects.filter(gasname = 'O2_P2').filter(data__range=(start_period,stop_period)).order_by('data')
+    furma_consumption = Daily_gases_consumption.objects.filter(gasname = 'O2_Furma').filter(data__range=(start_period,stop_period)).order_by('data')
+    context={
+        'Start_time': start_period,
+        'Stop_time': stop_period,
+        'furnace_1_Gas' : gas_furnace_1_consumption,
+        'furnace_1_O2' : o2_furnace_1_consumption,
+        'furnace_2_Gas' : gas_furnace_2_consumption,
+        'furnace_2_O2' : o2_furnace_2_consumption,
+        'furma' : furma_consumption,
+    }
+
+    return HttpResponse(template.render(context, request))
 
 
 def FurnaceBaseTrends(request, Furnace_No, **kwards):  #отображает шаблон экрана трендов для печи

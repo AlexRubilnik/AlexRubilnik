@@ -82,8 +82,8 @@ DATABASES = {
     'production_fx': {
         'ENGINE': 'sql_server.pyodbc',
         'HOST': "FRGV202X\PRODUCTION",
-        'USER': "Operator",
-        'PASSWORD': "fregat",
+        'USER': "Operator", #ProdReader
+        'PASSWORD': "fregat", #123
         'NAME': "FX_Hist",
         'PORT': "",
         'OPTIONS': {

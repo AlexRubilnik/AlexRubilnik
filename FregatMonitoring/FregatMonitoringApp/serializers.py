@@ -32,7 +32,3 @@ class AutomeltsSerializer(serializers.Serializer):
 
 
 
-"""class FurnaceBaseTrendsSerializer(serializers.Serialize):
-    name = serializers.CharField(max_length=100)
-    values = {**}
-"""
