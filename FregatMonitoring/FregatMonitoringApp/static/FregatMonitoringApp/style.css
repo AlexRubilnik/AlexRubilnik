@@ -67,12 +67,16 @@
 
 }
 
+#gases-usage-table{
+    float: left;
+}
+
 .header-brand{
     background-color: transparent;
     box-sizing: border-box;
     color: rgb(255, 127, 0);
     float:center;
-    font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: "Lato","Helvetica Neue","Helvetica","Arial","sans-serif";
     font-size: 40px;
     font-weight: 900;
     letter-spacing: 0.5px;
@@ -85,6 +89,7 @@
     padding-right: 15px;
     text-decoration: none;
 }
+
 .header-bgd{
     height:60px; 
     margin-left:-15px; 
@@ -98,6 +103,7 @@
     position: fixed;
     width: -webkit-fill-available;
 }
+
 .left-side-bar
 {
     vertical-align: top;
@@ -108,6 +114,7 @@
     top: 100px;
     position:fixed;
 }
+
 .left-side-bar-list {
     list-style-type: none;
     text-align: left;

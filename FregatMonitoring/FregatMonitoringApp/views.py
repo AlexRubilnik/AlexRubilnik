@@ -1,11 +1,11 @@
 from calendar import month
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import itertools 
-from django import template
+
 from django.db.models.query_utils import subclasses
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from django.template import context, loader
+from django.template import loader
 from django.urls import reverse
 from django.db.models import F
 
@@ -23,15 +23,29 @@ def ReportsPage(request):
     return HttpResponse(template.render(context, request))
 
 
-def GasesUsage(request, **kwards):    
+def GasesUsageReportTemplate(request, **kwards):    
     template = loader.get_template('FregatMonitoringApp/GasesUsage.html')
     
     if(kwards.get('start_time') is not None and kwards.get('stop_time') is not None):
         start_period = kwards.get('start_time') 
         stop_period = kwards.get('stop_time')
     else:    
-        #start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%dT%H:%M:%S')#предыдущий месяц
-        #stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')#текущий момент
+        start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%dT%H:%M:%S')#предыдущий месяц
+        stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')#текущий момент
+ 
+    context={
+        'Start_time': start_period,
+        'Stop_time': stop_period,
+    }
+
+    return HttpResponse(template.render(context, request))
+
+
+def getGasesUsageData(request, **kwards): #выдаёт данные по запросу клиента
+    if(kwards.get('start_time') is not None and kwards.get('stop_time') is not None):
+        start_period = kwards.get('start_time').strftime('%Y-%m-%d') 
+        stop_period = kwards.get('stop_time').strftime('%Y-%m-%d')
+    else:    
         start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%d')#предыдущий месяц
         stop_period = datetime.now().strftime('%Y-%m-%d')#текущий момент
 
@@ -40,17 +54,23 @@ def GasesUsage(request, **kwards):
     o2_furnace_1_consumption = Daily_gases_consumption.objects.filter(gasname = 'O2_P1').filter(data__range=(start_period,stop_period)).order_by('data')
     o2_furnace_2_consumption = Daily_gases_consumption.objects.filter(gasname = 'O2_P2').filter(data__range=(start_period,stop_period)).order_by('data')
     furma_consumption = Daily_gases_consumption.objects.filter(gasname = 'O2_Furma').filter(data__range=(start_period,stop_period)).order_by('data')
-    context={
-        'Start_time': start_period,
-        'Stop_time': stop_period,
-        'furnace_1_Gas' : gas_furnace_1_consumption,
-        'furnace_1_O2' : o2_furnace_1_consumption,
-        'furnace_2_Gas' : gas_furnace_2_consumption,
-        'furnace_2_O2' : o2_furnace_2_consumption,
-        'furma' : furma_consumption,
-    }
+    
+    consumptions = list()
+    consumptions.append(("furnace_1_Gas", gas_furnace_1_consumption ))
+    consumptions.append(("furnace_1_O2", o2_furnace_1_consumption ))
+    consumptions.append(("furnace_2_Gas", gas_furnace_2_consumption ))
+    consumptions.append(("furnace_2_O2", o2_furnace_2_consumption ))
+    consumptions.append(("furma", furma_consumption ))
 
-    return HttpResponse(template.render(context, request))
+    series = list()
+    for i in range(len(consumptions)):
+        series.append([[consumptions[i][0]], []])
+        for j in range(0, len(consumptions[i][1])):
+            ts = datetime.strptime(str(consumptions[i][1][j].data), "%Y-%m-%d")
+            point={"date":str(consumptions[i][1][j].data), "timestamp":ts.timestamp()*1000, "value":round(consumptions[i][1][j].daily_consumption, 2)}
+            series[i][1].append(point)
+
+    return JsonResponse(series, safe=False)
 
 
 def FurnaceBaseTrends(request, Furnace_No, **kwards):  #отображает шаблон экрана трендов для печи
