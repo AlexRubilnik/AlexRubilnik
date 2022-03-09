@@ -13,7 +13,6 @@ function RenderChart_1(chart_data){
   // https://www.amcharts.com/docs/v5/concepts/themes/
   root.setThemes([
     am5themes_Animated.new(root),
-    //am5themes_Kelly.new(root)
   ]);
 
 
@@ -74,8 +73,8 @@ function RenderChart_1(chart_data){
       yAxis: yAxis,
       valueYField: fieldName,
       categoryXField: "date",
-      //fill: am5.color(color),
-      //stroke: am5.color(color)
+      fill: am5.color(color),
+      stroke: am5.color(color)
     }));
 
     series.columns.template.setAll({
@@ -106,8 +105,8 @@ function RenderChart_1(chart_data){
     legend.data.push(series);
   }
 
-  makeSeries("Природный газ", "gas", 0xffd963);
-  makeSeries("Кислород", "o2", 0xc52020 );
+  makeSeries("Природный газ", "gas", 0xff7f00);
+  makeSeries("Кислород", "o2", 0x4473b3 );
 
   // Make stuff animate on load
   // https://www.amcharts.com/docs/v5/concepts/animations/
