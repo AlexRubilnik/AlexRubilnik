@@ -1,4 +1,4 @@
-function FurnaceBaseTrendsDataUpdate(){ 
+function GasesUsageDataUpdate(){ 
     report_type = 'report_type='+'gases_usage_daily'
     start_time = document.getElementById('start_time').value
     stop_time = document.getElementById('stop_time').value
@@ -17,19 +17,18 @@ function FurnaceBaseTrendsDataUpdate(){
         if (this.status != 200) return;
         if (this.status = 200){
             t_data = JSON.parse(this.responseText); 
-            RenderTable(t_data)
+            RenderTable(t_data);
+            RenderChart_1(t_data);
         }       
     };
     delete(XHR);  
        
-  }
+}
 
-FurnaceBaseTrendsDataUpdate();
+GasesUsageDataUpdate();
 
 //Build Tabulator
 function RenderTable(TableData){
-    var tableData = 
-        {id:1, name:"Billy Bob", age:"12", gender:"male", height:1, col:"red", dob:"", cheese:1}
         //autotest to check if data series order is correct 
         if(TableData[0][0] != 'furnace_1_Gas' || TableData[1][0] != 'furnace_1_O2' || 
            TableData[2][0] != 'furnace_2_Gas' || TableData[3][0] != 'furnace_2_O2'  || TableData[4][0] != 'furma'){
@@ -81,7 +80,7 @@ function RenderTable(TableData){
                 ],
             },
             ],
-    });
+        });
 
 
     //trigger download of data.csv file

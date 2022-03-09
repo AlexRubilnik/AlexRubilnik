@@ -11,7 +11,7 @@
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.1.3/dist/js/tabulator.min.js"></script>
     <script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
     {% load static %}
-    <script src="{% static 'FregatMonitoringApp/scripts/GasesUsage.js' %}"> </script>
+    <!-- Скрипты обработки таблицы и графиков внизу шаблона -->
     
     
 {% endblock %}
@@ -20,21 +20,20 @@
 <div class="left-side-bar">
     <ul style="padding-left: 0px;">
       <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:GasesUsage' %}"> Газ, О2 за смену </a></li>
-      <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:GasesUsage' %}"> Газ, О2 за сутки </a></li>
       <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:GasesUsage' %}"> Газ, О2 за период </a></li>
     </ul>
 </div>
 {% endblock%}  
 
-{% block FurnaceBaseTrends%}
+{% block Reports%}
 <div class="content-box">
-  <div id="FurnaceNo" class="content-page-header">Отчёты
+  <div id="Reports" class="content-page-header">Отчёты
     <div style="width: 200px;"></div>
     <div class="trend-period">Начальное время</div> 
     <input align="right" type="datetime-local"  id="start_time" name="start_time" value="{{ Start_time }}"/> 
     <div class="trend-period">Конечное время</div>
     <input align="right" type="datetime-local"  id="stop_time" name="stop_time" value="{{ Stop_time }}"/>
-    <input class="btn" id="trend_update_btn" name="ChangeTrendPeriod_btn" value="обновить" onclick=FurnaceBaseTrendsDataUpdate()>
+    <input class="btn" id="trend_update_btn" name="ChangeTrendPeriod_btn" value="обновить" onclick=GasesUsageDataUpdate()>
   </div>
   <div id="gases-usage-block">
     <div>  
@@ -43,7 +42,8 @@
     </div>
     <div id="gases-usage-table"></div>
   </div>  
-  <div id="chartdiv"></div>
+  <div id="gases-usage-chartdiv"></div>
   <script src="{% static 'FregatMonitoringApp/scripts/GasesUsageTable.js' %}"> </script>
+  <script src="{% static 'FregatMonitoringApp/scripts/GasesUsageCharts.js' %}"> </script>
 </div>
 {% endblock %}

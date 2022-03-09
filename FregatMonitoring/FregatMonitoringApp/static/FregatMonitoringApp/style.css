@@ -40,6 +40,11 @@
     height: 700px;
   }
 
+#gases-usage-chartdiv {
+    display: flex;
+    height: 350px;
+}
+
 #container {
     display: flex;
 }
