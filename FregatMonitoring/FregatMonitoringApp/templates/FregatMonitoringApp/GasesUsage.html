@@ -34,11 +34,11 @@
     <input align="right" type="datetime-local"  id="start_time" name="start_time" value="{{ Start_time }}"/> 
     <div class="trend-period">Конечное время</div>
     <input align="right" type="datetime-local"  id="stop_time" name="stop_time" value="{{ Stop_time }}"/>
-    <input class="btn" id="trend_update_btn" name="ChangeTrendPeriod_btn" value="обновить" onclick=GasesUsageReportTemplate>
+    <input class="btn" id="trend_update_btn" name="ChangeTrendPeriod_btn" value="обновить" onclick=FurnaceBaseTrendsDataUpdate()>
   </div>
-  <div>
+  <div id="gases-usage-block">
     <div>  
-      <button id="download-csv">Download CSV</button>
+      <button id="download-csv" >Download CSV</button>
       <button id="download-xlsx">Download XLSX</button>
     </div>
     <div id="gases-usage-table"></div>

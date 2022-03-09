@@ -23,7 +23,7 @@ def ReportsPage(request):
     return HttpResponse(template.render(context, request))
 
 
-def GasesUsageReportTemplate(request, **kwards):    
+def GasesUsageReportTemplate(request, **kwards): #Загружает первоначальный шаблон отчёт с данными по умолчанию   
     template = loader.get_template('FregatMonitoringApp/GasesUsage.html')
     
     if(kwards.get('start_time') is not None and kwards.get('stop_time') is not None):
@@ -42,9 +42,9 @@ def GasesUsageReportTemplate(request, **kwards):
 
 
 def getGasesUsageData(request, **kwards): #выдаёт данные по запросу клиента
-    if(kwards.get('start_time') is not None and kwards.get('stop_time') is not None):
-        start_period = kwards.get('start_time').strftime('%Y-%m-%d') 
-        stop_period = kwards.get('stop_time').strftime('%Y-%m-%d')
+    if request.method == 'GET':
+        start_period = datetime.strptime(request.GET['start'], '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d') 
+        stop_period = datetime.strptime(request.GET['stop'], '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d') 
     else:    
         start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%d')#предыдущий месяц
         stop_period = datetime.now().strftime('%Y-%m-%d')#текущий момент

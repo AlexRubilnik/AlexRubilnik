@@ -71,6 +71,10 @@
     float: left;
 }
 
+#gases-usage-block{
+    float: left;
+}
+
 .header-brand{
     background-color: transparent;
     box-sizing: border-box;
