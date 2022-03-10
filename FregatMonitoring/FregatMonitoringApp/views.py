@@ -1,3 +1,4 @@
+from ast import Str
 from calendar import month
 from datetime import datetime, timedelta, date
 import itertools 
@@ -26,14 +27,18 @@ def ReportsPage(request):
 def GasesUsageReportTemplate(request, **kwards): #Загружает первоначальный шаблон отчёт с данными по умолчанию   
     template = loader.get_template('FregatMonitoringApp/GasesUsage.html')
     
-    if(kwards.get('start_time') is not None and kwards.get('stop_time') is not None):
-        start_period = kwards.get('start_time') 
-        stop_period = kwards.get('stop_time')
-    else:    
+    if(kwards.get('report_type') == 'gases_usage_daily'):
         start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%dT%H:%M:%S')#предыдущий месяц
         stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')#текущий момент
+    elif(kwards.get('report_type') == 'gases_usage_per_day'):
+        start_period = (datetime.now()-timedelta(hours=30) ).strftime('%Y-%m-%dT%H:%M:%S')#предыдущие сутки
+        stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')#текущий момент
+    elif(kwards.get('report_type') == 'gases_usage_per_shift'):
+        start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%dT%H:%M:%S')#предыдущий месяц
+        stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')#текущий момент    
  
     context={
+        'report_type': kwards.get('report_type'),
         'Start_time': start_period,
         'Stop_time': stop_period,
     }
@@ -48,12 +53,25 @@ def getGasesUsageData(request, **kwards): #выдаёт данные по зап
     else:    
         start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%d')#предыдущий месяц
         stop_period = datetime.now().strftime('%Y-%m-%d')#текущий момент
+    
+    def per_day_db_request(tag_name: Str, start_per, stop_per):
+        request_1 = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname=tag_name)[0].tagindex).filter(data__range=(start_per,stop_per))
 
-    gas_furnace_1_consumption = Daily_gases_consumption.objects.filter(gasname = 'Gas_P1').filter(data__range=(start_period,stop_period)).order_by('data')
-    gas_furnace_2_consumption = Daily_gases_consumption.objects.filter(gasname = 'Gas_P2').filter(data__range=(start_period,stop_period)).order_by('data')
-    o2_furnace_1_consumption = Daily_gases_consumption.objects.filter(gasname = 'O2_P1').filter(data__range=(start_period,stop_period)).order_by('data')
-    o2_furnace_2_consumption = Daily_gases_consumption.objects.filter(gasname = 'O2_P2').filter(data__range=(start_period,stop_period)).order_by('data')
-    furma_consumption = Daily_gases_consumption.objects.filter(gasname = 'O2_Furma').filter(data__range=(start_period,stop_period)).order_by('data')
+
+    if(request.GET['report_type']== 'gases_usage_daily'): #отчёт за выбранный период по дням
+        gas_furnace_1_consumption = Daily_gases_consumption.objects.filter(gasname = 'Gas_P1').filter(data__range=(start_period,stop_period)).order_by('data')
+        gas_furnace_2_consumption = Daily_gases_consumption.objects.filter(gasname = 'Gas_P2').filter(data__range=(start_period,stop_period)).order_by('data')
+        o2_furnace_1_consumption = Daily_gases_consumption.objects.filter(gasname = 'O2_P1').filter(data__range=(start_period,stop_period)).order_by('data')
+        o2_furnace_2_consumption = Daily_gases_consumption.objects.filter(gasname = 'O2_P2').filter(data__range=(start_period,stop_period)).order_by('data')
+        furma_consumption = Daily_gases_consumption.objects.filter(gasname = 'O2_Furma').filter(data__range=(start_period,stop_period)).order_by('data')
+
+    elif (request.GET['report_type']== 'gases_usage_per_day'):
+        gas_furnace_1_consumption = per_day_db_request('MEASURES\FL710_NG', start_period, stop_period)
+        gas_furnace_2_consumption = per_day_db_request('MEASURES\TI_810B', start_period, stop_period)
+        o2_furnace_1_consumption = per_day_db_request('MEASURES\O1Flow', start_period, stop_period)
+        o2_furnace_2_consumption = per_day_db_request('MEASURES\O2Flow', start_period, stop_period)
+        furma_consumption = per_day_db_request('MEASURES\OX_OX800', start_period, stop_period)
+    
     
     consumptions = list()
     consumptions.append(("furnace_1_Gas", gas_furnace_1_consumption ))

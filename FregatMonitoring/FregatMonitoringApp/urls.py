@@ -19,6 +19,8 @@ urlpatterns = [
     path('Furnace_info_s/<int:SignalIndex>/', views.Furnace_info_s, name='Furnace_info_s'),
     path('Furnace_info_a/<int:FurnaceNo>/', views.Furnace_info_a, name='Furnace_info_a'),
     path('ReportsPage/', views.ReportsPage, name='ReportsPage'),
-    path('GasesUsage/', views.GasesUsageReportTemplate, name='GasesUsage'),
+    path('GasesUsage/<str:report_type>/', views.GasesUsageReportTemplate, name='GasesUsage'),
+    #path('GasesUsageP/<str:report_type>/', views.GasesUsageReportTemplate, name='GasesUsage'),
+    #path('GasesUsagePerShift/<str:report_type>/', views.GasesUsageReportTemplate, name='GasesUsage'),
     path('getGasesUsageData/', views.getGasesUsageData, name='getGasesUsageData'),
 ]   
