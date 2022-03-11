@@ -55,7 +55,37 @@ def getGasesUsageData(request, **kwards): #выдаёт данные по зап
         stop_period = datetime.now().strftime('%Y-%m-%d')#текущий момент
     
     def per_day_db_request(tag_name: Str, start_per, stop_per):
-        request_1 = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname=tag_name)[0].tagindex).filter(data__range=(start_per,stop_per))
+        #request_1 = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname=tag_name)[0].tagindex).filter(data__range=(start_per,stop_per))
+        tag_ind = Tagtable.objects.filter(tagname=tag_name)[0].tagindex #индекс интересующего сигнала
+        response_1 = Floattable.objects.raw(
+            'SELECT DATEPART(hour, CAST(DTm AS datetime)) AS TDt,'+ 
+            '       SUM(TimeDiffVal) AS Gas,'+
+            '                        (CASE TagName'+  
+            '                        WHEN "MEASURES\FL710_NG" THEN "Gas_P1"'+
+            '                        WHEN "MEASURES\TI_810B" THEN "Gas_P2"'+
+            '                        WHEN "MEASURES\O1Flow" THEN "O2_P1"'+
+            '                        WHEN "MEASURES\O2Flow" THEN "O2_P2"'+
+            '                        WHEN "MEASURES\OX_OX800" THEN "O2_Furma"'+
+            '                        END) AS Tag_Name'+
+            'FROM('+
+            '    SELECT DATEADD(ms,Millitm,DateAndTime) AS DTm,'+
+            '           TagName, '+
+            '           (CAST(Val as float)/3600)*DATEDIFF(MILLISECOND,'+
+            '                                              DateAdd(ms,Millitm,DateAndTime),'+
+            '	                                           DateAdd(ms,'+
+            '                                                      LAG(Millitm,1,NULL) OVER (PARTITION BY TagIndex ORDER BY DateAndTime DESC),'+ 
+            '			                                           LAG(DateAndTime,1,NULL) OVER (PARTITION BY TagIndex ORDER BY DateAndTime DESC)'+
+            '			                                           )'+
+            '	                                           )/1000 as TimeDiffVal'+
+            '    FROM [FRGV202X\Production].[FX_Hist].[db_owner].[FloatTable]'+
+            '    WHERE TagIndex='+str(tag_ind)+' AND + DateAndTime > '+str(start_per)+ ' AND DateAndTime < '+str(stop_per)+
+            '    ) a'+
+            'INNER JOIN [FRGV202X\Production].[FX_Hist].[db_owner].[TagTable] b ON a.TagIndex=b.TagIndex'
+            'GROUP BY Tag_Name, DATEPART(hour, CAST(DTm AS datetime))'+
+            'ORDER BY Tag_Name, TDt;'
+        )
+
+        return response_1
 
 
     if(request.GET['report_type']== 'gases_usage_daily'): #отчёт за выбранный период по дням
@@ -113,7 +143,8 @@ def FurnaceBaseTrendsData(request, Furnace_No): #готовит и отправ�
         stop_period = request.GET['stop']
 
     def LoadSignalValuesByPeriod(signal_name, period_start, period_stop, **kwards):
-        minus_mod = kwards.get('minus') if kwards.get('minus') is not None else 0
+        #возвращает выборку значений сигналов с метками времени за определённый период времени
+        minus_mod = kwards.get('minus') if kwards.get('minus') is not None else 0 #опция для сигналов положения дросселей, которые нужно дешифровать, отнимая определённое число
         signal_value = Floattable.objects.annotate(value=F('val')-minus_mod).filter(
                         tagindex=Tagtable.objects.filter(tagname=signal_name)[0].tagindex
                         ).filter(dateandtime__range=(period_start,period_stop)).order_by('dateandtime')
