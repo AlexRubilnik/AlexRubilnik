@@ -1,3 +1,5 @@
+var marker_run = false;
+
 //Функции для работы с удалением и добавением обработчиков событий нажатия кнопок
 var _eventHandlers = {}; // somewhere global
 
@@ -37,6 +39,23 @@ function data_download_marker_on_off(hidden){
     document.getElementById("ddm3").hidden = hidden
 }
 
+setInterval(function data_download_marker_run(){
+    //Бегущий маркер "Подождите. Идёт загрузка данных..."
+    if(marker_run) {
+        if(document.getElementById("ddm1").hidden==true){ //все точки скрыты
+            document.getElementById("ddm1").hidden = false //показываем первую
+        } else if(document.getElementById("ddm2").hidden==true) {
+            document.getElementById("ddm2").hidden = false //показываем вторую
+        } else if(document.getElementById("ddm3").hidden==true) {
+            document.getElementById("ddm3").hidden = false //показываем третью
+        } else { 
+            document.getElementById("ddm1").hidden = true //скрываем все
+            document.getElementById("ddm2").hidden = true //скрываем все
+            document.getElementById("ddm3").hidden = true //скрываем все
+        }
+    }
+}, 500);
+
 function charts_tables_on_off(hidden){
     var hidden_t = "1"
     if (hidden) {hidden_t="0"}
@@ -50,6 +69,7 @@ function GasesUsageDataUpdate(){
     stop_time = document.getElementById('stop_time').value
 
     data_download_marker_on_off(false); //Показываем маркер "Подождите. Идёт загрузка данных..."
+    marker_run=true; //Запускаем бегущий маркер
     charts_tables_on_off(true); //Убираем таблицы и графики
       
     var XHR = new XMLHttpRequest()
@@ -65,11 +85,14 @@ function GasesUsageDataUpdate(){
         if (this.readyState == 4) {
                //запрос завершён
         }           
-        if (this.readyState != 4) return;
+        if (this.readyState != 4) {
+            return;
+        }    
   
         if (this.status != 200) return;
         if (this.status = 200){
             t_data = JSON.parse(this.responseText); 
+            marker_run=false; //Останавливаем бегущий маркер
             data_download_marker_on_off(true); //Скрываем маркер "Подождите. Идёт загрузка данных..."
             charts_tables_on_off(false); //Показываем таблицы и графики
             RenderTable(t_data);
