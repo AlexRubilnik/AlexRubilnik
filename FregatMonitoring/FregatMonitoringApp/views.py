@@ -18,6 +18,7 @@ from .serializers import FloattableSerializer, AutomeltsSerializer
 def index(request):
     return Furnace_1_info(request)
 
+
 def ReportsPage(request):
     template = loader.get_template('FregatMonitoringApp/ReportsPage.html')
     context = None
@@ -34,9 +35,6 @@ def GasesUsageReportTemplate(request, **kwards): #Загружает перво�
     elif(kwards.get('report_type') == 'gases_usage_per_day'):
         start_period = (datetime.now()-timedelta(hours=24) ).strftime('%Y-%m-%dT%H:%M:%S')#предыдущие сутки
         stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')#текущий момент
-    elif(kwards.get('report_type') == 'gases_usage_per_shift'):
-        start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%dT%H:%M:%S')#предыдущий месяц
-        stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')#текущий момент    
  
     context={
         'report_type': kwards.get('report_type'),
@@ -58,8 +56,12 @@ def getGasesUsageData_hourly(request, **kwards):
     def hourly_db_request(tag_name: Str, start_per, stop_per): #запрос к БД для подсчёта почасового расхода газа(или кислорода) за период
         tag_ind = Tagtable.objects.filter(tagname=tag_name)[0].tagindex #индекс интересующего сигнала
         response_1 = Gases_consumptions_per_day.objects.raw(
-            ''' SELECT ROW_NUMBER() OVER(ORDER BY DATEPART(hour, CAST(DTm AS datetime))) AS id, 
-                       DATEPART(hour, CAST(DTm AS datetime)) AS data, 
+            ''' SELECT ROW_NUMBER() OVER(ORDER BY CONCAT(DATEFROMPARTS(DATEPART(year, CAST(DTm AS datetime)), DATEPART(month, CAST(DTm AS datetime)), 
+					                                                   DATEPART(day, CAST(DTm AS datetime))
+							                                          ), ' ', DATEPART(hour, CAST(DTm AS datetime)),':59:59')) AS id, 
+                       CONCAT(DATEFROMPARTS(DATEPART(year, CAST(DTm AS datetime)), DATEPART(month, CAST(DTm AS datetime)), 
+					                        DATEPART(day, CAST(DTm AS datetime))
+							               ), ' ', DATEPART(hour, CAST(DTm AS datetime)),':59:59') AS data, 
                        SUM(TimeDiffVal) AS consumption,
                        (CASE TagName  
                           WHEN 'MEASURES\FL710_NG' THEN 'Gas_P1'
@@ -83,8 +85,12 @@ def getGasesUsageData_hourly(request, **kwards):
                      WHERE TagIndex=%s  AND DateAndTime > %s AND DateAndTime < %s
                      ) a            
                 INNER JOIN [FRGV202X\Production].[FX_Hist].[db_owner].[TagTable] b ON a.TagIndex=b.TagIndex
-                GROUP BY TagName, DATEPART(hour, CAST(DTm AS datetime))
-                ORDER BY TagName, data;'''
+                GROUP BY TagName, CONCAT(DATEFROMPARTS(DATEPART(year, CAST(DTm AS datetime)), DATEPART(month, CAST(DTm AS datetime)), 
+					                     DATEPART(day, CAST(DTm AS datetime))
+							            ), ' ', DATEPART(hour, CAST(DTm AS datetime)),':59:59')
+                ORDER BY TagName, CAST(CONCAT(DATEFROMPARTS(DATEPART(year, CAST(DTm AS datetime)), DATEPART(month, CAST(DTm AS datetime)), 
+					                    DATEPART(day, CAST(DTm AS datetime))
+							            ), ' ', DATEPART(hour, CAST(DTm AS datetime)),':59:59') AS datetime);'''
         , [tag_ind, start_per, stop_per])
 
         return response_1

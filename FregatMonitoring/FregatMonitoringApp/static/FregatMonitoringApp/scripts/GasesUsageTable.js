@@ -60,7 +60,7 @@ function RenderTable(TableData){
             {//create column group
                 title:"",
                 columns:[
-                {title:"Дата", field:"data", hozAlign:"right", sorter:"number", width:100},
+                {title:"Дата", field:"data", hozAlign:"right", sorter:"number", width:150},
                 ],
             },
             {//create column group
