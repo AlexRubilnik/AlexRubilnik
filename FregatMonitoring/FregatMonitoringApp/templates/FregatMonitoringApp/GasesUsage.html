@@ -36,7 +36,8 @@
     <input align="right" type="datetime-local"  id="stop_time" name="stop_time" value="{{ Stop_time }}"/>
     <input class="btn" id="trend_update_btn" name="ChangeTrendPeriod_btn" value="обновить" onclick=GasesUsageDataUpdate()>
   </div>
-  <div id="gases-usage-block">
+  <span hidden id="report_type">{{ report_type }}</span>
+  <div id="gases-usage-block"> 
     <div>  
       <button id="download-csv" >Download CSV</button>
       <button id="download-xlsx">Download XLSX</button>

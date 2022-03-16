@@ -1,10 +1,14 @@
 function GasesUsageDataUpdate(){ 
-    report_type = 'report_type='+'gases_usage_daily'
+    report_type = document.getElementById('report_type').innerHTML 
     start_time = document.getElementById('start_time').value
     stop_time = document.getElementById('stop_time').value
       
     var XHR = new XMLHttpRequest()
-        XHR.open('GET', '/FregatMonitoringApp/getGasesUsageData/'+'?'+report_type+'&start='+start_time+'&stop='+stop_time, true);
+        if (report_type == 'gases_usage_daily'){
+            XHR.open('GET', '/FregatMonitoringApp/getGasesUsageData_daily/'+'?start='+start_time+'&stop='+stop_time, true);
+        } else if (report_type == 'gases_usage_per_day'){
+            XHR.open('GET', '/FregatMonitoringApp/getGasesUsageData_hourly/'+'?start='+start_time+'&stop='+stop_time, true);
+        }
         //XHR.timeout = 2000;
         XHR.send();
   

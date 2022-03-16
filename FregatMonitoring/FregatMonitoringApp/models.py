@@ -17,6 +17,17 @@ class Daily_gases_consumption(models.Model):
         managed = False
         db_table = 'DailyGasesConsumption'
 
+class Gases_consumptions_per_day(models.Model): #Модель для извлечения почасовых расходов газов за определённый период
+    id = models.SmallIntegerField(primary_key=True)
+    data = models.SmallIntegerField(blank=True, null=True)#номер часа, за который посчитан расход. Например, если расход вычислен за сутки, то в этом поле будут номера от 1 до 23
+    consumption = models.FloatField(blank=True, null=True)
+    gasname = models.CharField(blank=True, null=True, max_length=20)
+
+    class Meta:
+        managed = False
+        db_table = 'GasesConsumptionsPerDay' #Такой таблицы в БД нет. Это нужно чтобы работал router на эту БД для этой модели
+
+
 
 class Automelts(models.Model):
     furnace_no = models.SmallIntegerField(db_column='Furnace_No', primary_key=True)  # Field name made lowercase.

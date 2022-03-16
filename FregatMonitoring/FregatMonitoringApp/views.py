@@ -1,7 +1,8 @@
 from ast import Str
 from calendar import month
 from datetime import datetime, timedelta, date
-import itertools 
+import itertools
+from multiprocessing import context 
 
 from django.db.models.query_utils import subclasses
 from django.views.decorators.csrf import csrf_exempt
@@ -11,7 +12,7 @@ from django.urls import reverse
 from django.db.models import F
 
 from rest_framework.parsers import JSONParser
-from .models import Melttypes, Meltsteps, Substeps, Floattable, Tagtable, Automelts, AutoMeltsInfo, Daily_gases_consumption
+from .models import Automelts, AutoMeltsInfo, Daily_gases_consumption, Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable 
 from .serializers import FloattableSerializer, AutomeltsSerializer
 
 def index(request):
@@ -31,7 +32,7 @@ def GasesUsageReportTemplate(request, **kwards): #Загружает перво�
         start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%dT%H:%M:%S')#предыдущий месяц
         stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')#текущий момент
     elif(kwards.get('report_type') == 'gases_usage_per_day'):
-        start_period = (datetime.now()-timedelta(hours=30) ).strftime('%Y-%m-%dT%H:%M:%S')#предыдущие сутки
+        start_period = (datetime.now()-timedelta(hours=24) ).strftime('%Y-%m-%dT%H:%M:%S')#предыдущие сутки
         stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')#текущий момент
     elif(kwards.get('report_type') == 'gases_usage_per_shift'):
         start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%dT%H:%M:%S')#предыдущий месяц
@@ -46,7 +47,78 @@ def GasesUsageReportTemplate(request, **kwards): #Загружает перво�
     return HttpResponse(template.render(context, request))
 
 
-def getGasesUsageData(request, **kwards): #выдаёт данные по запросу клиента
+def getGasesUsageData_hourly(request, **kwards):
+    '''Выдаёт данные по запросу клиента за выбранный период по часам. 
+       Считает почасовые расходы газов, на основе данных о мгновенных расходах, которые регистрируются в таблице БД FloatTable каждые 10 секунд'''
+    
+    if request.method == 'GET':
+        start_period = datetime.strptime(request.GET['start'], '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M:%S') 
+        stop_period = datetime.strptime(request.GET['stop'], '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M:%S') 
+    
+    def hourly_db_request(tag_name: Str, start_per, stop_per): #запрос к БД для подсчёта почасового расхода газа(или кислорода) за период
+        tag_ind = Tagtable.objects.filter(tagname=tag_name)[0].tagindex #индекс интересующего сигнала
+        response_1 = Gases_consumptions_per_day.objects.raw(
+            ''' SELECT ROW_NUMBER() OVER(ORDER BY DATEPART(hour, CAST(DTm AS datetime))) AS id, 
+                       DATEPART(hour, CAST(DTm AS datetime)) AS data, 
+                       SUM(TimeDiffVal) AS consumption,
+                       (CASE TagName  
+                          WHEN 'MEASURES\FL710_NG' THEN 'Gas_P1'
+                          WHEN 'MEASURES\TI_810B' THEN 'Gas_P2'
+                          WHEN 'MEASURES\O1Flow' THEN 'O2_P1'
+                          WHEN 'MEASURES\O2Flow' THEN 'O2_P2'
+                          WHEN 'MEASURES\OX_OX800' THEN 'O2_Furma'
+                       END) AS GasName 
+
+                FROM(
+                     SELECT DATEADD(ms,Millitm,DateAndTime) AS DTm,
+                            TagIndex, 
+                            (CAST(Val as float)/3600)*DATEDIFF(MILLISECOND,
+                                                               DateAdd(ms,Millitm,DateAndTime),
+            	                                               DateAdd(ms,
+                                                                       LAG(Millitm,1,NULL) OVER (PARTITION BY TagIndex ORDER BY DateAndTime DESC),
+            			                                               LAG(DateAndTime,1,NULL) OVER (PARTITION BY TagIndex ORDER BY DateAndTime DESC)
+            			                                               )
+            	                                               )/1000 as TimeDiffVal
+                     FROM [FRGV202X\Production].[FX_Hist].[db_owner].[FloatTable]
+                     WHERE TagIndex=%s  AND DateAndTime > %s AND DateAndTime < %s
+                     ) a            
+                INNER JOIN [FRGV202X\Production].[FX_Hist].[db_owner].[TagTable] b ON a.TagIndex=b.TagIndex
+                GROUP BY TagName, DATEPART(hour, CAST(DTm AS datetime))
+                ORDER BY TagName, data;'''
+        , [tag_ind, start_per, stop_per])
+
+        return response_1
+
+
+    gas_furnace_1_consumption = hourly_db_request('MEASURES\FL710_NG', start_period, stop_period)
+    gas_furnace_2_consumption = hourly_db_request('MEASURES\TI_810B', start_period, stop_period)
+    o2_furnace_1_consumption = hourly_db_request('MEASURES\O1Flow', start_period, stop_period)
+    o2_furnace_2_consumption = hourly_db_request('MEASURES\O2Flow', start_period, stop_period)
+    furma_consumption = hourly_db_request('MEASURES\OX_OX800', start_period, stop_period)
+
+    consumptions = list()
+    consumptions.append(("furnace_1_Gas", gas_furnace_1_consumption))
+    consumptions.append(("furnace_1_O2", o2_furnace_1_consumption))
+    consumptions.append(("furnace_2_Gas", gas_furnace_2_consumption))
+    consumptions.append(("furnace_2_O2", o2_furnace_2_consumption))
+    consumptions.append(("furma", furma_consumption ))
+
+    series = list()
+    for i in range(len(consumptions)):
+        series.append([[consumptions[i][0]], []])
+        for j in range(0, len(consumptions[i][1])):
+            #ts = datetime.strptime(str(consumptions[i][1][j].data), "%Y-%m-%d")
+            #point={"date":str(consumptions[i][1][j].data), "timestamp":ts.timestamp()*1000, "value":round(consumptions[i][1][j].consumption, 2)}
+            point={"date":str(consumptions[i][1][j].data), "value":round(consumptions[i][1][j].consumption, 2)}
+            series[i][1].append(point)
+
+    return JsonResponse(series, safe=False)
+    
+
+def getGasesUsageData_daily(request, **kwards):
+    '''Выдаёт данные по запросу клиента за выбранный период по дням. Достаёт данные из заранее подготовленной таблицы в БД: DailyGasesConsumption.
+       Таблица содержит суточные расходы газов, рассчитанные (на основе данных о мгновенных расходах) хранимой процедурой по заданию ежедневно в 23:59'''
+      
     if request.method == 'GET':
         start_period = datetime.strptime(request.GET['start'], '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d') 
         stop_period = datetime.strptime(request.GET['stop'], '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d') 
@@ -54,60 +126,17 @@ def getGasesUsageData(request, **kwards): #выдаёт данные по зап
         start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%d')#предыдущий месяц
         stop_period = datetime.now().strftime('%Y-%m-%d')#текущий момент
     
-    def per_day_db_request(tag_name: Str, start_per, stop_per):
-        #request_1 = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname=tag_name)[0].tagindex).filter(data__range=(start_per,stop_per))
-        tag_ind = Tagtable.objects.filter(tagname=tag_name)[0].tagindex #индекс интересующего сигнала
-        response_1 = Floattable.objects.raw(
-            'SELECT DATEPART(hour, CAST(DTm AS datetime)) AS TDt,'+ 
-            '       SUM(TimeDiffVal) AS Gas,'+
-            '                        (CASE TagName'+  
-            '                        WHEN "MEASURES\FL710_NG" THEN "Gas_P1"'+
-            '                        WHEN "MEASURES\TI_810B" THEN "Gas_P2"'+
-            '                        WHEN "MEASURES\O1Flow" THEN "O2_P1"'+
-            '                        WHEN "MEASURES\O2Flow" THEN "O2_P2"'+
-            '                        WHEN "MEASURES\OX_OX800" THEN "O2_Furma"'+
-            '                        END) AS Tag_Name'+
-            'FROM('+
-            '    SELECT DATEADD(ms,Millitm,DateAndTime) AS DTm,'+
-            '           TagName, '+
-            '           (CAST(Val as float)/3600)*DATEDIFF(MILLISECOND,'+
-            '                                              DateAdd(ms,Millitm,DateAndTime),'+
-            '	                                           DateAdd(ms,'+
-            '                                                      LAG(Millitm,1,NULL) OVER (PARTITION BY TagIndex ORDER BY DateAndTime DESC),'+ 
-            '			                                           LAG(DateAndTime,1,NULL) OVER (PARTITION BY TagIndex ORDER BY DateAndTime DESC)'+
-            '			                                           )'+
-            '	                                           )/1000 as TimeDiffVal'+
-            '    FROM [FRGV202X\Production].[FX_Hist].[db_owner].[FloatTable]'+
-            '    WHERE TagIndex='+str(tag_ind)+' AND + DateAndTime > '+str(start_per)+ ' AND DateAndTime < '+str(stop_per)+
-            '    ) a'+
-            'INNER JOIN [FRGV202X\Production].[FX_Hist].[db_owner].[TagTable] b ON a.TagIndex=b.TagIndex'
-            'GROUP BY Tag_Name, DATEPART(hour, CAST(DTm AS datetime))'+
-            'ORDER BY Tag_Name, TDt;'
-        )
+    gas_furnace_1_consumption = Daily_gases_consumption.objects.filter(gasname = 'Gas_P1').filter(data__range=(start_period,stop_period)).order_by('data')
+    gas_furnace_2_consumption = Daily_gases_consumption.objects.filter(gasname = 'Gas_P2').filter(data__range=(start_period,stop_period)).order_by('data')
+    o2_furnace_1_consumption = Daily_gases_consumption.objects.filter(gasname = 'O2_P1').filter(data__range=(start_period,stop_period)).order_by('data')
+    o2_furnace_2_consumption = Daily_gases_consumption.objects.filter(gasname = 'O2_P2').filter(data__range=(start_period,stop_period)).order_by('data')
+    furma_consumption = Daily_gases_consumption.objects.filter(gasname = 'O2_Furma').filter(data__range=(start_period,stop_period)).order_by('data')
 
-        return response_1
-
-
-    if(request.GET['report_type']== 'gases_usage_daily'): #отчёт за выбранный период по дням
-        gas_furnace_1_consumption = Daily_gases_consumption.objects.filter(gasname = 'Gas_P1').filter(data__range=(start_period,stop_period)).order_by('data')
-        gas_furnace_2_consumption = Daily_gases_consumption.objects.filter(gasname = 'Gas_P2').filter(data__range=(start_period,stop_period)).order_by('data')
-        o2_furnace_1_consumption = Daily_gases_consumption.objects.filter(gasname = 'O2_P1').filter(data__range=(start_period,stop_period)).order_by('data')
-        o2_furnace_2_consumption = Daily_gases_consumption.objects.filter(gasname = 'O2_P2').filter(data__range=(start_period,stop_period)).order_by('data')
-        furma_consumption = Daily_gases_consumption.objects.filter(gasname = 'O2_Furma').filter(data__range=(start_period,stop_period)).order_by('data')
-
-    elif (request.GET['report_type']== 'gases_usage_per_day'):
-        gas_furnace_1_consumption = per_day_db_request('MEASURES\FL710_NG', start_period, stop_period)
-        gas_furnace_2_consumption = per_day_db_request('MEASURES\TI_810B', start_period, stop_period)
-        o2_furnace_1_consumption = per_day_db_request('MEASURES\O1Flow', start_period, stop_period)
-        o2_furnace_2_consumption = per_day_db_request('MEASURES\O2Flow', start_period, stop_period)
-        furma_consumption = per_day_db_request('MEASURES\OX_OX800', start_period, stop_period)
-    
-    
     consumptions = list()
-    consumptions.append(("furnace_1_Gas", gas_furnace_1_consumption ))
-    consumptions.append(("furnace_1_O2", o2_furnace_1_consumption ))
-    consumptions.append(("furnace_2_Gas", gas_furnace_2_consumption ))
-    consumptions.append(("furnace_2_O2", o2_furnace_2_consumption ))
+    consumptions.append(("furnace_1_Gas", gas_furnace_1_consumption))
+    consumptions.append(("furnace_1_O2", o2_furnace_1_consumption))
+    consumptions.append(("furnace_2_Gas", gas_furnace_2_consumption))
+    consumptions.append(("furnace_2_O2", o2_furnace_2_consumption))
     consumptions.append(("furma", furma_consumption ))
 
     series = list()
@@ -116,6 +145,7 @@ def getGasesUsageData(request, **kwards): #выдаёт данные по зап
         for j in range(0, len(consumptions[i][1])):
             ts = datetime.strptime(str(consumptions[i][1][j].data), "%Y-%m-%d")
             point={"date":str(consumptions[i][1][j].data), "timestamp":ts.timestamp()*1000, "value":round(consumptions[i][1][j].daily_consumption, 2)}
+            point={"date":str(consumptions[i][1][j].data), "value":round(consumptions[i][1][j].daily_consumption, 2)}
             series[i][1].append(point)
 
     return JsonResponse(series, safe=False)
