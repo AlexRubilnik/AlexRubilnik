@@ -36,6 +36,7 @@
     <input class="btn" id="trend_update_btn" name="ChangeTrendPeriod_btn" value="обновить" onclick=GasesUsageDataUpdate()>
   </div>
   <span hidden id="report_type">{{ report_type }}</span>
+  <div style="text-align: left"><span id="data-download-marker"> Подождите. Идёт загрузка данных </span><span id="ddm1">.</span><span id="ddm2">.</span><span id="ddm3">.</span></div>
   <div id="gases-usage-block"> 
     <div>  
       <button id="download-csv" >Download CSV</button>
@@ -44,7 +45,7 @@
     <div id="gases-usage-table"></div>
   </div>  
   <div id="gases-usage-chartdiv"></div>
-  <script src="{% static 'FregatMonitoringApp/scripts/GasesUsageTable.js' %}"> </script>
   <script src="{% static 'FregatMonitoringApp/scripts/GasesUsageCharts.js' %}"> </script>
+  <script src="{% static 'FregatMonitoringApp/scripts/GasesUsageTable.js' %}"> </script>
 </div>
 {% endblock %}

@@ -12,6 +12,10 @@
     background-size: 15px 15px;
 }
 
+#data-download-marker, #ddm1, #ddm2, #ddm3{
+    font-size: 20px;
+    font-weight: bold; 
+}
 
 .furnace-info-tab{
     background: url("images/Печь1.PNG") round;

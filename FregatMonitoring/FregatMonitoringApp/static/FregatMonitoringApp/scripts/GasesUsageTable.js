@@ -23,10 +23,34 @@ const removeAllListeners = (targetNode, event) => {
   )
 }
 
+//Скрываем кнопки экспорта данных из таблицы
+csv_btn = document.getElementById("download-csv").hidden = true
+csv_btn.disabled = true
+xlsx_btn = document.getElementById("download-xlsx").hidden = true
+csv_btn.disabled = true
+
+function data_download_marker_on_off(hidden){
+    //Скрываем маркер "Подождите. Идёт загрузка данных..."
+    document.getElementById("data-download-marker").hidden = hidden
+    document.getElementById("ddm1").hidden = hidden
+    document.getElementById("ddm2").hidden = hidden
+    document.getElementById("ddm3").hidden = hidden
+}
+
+function charts_tables_on_off(hidden){
+    var hidden_t = "1"
+    if (hidden) {hidden_t="0"}
+    document.getElementById("gases-usage-chartdiv").style['opacity'] = hidden_t
+    document.getElementById("gases-usage-block").style['opacity'] = hidden_t
+}
+
 function GasesUsageDataUpdate(){ 
     report_type = document.getElementById('report_type').innerHTML 
     start_time = document.getElementById('start_time').value
     stop_time = document.getElementById('stop_time').value
+
+    data_download_marker_on_off(false); //Показываем маркер "Подождите. Идёт загрузка данных..."
+    charts_tables_on_off(true); //Убираем таблицы и графики
       
     var XHR = new XMLHttpRequest()
         if (report_type == 'gases_usage_daily'){
@@ -46,6 +70,8 @@ function GasesUsageDataUpdate(){
         if (this.status != 200) return;
         if (this.status = 200){
             t_data = JSON.parse(this.responseText); 
+            data_download_marker_on_off(true); //Скрываем маркер "Подождите. Идёт загрузка данных..."
+            charts_tables_on_off(false); //Показываем таблицы и графики
             RenderTable(t_data);
             RenderChart_1(t_data);
         }       
@@ -62,6 +88,13 @@ function RenderTable(TableData){
     try {
         removeAllListeners(document.getElementById("download-csv"), 'click')
         removeAllListeners(document.getElementById("download-xlsx"), 'click')
+    } catch{}
+    try {
+        //Активируем кнопки, отображаем их
+        csv_btn = document.getElementById("download-csv").hidden = false
+        csv_btn.disabled = false
+        xlsx_btn = document.getElementById("download-xlsx").hidden = false
+        csv_btn.disabled = false
     } catch{}
 
     //autotest to check if data series order is correct 

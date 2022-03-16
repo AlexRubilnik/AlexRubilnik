@@ -1,14 +1,13 @@
 function RenderChart_1(chart_data){
   am5.ready(function() {
-   
-  if(am5.registry.rootElements[0] != null){ //Если контейнер am5 уже инициализирован(при обновлении)
-        var root = am5.registry.rootElements[0]; 
-  } else {//Если контейнер am5 ещё не инициализирован(при первичной загрузке)
-    var root = am5.Root.new("gases-usage-chartdiv");
-  }  
+    if(am5.registry.rootElements[0] != null){ //Если контейнер am5 уже инициализирован(при обновлении)
+      var root = am5.registry.rootElements[0]; 
+    } else {//Если контейнер am5 ещё не инициализирован(при первичной загрузке)
+      var root = am5.Root.new("gases-usage-chartdiv");
+    }  
 
-  root.container.children.clear();
-
+    root.container.children.clear();
+      
   // Set themes
   // https://www.amcharts.com/docs/v5/concepts/themes/
   root.setThemes([
