@@ -62,7 +62,7 @@ function AutoMeltInfoUpdate(){
   var XHR = new XMLHttpRequest()
   fur_no = document.getElementById("FurnaceNo");
   if(fur_no){
-      if (fur_no.innerHTML=="Печь №1"){
+      if (fur_no.innerHTML=="Печь №1. Основные параметры"){
         XHR.open('GET', '/FregatMonitoringApp/Furnace_info_a/1/', true);
       } else {
         XHR.open('GET', '/FregatMonitoringApp/Furnace_info_a/2/', true);
