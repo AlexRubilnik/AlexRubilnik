@@ -56,11 +56,15 @@ setInterval(function data_download_marker_run(){
     }
 }, 500);
 
-function charts_tables_on_off(hidden){
+function charts_tables_on_off(hidden){ //Прячет содержимое страницы при загрузке новых данных
     var hidden_t = "1"
     if (hidden) {hidden_t="0"}
-    document.getElementById("gases-usage-chartdiv").style['opacity'] = hidden_t
-    document.getElementById("gases-usage-block").style['opacity'] = hidden_t
+    try{
+        document.getElementById("gases-usage-chartdiv").style['opacity'] = hidden_t
+        document.getElementById("gases-usage-piechart-block").style['opacity'] = hidden_t
+        document.getElementById("gases-usage-summury").style['opacity'] = hidden_t
+        document.getElementById("gases-usage-block").style['opacity'] = hidden_t
+    } catch {}
 }
 
 function GasesUsageDataUpdate(){ 
@@ -96,7 +100,9 @@ function GasesUsageDataUpdate(){
             data_download_marker_on_off(true); //Скрываем маркер "Подождите. Идёт загрузка данных..."
             charts_tables_on_off(false); //Показываем таблицы и графики
             RenderTable(t_data);
-            RenderChart_1(t_data);
+            RenderChart_1(t_data); //Основной график
+            RenderChart_gas(t_data); 
+            RenderChart_o2(t_data);
         }       
     };
     delete(XHR);  
@@ -140,34 +146,44 @@ function RenderTable(TableData){
     }
 
     var table = new Tabulator("#gases-usage-table", {
-    height:"550px",
+    height:"600px",
     placeholder:"Нет данных",
     data: table_data,
     columns:[
         {//create column group
             title:"",
             columns:[
-            {title:"Дата", field:"data", hozAlign:"right", sorter:"number", width:150},
+            {title:"Дата", field:"data", hozAlign:"right", sorter:"number", width:150,},
             ],
         },
         {//create column group
             title:"Печь №1",
             columns:[
-            {title:"Газ, [м3]", field:"furnace1_gas", hozAlign:"right", sorter:"number", width:100},
-            {title:"О2, [м3]", field:"furnace1_o2", hozAlign:"center", width:100},
+            {title:"Газ, [м3]", field:"furnace1_gas", hozAlign:"right", sorter:"number", width:100, bottomCalc:"sum", bottomCalcParams:{
+                precision:1,
+            }},
+            {title:"О2, [м3]", field:"furnace1_o2", hozAlign:"center", width:100, bottomCalc:"sum", bottomCalcParams:{
+                precision:1,
+            }},
             ],
         },
         {//create column group
             title:"Печь №2",
             columns:[
-                {title:"Газ, [м3]", field:"furnace2_gas", hozAlign:"right", sorter:"number", width:100},
-                {title:"О2, [м3]", field:"furnace2_o2", hozAlign:"center", width:100},
+                {title:"Газ, [м3]", field:"furnace2_gas", hozAlign:"right", sorter:"number", width:100, bottomCalc:"sum", bottomCalcParams:{
+                    precision:1,
+                }},
+                {title:"О2, [м3]", field:"furnace2_o2", hozAlign:"center", width:100, bottomCalc:"sum", bottomCalcParams:{
+                    precision:1,
+                }},
             ],
         },
         {//create Column group
             title:"Фурма",
             columns:[
-                {title:"О2, [м3]", field:"furma", hozAlign:"center", width:100},
+                {title:"О2, [м3]", field:"furma", hozAlign:"center", width:100, bottomCalc:"sum", bottomCalcParams:{
+                    precision:1,
+                }},
             ],
         },
         ],

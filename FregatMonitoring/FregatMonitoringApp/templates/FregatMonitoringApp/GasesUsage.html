@@ -2,6 +2,7 @@
 
 {% block furnace_trends_scripts %}
     <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/percent.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/themes/Kelly.js"></script>
@@ -43,9 +44,26 @@
       <button id="download-xlsx">Download XLSX</button>
     </div>
     <div id="gases-usage-table"></div>
-  </div>  
+  </div>    
   <div id="gases-usage-chartdiv"></div>
+  <div id="gases-usage-summury">
+    <div style="font-family: sans-serif;">Полный расход за весь период</div>
+  </div>
+  <div id="gases-usage-piechart-block">
+    <div style="width: 50%;">
+      <div style="font-family: sans-serif;"> <b>Природного газа:</b> <span id="PG_consumpt_sum"></span> м3</div>
+      <div id="gas-usage-chartdiv"></div>
+    </div>
+    <div style="width: 50%;">
+      <div style="font-family: sans-serif;"> <b>Кислорода:</b> <span id="O2_consumpt_sum"></span> м3</div>
+      <div id="o2-usage-chartdiv"></div>
+    </div>
+    
+    
+  </div>
   <script src="{% static 'FregatMonitoringApp/scripts/GasesUsageCharts.js' %}"> </script>
+  <script src="{% static 'FregatMonitoringApp/scripts/NaturalGasUsageCharts.js' %}"> </script>
+  <script src="{% static 'FregatMonitoringApp/scripts/O2UsageCharts.js' %}"> </script>
   <script src="{% static 'FregatMonitoringApp/scripts/GasesUsageTable.js' %}"> </script>
 </div>
 {% endblock %}

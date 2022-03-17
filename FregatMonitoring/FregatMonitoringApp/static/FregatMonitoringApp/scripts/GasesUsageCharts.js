@@ -1,7 +1,14 @@
 function RenderChart_1(chart_data){
   am5.ready(function() {
-    if(am5.registry.rootElements[0] != null){ //Если контейнер am5 уже инициализирован(при обновлении)
-      var root = am5.registry.rootElements[0]; 
+    if(am5.registry.rootElements.length > 0){ //Если контейнер am5 уже инициализирован(при обновлении)
+      for(i=0; i<am5.registry.rootElements.length; i++){
+        if (am5.registry.rootElements[i].dom.id == "gases-usage-chartdiv"){
+          var root = am5.registry.rootElements[i];
+          i = am5.registry.rootElements.length //выходим из цикла
+        } else if(i==am5.registry.rootElements.length-1){//Не нашли
+          var root = am5.Root.new("gases-usage-chartdiv");
+        }
+      }
     } else {//Если контейнер am5 ещё не инициализирован(при первичной загрузке)
       var root = am5.Root.new("gases-usage-chartdiv");
     }  
@@ -109,7 +116,7 @@ function RenderChart_1(chart_data){
 
   // Make stuff animate on load
   // https://www.amcharts.com/docs/v5/concepts/animations/
-  chart.appear(1000, 100);
+  chart.appear(2000, 100);
 
   }); // end am5.ready()
 }  

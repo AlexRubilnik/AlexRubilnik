@@ -44,11 +44,6 @@
     height: 700px;
   }
 
-#gases-usage-chartdiv {
-    display: flex;
-    height: 350px;
-}
-
 #container {
     display: flex;
 }
@@ -75,6 +70,27 @@
     line-height: 28px;
 
 }
+
+#gases-usage-piechart-block{
+   margin-top: 10px;
+   display: flex;
+} 
+
+#gas-usage-chartdiv{
+    width: 100%;
+    height: 150px;
+}   
+
+#gases-usage-chartdiv{
+    display: flex;
+    height: 350px;
+    border-bottom: 2px solid #ecedee;
+
+}
+#gases-usage-summury{
+    margin-top: 40px;
+    font-weight: bold;
+ }
 
 #gases-usage-table{
     float: left;
@@ -167,6 +183,11 @@
     color: rgb(255, 127, 0);
     font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
     font-weight: 400;  
+}
+#o2-usage-chartdiv{
+    width: 100%;
+    height: 150px;
+
 }
 .cursive{
     font-style:italic;
