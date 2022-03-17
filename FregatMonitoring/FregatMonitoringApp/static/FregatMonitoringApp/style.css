@@ -1,3 +1,8 @@
+.auto-melts-types-box{
+    overflow-y: auto;
+    height: 700px;
+}
+
 .black-lamp{
     background: url("images/black_lamp.PNG");
     background-repeat: no-repeat;
