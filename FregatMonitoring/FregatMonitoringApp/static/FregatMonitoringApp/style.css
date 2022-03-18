@@ -17,28 +17,6 @@
     font-weight: bold; 
 }
 
-.furnace-info-tab{
-    background: url("images/Печь1.PNG") round;
-    font-size: 10px;
-    width: 924px;
-    height: 483px;
-}
-
-.furnace-info-tab-td-top{
-    vertical-align: top;
-}
-.furnace-info-tab-td-bottom{
-    vertical-align: bottom;
-}
-
-.furnace-info-tab-2{
-    font-size: 12px;
-    border: outset;
-}
-.furnace-info-tab-3{
-    font-size: 12px;
-}
-
 #chartdiv {
     width: 100%;
     height: 700px;
@@ -71,6 +49,37 @@
 
 }
 
+.current_scr_container{
+    width:100%;
+    display: flex;
+    margin-left: 10px;
+    margin-right: 10px;
+    text-align: -webkit-center;
+    overflow: hidden;
+}
+
+.furnace-info-tab{
+    background: url("images/Печь1.PNG") round;
+    font-size: 10px;
+    width: 924px;
+    height: 483px;
+}
+
+.furnace-info-tab-td-top{
+    vertical-align: top;
+}
+.furnace-info-tab-td-bottom{
+    vertical-align: bottom;
+}
+
+.furnace-info-tab-2{
+    font-size: 12px;
+    border: outset;
+}
+.furnace-info-tab-3{
+    font-size: 12px;
+}
+
 #gases-usage-piechart-block{
    margin-top: 10px;
    display: flex;
@@ -87,10 +96,11 @@
     border-bottom: 2px solid #ecedee;
 
 }
+
 #gases-usage-summury{
     margin-top: 40px;
     font-weight: bold;
- }
+}
 
 #gases-usage-table{
     float: left;
@@ -133,8 +143,7 @@
     width: -webkit-fill-available;
 }
 
-.left-side-bar
-{
+.left-side-bar{
     vertical-align: top;
     width: 200px;
     font-family: sans-serif;
@@ -155,19 +164,14 @@
     color: black;
 }
 
-.current_scr_container{
-    display: flex;
-    margin-left: 10px;
-    margin-right: 10px;
-    text-align: -webkit-center;
-    overflow: hidden;
+.left-side-bar-list a:hover,
+.left-side-bar-list a:focus,
+.left-side-bar-list a:active{
+    color: #838B83;
 }
-.white-text{
-    color: rgb(255, 255, 255);
-    font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-weight: 400;
-}
+
 .main_container{
+    width: 100%;
     padding-top: 120px;
     position: fixed;
 }
@@ -324,12 +328,6 @@
   border-color: #838B83;
 }
 
-.left-side-bar-list a:hover,
-.left-side-bar-list a:focus,
-.left-side-bar-list a:active{
-    color: #838B83;
-}
-
 .area-name,
 .bottom-line{
     font-family: Helvetica,Arial,sans-serif;
@@ -342,6 +340,12 @@
 	padding-left: 0px;
 	padding-right: 0; 
  }
+
+ .white-text{
+    color: rgb(255, 255, 255);
+    font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight: 400;
+}
 
 /*.bottom-line::before{
     content: "";
