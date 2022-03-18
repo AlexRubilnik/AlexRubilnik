@@ -29,12 +29,12 @@ def ReportsPage(request):
 def GasesUsageReportTemplate(request, **kwards): #Загружает первоначальный шаблон отчёт с данными по умолчанию   
     template = loader.get_template('FregatMonitoringApp/GasesUsage.html')
     
-    if(kwards.get('report_type') == 'gases_usage_daily'):
-        start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%dT%H:%M:%S')#предыдущий месяц
-        stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')#текущий момент
-    elif(kwards.get('report_type') == 'gases_usage_per_day'):
-        start_period = (datetime.now()-timedelta(hours=24) ).strftime('%Y-%m-%dT%H:%M:%S')#предыдущие сутки
-        stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')#текущий момент
+    if(kwards.get('report_type') == 'gases_usage_daily'): #Выбран посуточный отчёт
+        start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%dT%H:%M')#предыдущий месяц
+        stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M')#текущий момент
+    elif(kwards.get('report_type') == 'gases_usage_per_day'): #Выбран почасовой отчёт
+        start_period = (datetime.now()-timedelta(hours=24)).replace(hour=8,minute=0).strftime('%Y-%m-%dT%H:%M')#предыдущие сутки c 8.00
+        stop_period = datetime.now().replace(hour=8,minute=0).strftime('%Y-%m-%dT%H:%M')#текущие сутки до 8.00
  
     context={
         'report_type': kwards.get('report_type'),
@@ -50,18 +50,18 @@ def getGasesUsageData_hourly(request, **kwards):
        Считает почасовые расходы газов, на основе данных о мгновенных расходах, которые регистрируются в таблице БД FloatTable каждые 10 секунд'''
     
     if request.method == 'GET':
-        start_period = datetime.strptime(request.GET['start'], '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M:%S') 
-        stop_period = datetime.strptime(request.GET['stop'], '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d %H:%M:%S') 
+        start_period = datetime.strptime(request.GET['start'], '%Y-%m-%dT%H:%M').strftime('%Y-%m-%d %H:%M') 
+        stop_period = datetime.strptime(request.GET['stop'], '%Y-%m-%dT%H:%M').strftime('%Y-%m-%d %H:%M') 
     
     def hourly_db_request(tag_name: Str, start_per, stop_per): #запрос к БД для подсчёта почасового расхода газа(или кислорода) за период
         tag_ind = Tagtable.objects.filter(tagname=tag_name)[0].tagindex #индекс интересующего сигнала
         response_1 = Gases_consumptions_per_day.objects.raw(
             ''' SELECT ROW_NUMBER() OVER(ORDER BY CONCAT(DATEFROMPARTS(DATEPART(year, CAST(DTm AS datetime)), DATEPART(month, CAST(DTm AS datetime)), 
 					                                                   DATEPART(day, CAST(DTm AS datetime))
-							                                          ), ' ', DATEPART(hour, CAST(DTm AS datetime)),':59:59')) AS id, 
+							                                          ), ' ', DATEPART(hour, CAST(DTm AS datetime)),':59')) AS id, 
                        CONCAT(DATEFROMPARTS(DATEPART(year, CAST(DTm AS datetime)), DATEPART(month, CAST(DTm AS datetime)), 
 					                        DATEPART(day, CAST(DTm AS datetime))
-							               ), ' ', DATEPART(hour, CAST(DTm AS datetime)),':59:59') AS data, 
+							               ), ' ', DATEPART(hour, CAST(DTm AS datetime)),':59') AS data, 
                        SUM(TimeDiffVal) AS consumption,
                        (CASE TagName  
                           WHEN 'MEASURES\FL710_NG' THEN 'Gas_P1'
@@ -87,10 +87,10 @@ def getGasesUsageData_hourly(request, **kwards):
                 INNER JOIN [FRGV202X\Production].[FX_Hist].[db_owner].[TagTable] b ON a.TagIndex=b.TagIndex
                 GROUP BY TagName, CONCAT(DATEFROMPARTS(DATEPART(year, CAST(DTm AS datetime)), DATEPART(month, CAST(DTm AS datetime)), 
 					                     DATEPART(day, CAST(DTm AS datetime))
-							            ), ' ', DATEPART(hour, CAST(DTm AS datetime)),':59:59')
+							            ), ' ', DATEPART(hour, CAST(DTm AS datetime)),':59')
                 ORDER BY TagName, CAST(CONCAT(DATEFROMPARTS(DATEPART(year, CAST(DTm AS datetime)), DATEPART(month, CAST(DTm AS datetime)), 
 					                    DATEPART(day, CAST(DTm AS datetime))
-							            ), ' ', DATEPART(hour, CAST(DTm AS datetime)),':59:59') AS datetime);'''
+							            ), ' ', DATEPART(hour, CAST(DTm AS datetime)),':59') AS datetime);'''
         , [tag_ind, start_per, stop_per])
 
         return response_1
@@ -113,8 +113,6 @@ def getGasesUsageData_hourly(request, **kwards):
     for i in range(len(consumptions)):
         series.append([[consumptions[i][0]], []])
         for j in range(0, len(consumptions[i][1])):
-            #ts = datetime.strptime(str(consumptions[i][1][j].data), "%Y-%m-%d")
-            #point={"date":str(consumptions[i][1][j].data), "timestamp":ts.timestamp()*1000, "value":round(consumptions[i][1][j].consumption, 2)}
             point={"date":str(consumptions[i][1][j].data), "value":round(consumptions[i][1][j].consumption, 2)}
             series[i][1].append(point)
 
@@ -126,8 +124,8 @@ def getGasesUsageData_daily(request, **kwards):
        Таблица содержит суточные расходы газов, рассчитанные (на основе данных о мгновенных расходах) хранимой процедурой по заданию ежедневно в 23:59'''
       
     if request.method == 'GET':
-        start_period = datetime.strptime(request.GET['start'], '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d') 
-        stop_period = datetime.strptime(request.GET['stop'], '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m-%d') 
+        start_period = datetime.strptime(request.GET['start'], '%Y-%m-%dT%H:%M').strftime('%Y-%m-%d') 
+        stop_period = datetime.strptime(request.GET['stop'], '%Y-%m-%dT%H:%M').strftime('%Y-%m-%d') 
     else:    
         start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%d')#предыдущий месяц
         stop_period = datetime.now().strftime('%Y-%m-%d')#текущий момент
@@ -163,8 +161,8 @@ def FurnaceBaseTrends(request, Furnace_No, **kwards):  #отображает ш�
         start_period = kwards.get('start_time') 
         stop_period = kwards.get('stop_time')
     else:    
-        start_period = (datetime.now()-timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M:%S')#предыдущий час
-        stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')#текущий момент
+        start_period = (datetime.now()-timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M')#предыдущий час
+        stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M')#текущий момент
     context = {
         'Furnace_No': Furnace_No,
         'Start_time': start_period,

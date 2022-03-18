@@ -93,7 +93,13 @@ function GasesUsageDataUpdate(){
             return;
         }    
   
-        if (this.status != 200) return;
+        if (this.status != 200) {
+            marker_run=false; //Останавливаем бегущий маркер
+            data_download_marker_on_off(true); //Скрываем маркер "Подождите. Идёт загрузка данных..."
+            alert('Произошла ошибка при загрузке данных!')
+            return;
+        }
+        
         if (this.status = 200){
             t_data = JSON.parse(this.responseText); 
             marker_run=false; //Останавливаем бегущий маркер
