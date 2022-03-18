@@ -161,8 +161,8 @@ def FurnaceBaseTrends(request, Furnace_No, **kwards):  #отображает ш�
         start_period = kwards.get('start_time') 
         stop_period = kwards.get('stop_time')
     else:    
-        start_period = (datetime.now()-timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M:%S')#предыдущий час
-        stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')#текущий момент
+        start_period = (datetime.now()-timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M')#предыдущий час
+        stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M')#текущий момент
     context = {
         'Furnace_No': Furnace_No,
         'Start_time': start_period,

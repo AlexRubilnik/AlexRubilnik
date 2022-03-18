@@ -7,7 +7,7 @@
     <script src="https://cdn.amcharts.com/lib/5/themes/Kelly.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/plugins/exporting.js"></script>
     {% load static %}
-    <script src="{% static 'FregatMonitoringApp/scripts/TestTrend.js' %}"> </script>
+    <script src="{% static 'FregatMonitoringApp/scripts/FurnaceBaseTrends.js' %}"> </script>
 {% endblock %}
 
 {% block LeftSideBar%}
@@ -29,6 +29,7 @@
     <input class="btn" id="trend_update_btn" name="ChangeTrendPeriod_btn" value="обновить" onclick=FurnaceBaseTrendsDataUpdate(am5)>
   </div>
   <span hidden id="Furnace_No">{{ Furnace_No }}</span>
+  <div style="text-align: left"><span id="data-download-marker"> Подождите. Идёт загрузка данных </span><span id="ddm1">.</span><span id="ddm2">.</span><span id="ddm3">.</span></div>
   <div id="chartdiv"></div>
 </div>
 {% endblock %}
