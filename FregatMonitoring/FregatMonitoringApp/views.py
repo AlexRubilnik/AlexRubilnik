@@ -29,12 +29,12 @@ def ReportsPage(request):
 def GasesUsageReportTemplate(request, **kwards): #Загружает первоначальный шаблон отчёт с данными по умолчанию   
     template = loader.get_template('FregatMonitoringApp/GasesUsage.html')
     
-    if(kwards.get('report_type') == 'gases_usage_daily'):
+    if(kwards.get('report_type') == 'gases_usage_daily'): #Выбран посуточный отчёт
         start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%dT%H:%M')#предыдущий месяц
         stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M')#текущий момент
-    elif(kwards.get('report_type') == 'gases_usage_per_day'):
-        start_period = (datetime.now()-timedelta(hours=24) ).strftime('%Y-%m-%dT%H:%M')#предыдущие сутки
-        stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M')#текущий момент
+    elif(kwards.get('report_type') == 'gases_usage_per_day'): #Выбран почасовой отчёт
+        start_period = (datetime.now()-timedelta(hours=24)).replace(hour=8,minute=0).strftime('%Y-%m-%dT%H:%M')#предыдущие сутки c 8.00
+        stop_period = datetime.now().replace(hour=8,minute=0).strftime('%Y-%m-%dT%H:%M')#текущие сутки до 8.00
  
     context={
         'report_type': kwards.get('report_type'),
