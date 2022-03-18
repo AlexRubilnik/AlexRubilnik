@@ -3,6 +3,10 @@ function FurnaceBaseTrendsDataUpdate(){
   furnace_no = document.getElementById('Furnace_No').innerText
   start_time = document.getElementById('start_time').value
   stop_time = document.getElementById('stop_time').value
+
+  data_download_marker_on_off(false); //Показываем маркер "Подождите. Идёт загрузка данных..."
+  marker_run=true; //Запускаем бегущий маркер
+
   if(am5.registry.rootElements[0] != null){
     var root = am5.registry.rootElements[0]
     root.dispose();
@@ -19,14 +23,46 @@ function FurnaceBaseTrendsDataUpdate(){
       }           
       if (this.readyState != 4) return;
 
-      if (this.status != 200) return;
+      if (this.status != 200) {
+        marker_run=false; //Останавливаем бегущий маркер
+        data_download_marker_on_off(true); //Скрываем маркер "Подождите. Идёт загрузка данных..."
+        alert('Произошла ошибка при загрузке данных!')
+        return;
+      }  
         
       data = JSON.parse(this.responseText); 
+      marker_run=false; //Останавливаем бегущий маркер
+      data_download_marker_on_off(true); //Скрываем маркер "Подождите. Идёт загрузка данных..."
       RenderTrends(data)       
   };
   delete(XHR);  
      
 }
+
+function data_download_marker_on_off(hidden){
+  //Скрываем маркер "Подождите. Идёт загрузка данных..."
+  document.getElementById("data-download-marker").hidden = hidden
+  document.getElementById("ddm1").hidden = hidden
+  document.getElementById("ddm2").hidden = hidden
+  document.getElementById("ddm3").hidden = hidden
+}
+
+setInterval(function data_download_marker_run(){
+  //Бегущий маркер "Подождите. Идёт загрузка данных..."
+  if(marker_run) {
+      if(document.getElementById("ddm1").hidden==true){ //все точки скрыты
+          document.getElementById("ddm1").hidden = false //показываем первую
+      } else if(document.getElementById("ddm2").hidden==true) {
+          document.getElementById("ddm2").hidden = false //показываем вторую
+      } else if(document.getElementById("ddm3").hidden==true) {
+          document.getElementById("ddm3").hidden = false //показываем третью
+      } else { 
+          document.getElementById("ddm1").hidden = true //скрываем все
+          document.getElementById("ddm2").hidden = true //скрываем все
+          document.getElementById("ddm3").hidden = true //скрываем все
+      }
+  }
+}, 500);
 
 
 function RenderTrends(series_data){
@@ -38,6 +74,7 @@ function RenderTrends(series_data){
     var root = am5.Root.new("chartdiv");
   }  
   
+  root.container.children.clear();
   // Set themes
   // https://www.amcharts.com/docs/v5/concepts/themes/ 
   root.setThemes([
