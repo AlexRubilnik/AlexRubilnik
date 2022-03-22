@@ -1,4 +1,4 @@
-{% extends "FregatMonitoringApp/base.html" %}
+{% extends "FregatMonitoringApp/reports_page.html" %}
 
 {% block furnace_trends_scripts %}
     <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
@@ -12,21 +12,10 @@
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.1.3/dist/js/tabulator.min.js"></script>
     <script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
     {% load static %}
-    <!-- Скрипты обработки таблицы и графиков внизу шаблона -->
-    
-    
+    <!-- Скрипты обработки таблицы и графиков внизу шаблона -->     
 {% endblock %}
 
-{% block LeftSideBar%}
-<div class="left-side-bar">
-    <ul style="padding-left: 0px;">
-      <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:GasesUsage' 'gases_usage_per_day' %}"> Газ, О2 почасовой </a></li>
-      <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:GasesUsage' 'gases_usage_daily' %}"> Газ, О2 посуточный </a></li>
-    </ul>
-</div>
-{% endblock%}  
-
-{% block Reports%}
+{% block reports%}
 <div class="content-box">
   <div id="Reports" class="content-page-header">Отчёты
     <div style="width: 200px;"></div>

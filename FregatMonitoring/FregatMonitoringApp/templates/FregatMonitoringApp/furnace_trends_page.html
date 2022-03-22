@@ -10,15 +10,15 @@
     <script src="{% static 'FregatMonitoringApp/scripts/FurnaceBaseTrends.js' %}"> </script>
 {% endblock %}
 
-{% block LeftSideBar%}
+{% block left_side_bar %}
 <div class="left-side-bar">
     <ul style="padding-left: 0px;">
-      <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:Automelts_info' 1 %}"> Режимы плавок </a></li>
+      <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:auto_melts_types_info' 1 %}"> Режимы плавок </a></li>
     </ul>
 </div>
 {% endblock%}  
 
-{% block FurnaceBaseTrends%}
+{% block furnace_base_trends %}
 <div class="content-box">
   <div id="FurnaceNo" class="content-page-header">Печь №{{ Furnace_No }}. Тренды
     <div style="width: 200px;"></div>
