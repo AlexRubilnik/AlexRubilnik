@@ -16,18 +16,18 @@ from .models import Automelts, AutoMeltsInfo, Daily_gases_consumption, Floattabl
 from .serializers import FloattableSerializer, AutomeltsSerializer
 
 def index(request):
-    return Furnace_1_info(request)
+    return furnace_1_info(request)
 
 
-def ReportsPage(request):
-    template = loader.get_template('FregatMonitoringApp/ReportsPage.html')
+def reports_page(request):
+    template = loader.get_template('FregatMonitoringApp/reports_page.html')
     context = None
 
     return HttpResponse(template.render(context, request))
 
 
-def GasesUsageReportTemplate(request, **kwards): #Загружает первоначальный шаблон отчёт с данными по умолчанию   
-    template = loader.get_template('FregatMonitoringApp/GasesUsage.html')
+def gases_usage_report(request, **kwards): #Загружает первоначальный шаблон отчёт с данными по умолчанию   
+    template = loader.get_template('FregatMonitoringApp/gases_usage_report.html')
     
     if(kwards.get('report_type') == 'gases_usage_daily'): #Выбран посуточный отчёт
         start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%dT%H:%M')#предыдущий месяц
@@ -45,7 +45,7 @@ def GasesUsageReportTemplate(request, **kwards): #Загружает перво�
     return HttpResponse(template.render(context, request))
 
 
-def getGasesUsageData_hourly(request, **kwards):
+def get_gases_usage_data_hourly(request, **kwards):
     '''Выдаёт данные по запросу клиента за выбранный период по часам. 
        Считает почасовые расходы газов, на основе данных о мгновенных расходах, которые регистрируются в таблице БД FloatTable каждые 10 секунд'''
     
@@ -119,7 +119,7 @@ def getGasesUsageData_hourly(request, **kwards):
     return JsonResponse(series, safe=False)
     
 
-def getGasesUsageData_daily(request, **kwards):
+def get_gases_usage_data_daily(request, **kwards):
     '''Выдаёт данные по запросу клиента за выбранный период по дням. Достаёт данные из заранее подготовленной таблицы в БД: DailyGasesConsumption.
        Таблица содержит суточные расходы газов, рассчитанные (на основе данных о мгновенных расходах) хранимой процедурой по заданию ежедневно в 23:59'''
       
@@ -155,8 +155,8 @@ def getGasesUsageData_daily(request, **kwards):
     return JsonResponse(series, safe=False)
 
 
-def FurnaceBaseTrends(request, Furnace_No, **kwards):  #отображает шаблон экрана трендов для печи
-    template = loader.get_template('FregatMonitoringApp/FurnaceTrendsPage.html')
+def furnace_base_trends(request, furnace_no, **kwards):  #отображает шаблон экрана трендов для печи
+    template = loader.get_template('FregatMonitoringApp/furnace_trends_page.html')
     if(kwards.get('start_time') is not None and kwards.get('stop_time') is not None):
         start_period = kwards.get('start_time') 
         stop_period = kwards.get('stop_time')
@@ -164,14 +164,14 @@ def FurnaceBaseTrends(request, Furnace_No, **kwards):  #отображает ш�
         start_period = (datetime.now()-timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M')#предыдущий час
         stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M')#текущий момент
     context = {
-        'Furnace_No': Furnace_No,
+        'Furnace_No': furnace_no,
         'Start_time': start_period,
         'Stop_time': stop_period
     }
     return HttpResponse(template.render(context, request))
 
 
-def FurnaceBaseTrendsData(request, Furnace_No): #готовит и отправляет данные сигналов для трендов за указанный период времени
+def furnace_base_trends_data(request, furnace_no): #готовит и отправляет данные сигналов для трендов за указанный период времени
     if request.method == 'GET':
         start_period = request.GET['start']
         stop_period = request.GET['stop']
@@ -188,7 +188,7 @@ def FurnaceBaseTrendsData(request, Furnace_No): #готовит и отправ�
     signals = list()
 
     #сигналы для первой печи
-    if Furnace_No == 1:
+    if furnace_no == 1:
         signals.append(("Мощность", LoadSignalValuesByPeriod('MEASURES\HY_F711', start_period, stop_period)))
         signals.append(("Ток двигателя", LoadSignalValuesByPeriod('MEASURES\SI_KL710', start_period, stop_period)))
         signals.append(("Расход газа", LoadSignalValuesByPeriod('MEASURES\FL710_NG', start_period, stop_period)))
@@ -208,7 +208,7 @@ def FurnaceBaseTrendsData(request, Furnace_No): #готовит и отправ�
         signals.append(("Т над дверью", LoadSignalValuesByPeriod('MEASURES\TI_712Y', start_period, stop_period))) #эти два сигнала должны быть в списке последними
         signals.append(("Т воздух цех", LoadSignalValuesByPeriod('MEASURES\TI_712X', start_period, stop_period))) #эти два сигнала должны быть в списке последними
 
-    elif Furnace_No == 2:
+    elif furnace_no == 2:
         signals.append(("Мощность", LoadSignalValuesByPeriod('MEASURES\HY_F710', start_period, stop_period)))
         signals.append(("Ток двигателя", LoadSignalValuesByPeriod('MEASURES\SI_KL711', start_period, stop_period)))
         signals.append(("Расход газа", LoadSignalValuesByPeriod('MEASURES\TI_810B', start_period, stop_period)))
@@ -249,21 +249,20 @@ def FurnaceBaseTrendsData(request, Furnace_No): #готовит и отправ�
 
 
 def error_message(request):
-    template = loader.get_template('FregatMonitoringApp/ErrorMessage.html')
+    template = loader.get_template('FregatMonitoringApp/error_message.html')
     context = None
     return HttpResponse(template.render(context, request))
 
 
 def sorry_page(request):
-    template = loader.get_template('FregatMonitoringApp/SorryPage.html')
+    template = loader.get_template('FregatMonitoringApp/sorry_page.html')
     context = None
     return HttpResponse(template.render(context, request))
 
 
-def Furnace_1_info(request):
+def furnace_1_info(request):
     
     #горелка
-    
     power_sp = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\HY_F711')[0].tagindex).order_by('-dateandtime')[0].val),
     Tagtable.objects.filter(tagname='MEASURES\HY_F711')[0].tagindex]
     gas_flow = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\FL710_NG')[0].tagindex).order_by('-dateandtime')[0].val),
@@ -406,7 +405,7 @@ def Furnace_1_info(request):
     return HttpResponse(template.render(context, request))
 
 
-def Furnace_2_info(request):
+def furnace_2_info(request):
     
     #горелка
     power_sp = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\HY_F710')[0].tagindex).order_by('-dateandtime')[0].val),
@@ -551,17 +550,17 @@ def Furnace_2_info(request):
     return HttpResponse(template.render(context, request))
 
 
-def AutoMeltTypes_info(request, meltID_1):
+def auto_melts_types_info(request, melt_id_1):
 
     melt_type_list_1 = Melttypes.objects.filter(melt_furnace=1) #Выбираем типы плавок для первой печи(для второй такие же)
     melt_type_list_2 = Melttypes.objects.filter(melt_furnace=2)
 
-    melt_type_name = Melttypes.objects.filter(melt_id=meltID_1)[0].melt_name #Узнаём, как называется этот тип плавки
-    meltID_2 = Melttypes.objects.filter(melt_name=melt_type_name, melt_furnace=2)[0].melt_id #По имени вытаскиваем id аналогичной плавки для второй печи
+    melt_type_name = Melttypes.objects.filter(melt_id=melt_id_1)[0].melt_name #Узнаём, как называется этот тип плавки
+    melt_id_2 = Melttypes.objects.filter(melt_name=melt_type_name, melt_furnace=2)[0].melt_id #По имени вытаскиваем id аналогичной плавки для второй печи
 
      
-    melt_steps_list_1 = Meltsteps.objects.filter(melt=meltID_1) #Выбираем шаги для нужных плавок
-    melt_steps_list_2 = Meltsteps.objects.filter(melt=meltID_2)
+    melt_steps_list_1 = Meltsteps.objects.filter(melt=melt_id_1) #Выбираем шаги для нужных плавок
+    melt_steps_list_2 = Meltsteps.objects.filter(melt=melt_id_2)
     
     #Выбираем подшаги для каждого шага каждой плавки
     substeps_list_1 = list() 
@@ -574,9 +573,9 @@ def AutoMeltTypes_info(request, meltID_1):
         for substep in [Substeps.objects.filter(step=melt_step.step_id)]:
             substeps_list_2.extend(substep)
 
-    template = loader.get_template('FregatMonitoringApp/AutoMeltTypes_info.html')
+    template = loader.get_template('FregatMonitoringApp/auto_melts_types_info.html')
     context = {
-        'melts_id': [meltID_1, meltID_2],
+        'melts_id': [melt_id_1, melt_id_2],
         'melt_types_1': melt_type_list_1,
         'melt_types_2': melt_type_list_2,
         'melt_steps_1': melt_steps_list_1,
@@ -588,9 +587,9 @@ def AutoMeltTypes_info(request, meltID_1):
     return HttpResponse(template.render(context, request))
 
 
-def AutoMelts_SetPoints(request):
+def auto_melts_setpoints(request):
     
-    template = loader.get_template('FregatMonitoringApp/AutoMeltsSetPoints.html')
+    template = loader.get_template('FregatMonitoringApp/auto_melts_setpoints.html')
     try:
         deltaT1_stp = Automelts.objects.filter(furnace_no=1)[0].deltat
         deltaT2_stp = Automelts.objects.filter(furnace_no=2)[0].deltat
@@ -604,9 +603,9 @@ def AutoMelts_SetPoints(request):
     return HttpResponse(template.render(context, request))
 
 
-def AutoMeltsSaveSettings(request, meltID_1, meltID_2): #сохраняет изменение режимов автоплаки в базе
+def auto_melts_save_settings(request, melt_id_1, melt_id_2): #сохраняет изменение режимов автоплаки в базе
     
-    melt_steps_list = Meltsteps.objects.filter(melt__in=[meltID_1, meltID_2]) #Выбираем шаги для нужных плавок
+    melt_steps_list = Meltsteps.objects.filter(melt__in=[melt_id_1, melt_id_2]) #Выбираем шаги для нужных плавок
 
     #Выбираем подшаги для каждого шага каждой плавки
     for melt_step in melt_steps_list: 
@@ -621,10 +620,10 @@ def AutoMeltsSaveSettings(request, meltID_1, meltID_2): #сохраняет из
             else:
                 substep.save()
 
-    return HttpResponseRedirect(reverse('FregatMonitoringApp:Automelts_info', args=(meltID_1,)))
+    return HttpResponseRedirect(reverse('FregatMonitoringApp:auto_melts_types_info', args=(melt_id_1,)))
 
 
-def AutoMeltsSaveSetpoints(request, furnace_num): #сохраняет изменение уставки Дельты в базе
+def auto_melts_save_setpoints(request, furnace_num): #сохраняет изменение уставки Дельты в базе
     try:
         try: 
             float(request.POST["DeltaT"+str(furnace_num)+"_stp"]) #"Это число вообще?"
@@ -637,87 +636,87 @@ def AutoMeltsSaveSetpoints(request, furnace_num): #сохраняет измен
     else:
         Melt.save() 
 
-    return HttpResponseRedirect(reverse('FregatMonitoringApp:AutoMeltsSetPoints'))
+    return HttpResponseRedirect(reverse('FregatMonitoringApp:auto_melts_setpoints'))
 
 
 #----------ОТОБРАЖЕНИЯ ЧЕРЕЗ СЕРИАЛАЙЗЕРЫ-------------------
 
-def Furnace_info_s(request, SignalIndex): # API для обновления данных на экране "Печь 1(2)"
+def furnace_info_s(request, signal_index): # API для обновления данных на экране "Печь 1(2)"
     
     #В общем виде ищем последнее значение в таблице для каждого сигнала
-    tag_val = Floattable.objects.filter(tagindex=SignalIndex).order_by('-dateandtime')[:1]
+    tag_val = Floattable.objects.filter(tagindex=signal_index).order_by('-dateandtime')[:1]
 
     serializer = FloattableSerializer(tag_val, many=True)
 
     # если значение сигнала нужно пред-обработать, обрабатываем значение уже внутри сериалайзера
     #----Исключения 1 печь----------------
-    if SignalIndex == 13: #нагрузка на печь
+    if signal_index == 13: #нагрузка на печь
         serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
-    if SignalIndex == 51: #вращение печи
+    if signal_index == 51: #вращение печи
         serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
-    if SignalIndex == 52: #дроссель горячего газохода
+    if signal_index == 52: #дроссель горячего газохода
         serializer.data[0]['val'] = round(serializer.data[0]['val'],0)
-    if SignalIndex == 25: #температура гор.газохода
+    if signal_index == 25: #температура гор.газохода
         serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
-    if SignalIndex == 26: #температура перед фильтром
+    if signal_index == 26: #температура перед фильтром
         serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
-    if SignalIndex == 115: #лямбда
+    if signal_index == 115: #лямбда
         serializer.data[0]['val'] = round(serializer.data[0]['val'],2)
-    if SignalIndex == 85: #сливной дроссель
+    if signal_index == 85: #сливной дроссель
         serializer.data[0]['val'] = "открыт" if not serializer.data[0]['val'] else "закрыт"
-    if SignalIndex == 117: #дроссель круглый
+    if signal_index == 117: #дроссель круглый
         serializer.data[0]['val'] = serializer.data[0]['val']-256
-    if SignalIndex == 118: #дроссель над дверью
+    if signal_index == 118: #дроссель над дверью
         serializer.data[0]['val'] = serializer.data[0]['val']-512
-    if SignalIndex == 121: #дроссель на 3 фильтр
+    if signal_index == 121: #дроссель на 3 фильтр
         serializer.data[0]['val'] = serializer.data[0]['val']-1280
-    if SignalIndex == 123: #дроссель дымососа
+    if signal_index == 123: #дроссель дымососа
         serializer.data[0]['val'] = serializer.data[0]['val']-1792
 
     #----Исключения 1 печь----------------
-    if SignalIndex == 14: #нагрузка на печь
+    if signal_index == 14: #нагрузка на печь
         serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
-    if SignalIndex == 17: #вращение печи
+    if signal_index == 17: #вращение печи
         serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
-    if SignalIndex == 75: #дроссель горячего газохода
+    if signal_index == 75: #дроссель горячего газохода
         serializer.data[0]['val'] = round(serializer.data[0]['val'],0)
-    if SignalIndex == 27: #температура гор.газохода
+    if signal_index == 27: #температура гор.газохода
         serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
-    if SignalIndex == 31: #температура перед фильтром
+    if signal_index == 31: #температура перед фильтром
         serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
-    if SignalIndex == 63: #лямбда
+    if signal_index == 63: #лямбда
         serializer.data[0]['val'] = round(serializer.data[0]['val'],2)
-    if SignalIndex == 81: #сливной дроссель
+    if signal_index == 81: #сливной дроссель
         serializer.data[0]['val'] = "открыт" if not serializer.data[0]['val'] else "закрыт"
-    if SignalIndex == 9: #перепад на дымососе
+    if signal_index == 9: #перепад на дымососе
         serializer.data[0]['val'] = round(serializer.data[0]['val'])
-    if SignalIndex == 12: #разряжение в гор. газоходе
+    if signal_index == 12: #разряжение в гор. газоходе
         serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
 
     #----Исключения ШЗМ---------------
-    if SignalIndex == 48: #вес в бункере ШЗМ
+    if signal_index == 48: #вес в бункере ШЗМ
         serializer.data[0]['val'] = round(serializer.data[0]['val'],2)
 
     return JsonResponse(serializer.data, safe=False)
 
 
-def Furnace_info_a(request, FurnaceNo): # API для обновления данных о автоплавке на экране "Печь 1(2)"
+def furnace_info_a(request, furnace_no): # API для обновления данных о автоплавке на экране "Печь 1(2)"
 
-    melt_inst = Automelts.objects.filter(furnace_no=FurnaceNo)[0]
+    melt_inst = Automelts.objects.filter(furnace_no=furnace_no)[0]
     melt_type_inst = Melttypes.objects.filter(melt_num = melt_inst.melt_type)[0]
     step_type_inst = Meltsteps.objects.filter(step_num = melt_inst.melt_step).filter(melt = melt_type_inst.melt_id)[0]
 
     #дельта
-    if FurnaceNo == 1:
+    if furnace_no == 1:
         over_door_t = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_712Y')[0].tagindex).order_by('-dateandtime')[0].val
         cold_air_t = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_712X')[0].tagindex).order_by('-dateandtime')[0].val
-    elif FurnaceNo == 2:
+    elif furnace_no == 2:
         over_door_t = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_711Y')[0].tagindex).order_by('-dateandtime')[0].val
         cold_air_t = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_711X')[0].tagindex).order_by('-dateandtime')[0].val
     deltaT = over_door_t - cold_air_t
     
     AMmodel = AutoMeltsInfo(
-        furnace_no = FurnaceNo,
+        furnace_no = furnace_no,
         auto_mode = "Автомат" if melt_inst.auto_mode else "Ручной",
         melt_name = melt_type_inst.melt_name,
         step_name = step_type_inst.step_name,
