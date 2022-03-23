@@ -16,6 +16,7 @@ urlpatterns = [
     path('AutoMeltsSaveSettings/<int:melt_id_1>/<int:melt_id_2>/', views.auto_melts_save_settings, name='auto_melts_save_settings'),
     path('AutoMeltsSetPoints/', views.auto_melts_setpoints, name='auto_melts_setpoints'),
     path('AutoMeltsSetPoints/<int:furnace_num>/', views.auto_melts_save_setpoints, name='auto_melts_save_setpoints'),
+    path('AutoMeltsAddSubstep/<str:melt_type>/<int:melt_step>/', views.auto_melts_add_substep, name='auto_melts_add_substep'),
     path('Furnace_info_s/<int:signal_index>/', views.furnace_info_s, name='furnace_info_s'),
     path('Furnace_info_a/<int:furnace_no>/', views.furnace_info_a, name='furnace_info_a'),
     path('ReportsPage/', views.reports_page, name='reports_page'),

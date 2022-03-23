@@ -1,101 +1,42 @@
 {% extends "FregatMonitoringApp/auto_melts_info.html" %}
 
+{% load FregatMonitoring_extratags %}
+
 {% block automelts_info %}
 <div class="content-box">
   <form action="{% url 'FregatMonitoringApp:auto_melts_save_settings' melts_id.0 melts_id.1 %}" method="post">
   {% csrf_token %}
       <div> 
-      {% for melt in melt_types_1 %} <!--Типы плавок выводим только для первой печи, для второй такие же-->
+      {% for melt in melt_types %} <!--Типы плавок выводим только для первой печи, для второй такие же-->
           <a href="{% url 'FregatMonitoringApp:auto_melts_types_info' melt.melt_id %}" class="btn"> {{ melt.melt_name }} </a>
       {% endfor %} 
       </div>
       <div class="auto-melts-types-box">
       <table>
-      <tr><td class=" area-name bottom-line">
-        <p> Печь №1 </p>
-      </td>
-      <td width="100px"></td>
-      <td class=" area-name bottom-line">
-        <p> Печь №2 </p>
-      </td></tr>
-      <tr><td>
-      <table><tr><td>
-      {% for step in melt_steps_1 %}
-          <table class="melt_step_container">
-          <tr>
-            <td id="stepid_{{step.step_id}}" class="area-name bottom-line" > {{ step.step_name }} </td>   
-          </tr>  
-          <tr><td> 
-              <table>  
-              <tr><td width='70px'></td><td></td>
-                  <td></td>
-                  <td class="setpoints_text">Время</td>
-                  <td class="setpoints_text">Мощность</td>
-                  <td class="setpoints_text">Вращение</td>
-                  <td class="setpoints_text" >Обогащение</td>
-              </tr>
-              {% for substep in substeps_1 %}
-                {% if substep.step == step %}
-                  <tr>  
-                  <td>  </td> <td>  </td>
-                  <td class="setpoints_text" width='70px'> Шаг {{substep.sub_step_num}} </td> 
-                  <td> <input name="Time_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.sub_step_time %} value= {{substep.sub_step_time}}> {% else %} value="" {% endif %} </td> 
-                  <td> <input name="Power_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.power_sp %} value= {{substep.power_sp}}> {% else %} value="" {% endif %} </td> 
-                  <td> <input name="Rotation_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.rotation_sp %} value= {{substep.rotation_sp}}> {% else %} value="" {% endif %} </td> 
-                  <td> <input name="Alpha_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.alpha_sp %} value= {{substep.alpha_sp}}> {% else %} value="" {% endif %} </td> 
-                  </tr>
-                {% endif %}  
-              {% endfor %} 
-              <tr class="melt_step_add">
-              <td> </td> <td>  </td><td>  </td><td>  </td><td>  </td><td>  </td> <td><input type=submit class="btn" value="Добавить шаг"></td>        
-              </tr>
-              </table>
-              </td>
-          </tr> 
-          </table>       
-      {% endfor %}  
-      </td></tr>            
-      </table>
-      </td>
-      <td width="100px"></td>
-      <td>
-      <table>
-      {% for step in melt_steps_2 %}
-          <table class="melt_step_container">
-          <tr>
-            <td id="stepid_{{step.step_id}}" class=" area-name bottom-line"> {{ step.step_name }} </td>   
-          </tr>  
-          <tr><td> 
-              <table>  
-              <tr><td width='70px'></td><td></td>
-                  <td></td>
-                  <td class="setpoints_text">Время</td>
-                  <td class="setpoints_text">Мощность</td>
-                  <td class="setpoints_text">Вращение</td>
-                  <td class="setpoints_text" >Обогащение</td>
-              </tr>
-              {% for substep in substeps_2 %}
-                {% if substep.step == step %}
-                  <tr>  
-                  <td>  </td> <td>  </td>
-                  <td class="setpoints_text" width='70px'> Шаг {{substep.sub_step_num}} </td> 
-                  <td> <input name="Time_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.sub_step_time %} value= {{substep.sub_step_time}}> {% else %} value="" {% endif %} </td> 
-                  <td> <input name="Power_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.power_sp %} value= {{substep.power_sp}}> {% else %} value="" {% endif %} </td> 
-                  <td> <input name="Rotation_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.rotation_sp %} value= {{substep.rotation_sp}}> {% else %} value="" {% endif %} </td> 
-                  <td> <input name="Alpha_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.alpha_sp %} value= {{substep.alpha_sp}}> {% else %} value="" {% endif %} </td> 
-                  </tr>
-                {% endif %}  
-              {% endfor %} 
-              <tr class="melt_step_add">
-              <td> </td> <td>  </td><td>  </td><td>  </td><td>  </td><td>  </td> <td><input type=button class="btn" value="Добавить шаг"></td>        
-              </tr>
-              </table>
-              </td>
-          </tr> 
-          </table>       
-      {% endfor %}              
-      </table>
-      </td></tr>
+        <tr><td class=" area-name bottom-line">
+              <p> Печь №1 </p>
+            </td>
+            <td width="100px"></td>
+            <td class=" area-name bottom-line">
+              <p> Печь №2 </p>
+            </td></tr>
+        <tr><td>
+            <table><tr><td>
+                      {% for step in melt_steps_1 %}
+                          {% get_substebs_by_step melt_name step substeps_1 %}
+                      {% endfor %}  
+                   </td></tr>            
+            </table>
+            </td>
+            <td width="100px"></td>
+            <td>
+            <table><tr><td>
+                      {% for step in melt_steps_2 %}
+                          {% get_substebs_by_step melt_name step substeps_2 %}     
+                      {% endfor %}    
+                   </td></tr>             
+            </table>
+         </td></tr>
       </table>
       </div>
       <div class="save_btn_bar"> 

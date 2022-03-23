@@ -1,0 +1,28 @@
+<table class="melt_step_container">
+<tr>
+<td id="stepid_{{step.step_id}}" class="area-name bottom-line" > {{ step.step_name }} </td>   
+</tr>  
+<tr><td> 
+    <table>  
+    <tr><td width='70px'></td><td></td>
+        <td></td>
+        <td class="setpoints_text">Время</td>
+        <td class="setpoints_text">Мощность</td>
+        <td class="setpoints_text">Вращение</td>
+        <td class="setpoints_text" >Обогащение</td>
+    </tr>
+    {% for substep in substeps %}
+        {% include "FregatMonitoringApp/include_templates/substeps_templates.html" %}
+    {% endfor %} 
+    <tr class="melt_step_add">
+    <form action="{% url 'FregatMonitoringApp:auto_melts_add_substep' melt_name step.step_num %}" method="post">
+    {% csrf_token %}
+    <td> </td> <td>  </td><td>  </td><td>  </td><td>  </td><td>  </td> 
+    <td><input type=submit class="btn" value="Добавить шаг"></td>      
+    </form>  
+    </tr>
+    </table>
+    </td>
+</tr> 
+</table>       
+      
