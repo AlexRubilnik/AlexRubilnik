@@ -128,7 +128,7 @@ class Substeps(models.Model):
     step = models.ForeignKey(Meltsteps, models.DO_NOTHING, db_column='STEP_ID')  # ID шага плавки 
     substep_id = models.AutoField(db_column='SUBSTEP_ID', primary_key=True)  # ID подшага
     sub_step_num = models.SmallIntegerField(db_column='SUB_STEP_NUM')  # Номер подшага для данного шага
-    sub_step_time = models.SmallIntegerField(db_column='SUB_STEP_TIME')  # Время выполнения подшага
+    sub_step_time = models.SmallIntegerField(db_column='SUB_STEP_TIME',default=0)  # Время выполнения подшага
     power_sp = models.IntegerField(db_column='POWER_SP', blank=True, null=True)  # Уставка мощности
     rotation_sp = models.IntegerField(db_column='ROTATION_SP', blank=True, null=True)  # Уставка вращения
     hotgate_sp = models.IntegerField(db_column='HOTGATE_SP', blank=True, null=True)  # Уставка открытия гор. газохода

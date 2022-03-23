@@ -2,9 +2,10 @@
     <tr>  
     <td>  </td> <td>  </td>
     <td class="setpoints_text" width='70px'> Шаг {{substep.sub_step_num}} </td> 
-    <td> <input name="Time_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.sub_step_time %} value= {{substep.sub_step_time}}> {% else %} value="" {% endif %} </td> 
+    <td> <input name="Time_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.sub_step_time != 'null' %} value= {{substep.sub_step_time}}> {% else %} value="" {% endif %} </td> 
     <td> <input name="Power_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.power_sp %} value= {{substep.power_sp}}> {% else %} value="" {% endif %} </td> 
     <td> <input name="Rotation_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.rotation_sp %} value= {{substep.rotation_sp}}> {% else %} value="" {% endif %} </td> 
     <td> <input name="Alpha_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.alpha_sp %} value= {{substep.alpha_sp}}> {% else %} value="" {% endif %} </td> 
+    <td> <a href="{% url 'FregatMonitoringApp:auto_melts_add_substep' melt_name step.step_num %}" class="btn"> Удалить шаг </a></td>
     </tr>
 {% endif %}  

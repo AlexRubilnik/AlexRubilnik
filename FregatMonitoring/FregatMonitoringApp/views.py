@@ -11,7 +11,6 @@ from django.template import loader
 from django.urls import reverse
 from django.db.models import F
 
-from rest_framework.parsers import JSONParser
 from .models import Automelts, AutoMeltsInfo, Daily_gases_consumption, Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable 
 from .serializers import FloattableSerializer, AutomeltsSerializer
 
@@ -587,10 +586,25 @@ def auto_melts_types_info(request, melt_id_1):
 
 
 def auto_melts_add_substep(request, melt_type, melt_step):
-    """Добавляет подшаг к заданному шагу по типу плавки(названию) сразу для обеих печей"""
+    """Добавляет подшаг к заданному шагу по типу плавки(названию) сразу для обеих печей
+       request - запрос,
+       melt_type - Тип плавки (по названию), к которой будет добавляться подшаг. Добавляем в одинаковые типы плавок для обеих печей
+       melt_step - порядковый номер шага, к которому будет добавлять подшаг
+    """
 
-    melt_1 = Melttypes.objects.get(melt_name=melt_type, melt_furnace=1) #вытаскиваем id плавки по типу(названию) для первой печи
-    melt_2 = Melttypes.objects.get(melt_name=melt_type, melt_furnace=1) #вытаскиваем id плавки по типу(названию) для первой печи
+    melt_1 = Melttypes.objects.get(melt_name=melt_type, melt_furnace=1) #вытаскиваем плавку по типу(названию) для первой печи
+    melt_2 = Melttypes.objects.get(melt_name=melt_type, melt_furnace=2) #вытаскиваем плавкупо типу(названию) для первой печи
+
+    step_1 = Meltsteps.objects.get(step_num=melt_step, melt=melt_1.melt_id) #вытаскиваем шаг по номеру для первой печи для заданного типа плавки
+    step_2 = Meltsteps.objects.get(step_num=melt_step, melt=melt_2.melt_id) #вытаскиваем шаг по номеру для второй печи для заданного типа плавки
+
+    num_of_substeps_1 = Substeps.objects.filter(step=step_1.step_id).count() #считаем сколько в этом шаге подшагов
+    num_of_substeps_2 = Substeps.objects.filter(step=step_2.step_id).count() #считаем сколько в этом шаге подшагов
+
+    substep_melt_1 = Substeps(step=step_1, sub_step_num=num_of_substeps_1+1, sub_step_time=0)
+    substep_melt_1.save()
+    substep_melt_2 = Substeps(step=step_2, sub_step_num=num_of_substeps_2+1, sub_step_time=0)
+    substep_melt_2.save()
 
     return auto_melts_types_info(request, melt_1.melt_id) 
 
