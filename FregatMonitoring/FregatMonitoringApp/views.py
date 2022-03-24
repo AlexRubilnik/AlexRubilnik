@@ -262,76 +262,20 @@ def sorry_page(request):
 
 def furnace_1_info(request):
     
-    #горелка
-    power_sp = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\HY_F711')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\HY_F711')[0].tagindex]
-    gas_flow = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\FL710_NG')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\FL710_NG')[0].tagindex]
-    air_flow = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\FL710_AIR')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\FL710_AIR')[0].tagindex]
-    o2_flow =  [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\O1Flow')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\O1Flow')[0].tagindex]
-    alpha = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\Alpha_p1')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\Alpha_p1')[0].tagindex]
-    lambd = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\Lambda_p1')[0].tagindex).order_by('-dateandtime')[0].val,2),
-    Tagtable.objects.filter(tagname='MEASURES\Lambda_p1')[0].tagindex]
-    standby = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='GENERAL\F710_LOCK')[0].tagindex).order_by('-dateandtime')[0].val,
-    Tagtable.objects.filter(tagname='GENERAL\F710_LOCK')[0].tagindex]
-    power_mode = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='IO\HS1_F710')[0].tagindex).order_by('-dateandtime')[0].val,
-    Tagtable.objects.filter(tagname='IO\HS1_F710')[0].tagindex]
+    def cur_signal_value(signal_name: str, **kwards):
+        """ Возвращает текущее значение сигнала по его имени в БД
+
+            Принимает название сигнала, 
+                      kwards['minus'] - коррекция для сигналов дросселей, которые шифруются определённым образом      
+        """
+
+        if kwards.get('minus') == None:
+            kwards['minus'] = 0
+
+        return [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname=signal_name)[0].tagindex).order_by('-dateandtime')[0].val - kwards['minus'],
+    Tagtable.objects.filter(tagname=signal_name)[0].tagindex]
     
-
-    #горячий газоход
-    hotflue_p = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PI_701')[0].tagindex).order_by('-dateandtime')[0].val,1),
-    Tagtable.objects.filter(tagname='MEASURES\PI_701')[0].tagindex]
-    hotflue_t = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_703B')[0].tagindex).order_by('-dateandtime')[0].val,1),
-    Tagtable.objects.filter(tagname='MEASURES\TI_703B')[0].tagindex]
-    
-    #фильтр
-    filter_dp = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PDI_720')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\PDI_720')[0].tagindex] 
-    t_before_filter = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_704')[0].tagindex).order_by('-dateandtime')[0].val,1), 
-    Tagtable.objects.filter(tagname='MEASURES\TI_704')[0].tagindex]
-    
-    #дымосос
-    exhauster_dp = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PDI_724')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\PDI_724')[0].tagindex]
-    exhauster_pc = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\SI_U720')[0].tagindex).order_by('-dateandtime')[0].val,
-    Tagtable.objects.filter(tagname='MEASURES\SI_U720')[0].tagindex]
-
-    #дроссели
-    hot_flue_gate = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\ZI_701')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\ZI_701')[0].tagindex]
-    over_door_gate = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\p1_mct2_rez')[0].tagindex).order_by('-dateandtime')[0].val - 512),
-    Tagtable.objects.filter(tagname='MEASURES\p1_mct2_rez')[0].tagindex]
-    exhauster_gate = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\p1_mct7_rez')[0].tagindex).order_by('-dateandtime')[0].val - 1792,
-    Tagtable.objects.filter(tagname='MEASURES\p1_mct7_rez')[0].tagindex]
-    round_gate = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\p1_mct1_rez')[0].tagindex).order_by('-dateandtime')[0].val - 256,
-    Tagtable.objects.filter(tagname='MEASURES\p1_mct1_rez')[0].tagindex]
-    filter3_gate = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\p1_mct5_rez')[0].tagindex).order_by('-dateandtime')[0].val - 1280,
-    Tagtable.objects.filter(tagname='MEASURES\p1_mct5_rez')[0].tagindex]
-    drain_gate = ["открыт" if not Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='VALVES\XV701_ZL')[0].tagindex).order_by('-dateandtime')[0].val else "закрыт",
-    Tagtable.objects.filter(tagname='VALVES\XV701_ZL')[0].tagindex]
-
-    #дельта
-    over_door_t = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_712Y')[0].tagindex).order_by('-dateandtime')[0].val
-    cold_air_t = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_712X')[0].tagindex).order_by('-dateandtime')[0].val
-    deltaT = round(over_door_t - cold_air_t,1)
-
-    #печь
-    furnace_rotation = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\SY_KL710')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\SY_KL710')[0].tagindex]
-    furnace_current = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\SI_KL710')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\SI_KL710')[0].tagindex]
-    loading_door_half = ["открыта" if Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='VALVES\XVF710P_ZL')[0].tagindex).order_by('-dateandtime')[0].val == 0 else "закрыта",
-    Tagtable.objects.filter(tagname='VALVES\XVF710P_ZL')[0].tagindex]
-    
-    #поезд - не прописан в History
-    #train_move = "Едет" if Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MOTORS\H750_FB')[0].tagindex).order_by('-dateandtime')[0].val else "Стоит"
-    #train_fwd = "вперёд" if Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MOTORS\H750_FWB')[0].tagindex).order_by('-dateandtime')[0].val else "назад"
-    #train_fwd = train_fwd if train_move else "---"
-
-    #шзм - не прописан в History
+    #Положение ШЗМ
     try:
         if Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='IO\ZSL_PK710')[0].tagindex).order_by('-dateandtime')[0].val:
             shzm_position = "У поля"
@@ -341,10 +285,7 @@ def furnace_1_info(request):
             shzm_position = "У 2 печи"
     except:
         shzm_position = "---"
-
-    weight_in_shzm= [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\WI_710')[0].tagindex).order_by('-dateandtime')[0].val,2),
-    Tagtable.objects.filter(tagname='MEASURES\WI_710')[0].tagindex]
-
+    
     #автоплавка
     Automelt_info = Automelts.objects.filter(furnace_no=1)
     auto_mode = "Автомат" if Automelt_info[0].auto_mode else "Ручной"
@@ -366,40 +307,58 @@ def furnace_1_info(request):
 
     template = loader.get_template('FregatMonitoringApp/furnace_info.html')
     context = {'furnace_num': 1,
-               'power_sp': power_sp,
-               'gas_flow': gas_flow,
-               'air_flow': air_flow,
-               'o2_flow': o2_flow,
-               'alpha': alpha,
-               'lambda': lambd,
-               'standby': standby,
-               'power_mode': power_mode,
-               'filter_dp': filter_dp,
-               'exhauster_dp': exhauster_dp,
-               't_before_filter': t_before_filter,
-               'hotflue_p': hotflue_p,
-               'hotflue_t': hotflue_t,
-               'exhauster_pc': exhauster_pc,
-               'hot_flue_gate': hot_flue_gate,
-               'over_door_gate': over_door_gate,
-               'exhauster_gate': exhauster_gate,
-               'round_gate': round_gate,
-               'filter3_gate': filter3_gate,
-               'drain_gate': drain_gate,    
-               'over_door_t': over_door_t,
-               'cold_air_t': cold_air_t,
-               'deltaT': deltaT,
-               'furnace_rotation': furnace_rotation,
-               'furnace_current': furnace_current,
-               'loading_door_half': loading_door_half,
+
+               #горелка
+               'power_sp': cur_signal_value('MEASURES\HY_F711'),
+               'gas_flow': cur_signal_value('MEASURES\FL710_NG'),
+               'air_flow': cur_signal_value('MEASURES\FL710_AIR'),
+               'o2_flow': cur_signal_value('MEASURES\O1Flow'),
+               'alpha': cur_signal_value('MEASURES\Alpha_p1'),
+               'lambda': cur_signal_value('MEASURES\Lambda_p1'),
+               'standby': cur_signal_value('GENERAL\F710_LOCK'),
+               'power_mode': cur_signal_value('IO\HS1_F710'),
+
+               #фильтр
+               'filter_dp': cur_signal_value('MEASURES\PDI_720'),
+               't_before_filter': cur_signal_value('MEASURES\TI_704'),
+
+               #дымосос
+               'exhauster_dp': cur_signal_value('MEASURES\PDI_724'),
+               'exhauster_pc': cur_signal_value('MEASURES\SI_U720'),
+               
+               #горячий газоход
+               'hotflue_p': cur_signal_value('MEASURES\PI_701') ,
+               'hotflue_t': cur_signal_value('MEASURES\TI_703B'),
+
+               #дроссели
+               'hot_flue_gate': cur_signal_value('MEASURES\ZI_701'),
+               'over_door_gate': cur_signal_value('MEASURES\p1_mct2_rez',minus=512),
+               'exhauster_gate': cur_signal_value('MEASURES\p1_mct7_rez',minus=1792),
+               'round_gate': cur_signal_value('MEASURES\p1_mct1_rez',minus=256),
+               'filter3_gate': cur_signal_value('MEASURES\p1_mct5_rez',minus=1280),
+               'drain_gate': cur_signal_value('VALVES\XV701_ZL'),  
+
+                #дельта
+               'over_door_t': cur_signal_value('MEASURES\TI_712Y'),
+               'cold_air_t': cur_signal_value('MEASURES\TI_712X'),
+               'deltaT': cur_signal_value('MEASURES\TI_712Y')[0]  - cur_signal_value('MEASURES\TI_712X')[0],
+
+               #печь
+               'furnace_rotation': cur_signal_value('MEASURES\SY_KL710'),
+               'furnace_current': cur_signal_value('MEASURES\SI_KL710'),
+               'loading_door_half': cur_signal_value('VALVES\XVF710P_ZL'),
+               
+               #автоплавка
                'auto_mode': auto_mode,
                'melt_type' : melt_type,
                'melt_step' : melt_step,
                'step_total_time' : step_total_time,
                'step_time_remain' : step_time_remain,
                'deltat_stp' : deltat_stp,
+
+               #Положение ШЗМ
                'shzm_position': shzm_position,
-               'weight_in_shzm': weight_in_shzm,
+               'weight_in_shzm': cur_signal_value('MEASURES\WI_710'),
               }
 
     return HttpResponse(template.render(context, request))
@@ -407,76 +366,20 @@ def furnace_1_info(request):
 
 def furnace_2_info(request):
     
-    #горелка
-    power_sp = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\HY_F710')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\HY_F710')[0].tagindex]
-    gas_flow = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_810B')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\TI_810B')[0].tagindex]
-    air_flow = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_810C')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\TI_810C')[0].tagindex]
-    o2_flow =  [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\O2Flow')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\O2Flow')[0].tagindex]
-    alpha = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\Alpha')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\Alpha')[0].tagindex]
-    lambd = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\Lambda')[0].tagindex).order_by('-dateandtime')[0].val,2),
-    Tagtable.objects.filter(tagname='MEASURES\Lambda')[0].tagindex]
-    standby = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='GENERAL\F711_LOCK')[0].tagindex).order_by('-dateandtime')[0].val,
-    Tagtable.objects.filter(tagname='GENERAL\F711_LOCK')[0].tagindex]
-    power_mode = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='IO\HS1_F711')[0].tagindex).order_by('-dateandtime')[0].val,
-    Tagtable.objects.filter(tagname='IO\HS1_F711')[0].tagindex]
+    def cur_signal_value(signal_name: str, **kwards):
+        """ Возвращает текущее значение сигнала по его имени в БД
+
+            Принимает название сигнала, 
+                      kwards['minus'] - коррекция для сигналов дросселей, которые шифруются определённым образом      
+        """
+
+        if kwards.get('minus') == None:
+            kwards['minus'] = 0
+
+        return [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname=signal_name)[0].tagindex).order_by('-dateandtime')[0].val - kwards['minus'],
+    Tagtable.objects.filter(tagname=signal_name)[0].tagindex]
     
-
-    #горячий газоход
-    hotflue_p = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PI_702')[0].tagindex).order_by('-dateandtime')[0].val,1),
-    Tagtable.objects.filter(tagname='MEASURES\PI_702')[0].tagindex]
-    hotflue_t = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_705A')[0].tagindex).order_by('-dateandtime')[0].val,1),
-    Tagtable.objects.filter(tagname='MEASURES\TI_705A')[0].tagindex]
-    
-    #фильтр
-    filter_dp = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PDI_725')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\PDI_725')[0].tagindex] 
-    t_before_filter = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_708')[0].tagindex).order_by('-dateandtime')[0].val,1), 
-    Tagtable.objects.filter(tagname='MEASURES\TI_708')[0].tagindex]
-    
-    #дымосос
-    exhauster_dp = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PDI_729')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\PDI_729')[0].tagindex]
-    exhauster_pc = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\SI_U721')[0].tagindex).order_by('-dateandtime')[0].val,
-    Tagtable.objects.filter(tagname='MEASURES\SI_U721')[0].tagindex]
-
-    #дроссели
-    hot_flue_gate = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\PY_702')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\PY_702')[0].tagindex]
-    over_door_gate = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\ZI_704')[0].tagindex).order_by('-dateandtime')[0].val,
-    Tagtable.objects.filter(tagname='MEASURES\ZI_704')[0].tagindex]
-    exhauster_gate = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\ZI_706')[0].tagindex).order_by('-dateandtime')[0].val,
-    Tagtable.objects.filter(tagname='MEASURES\ZI_706')[0].tagindex]
-    round_gate = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\\xvi_v_cech')[0].tagindex).order_by('-dateandtime')[0].val,
-    Tagtable.objects.filter(tagname='MEASURES\\xvi_v_cech')[0].tagindex]
-    filter3_gate = [Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\XVI_708')[0].tagindex).order_by('-dateandtime')[0].val,
-    Tagtable.objects.filter(tagname='MEASURES\XVI_708')[0].tagindex]
-    drain_gate = ["открыт" if not Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='VALVES\XV702_ZL')[0].tagindex).order_by('-dateandtime')[0].val else "закрыт",
-    Tagtable.objects.filter(tagname='VALVES\XV702_ZL')[0].tagindex]
-
-    #дельта
-    over_door_t = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_711Y')[0].tagindex).order_by('-dateandtime')[0].val
-    cold_air_t = Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\TI_711X')[0].tagindex).order_by('-dateandtime')[0].val
-    deltaT = round(over_door_t - cold_air_t,1)
-
-    #печь
-    furnace_rotation = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\SY_KL711')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\SY_KL711')[0].tagindex]
-    furnace_current = [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\SI_KL711')[0].tagindex).order_by('-dateandtime')[0].val),
-    Tagtable.objects.filter(tagname='MEASURES\SI_KL711')[0].tagindex]
-    loading_door_half = ["открыта" if Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='VALVES\XVF711P_ZL')[0].tagindex).order_by('-dateandtime')[0].val == 0 else "закрыта",
-    Tagtable.objects.filter(tagname='VALVES\XVF711P_ZL')[0].tagindex]
-    
-    #поезд - не прописан в History
-    #train_move = "Едет" if Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MOTORS\H750_FB')[0].tagindex).order_by('-dateandtime')[0].val else "Стоит"
-    #train_fwd = "вперёд" if Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MOTORS\H750_FWB')[0].tagindex).order_by('-dateandtime')[0].val else "назад"
-    #train_fwd = train_fwd if train_move else "---"
-
-    #шзм - не прописан в History
+    #Положение ШЗМ
     try:
         if Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='IO\ZSL_PK710')[0].tagindex).order_by('-dateandtime')[0].val:
             shzm_position = "У поля"
@@ -486,10 +389,7 @@ def furnace_2_info(request):
             shzm_position = "У 2 печи"
     except:
         shzm_position = "---"
-
-    weight_in_shzm= [round(Floattable.objects.filter(tagindex=Tagtable.objects.filter(tagname='MEASURES\WI_710')[0].tagindex).order_by('-dateandtime')[0].val,2),
-    Tagtable.objects.filter(tagname='MEASURES\WI_710')[0].tagindex]
-
+    
     #автоплавка
     Automelt_info = Automelts.objects.filter(furnace_no=2)
     auto_mode = "Автомат" if Automelt_info[0].auto_mode else "Ручной"
@@ -510,41 +410,59 @@ def furnace_2_info(request):
     deltat_stp = Automelt_info[0].deltat
 
     template = loader.get_template('FregatMonitoringApp/furnace_info.html')
-    context = {'furnace_num': 2,
-               'power_sp': power_sp,
-               'gas_flow': gas_flow,
-               'air_flow': air_flow,
-               'o2_flow': o2_flow,
-               'alpha': alpha,
-               'lambda': lambd,
-               'standby': standby,
-               'power_mode': power_mode,
-               'filter_dp': filter_dp,
-               'exhauster_dp': exhauster_dp,
-               't_before_filter': t_before_filter,
-               'hotflue_p': hotflue_p,
-               'hotflue_t': hotflue_t,
-               'exhauster_pc': exhauster_pc,
-               'hot_flue_gate': hot_flue_gate,
-               'over_door_gate': over_door_gate,
-               'exhauster_gate': exhauster_gate,
-               'round_gate': round_gate,
-               'filter3_gate': filter3_gate,
-               'drain_gate': drain_gate,    
-               'over_door_t': over_door_t,
-               'cold_air_t': cold_air_t,
-               'deltaT': deltaT,
-               'furnace_rotation': furnace_rotation,
-               'furnace_current': furnace_current,
-               'loading_door_half': loading_door_half,
+    context = {'furnace_num': 1,
+
+               #горелка
+               'power_sp': cur_signal_value('MEASURES\HY_F710'),
+               'gas_flow': cur_signal_value('MEASURES\TI_810B'),
+               'air_flow': cur_signal_value('MEASURES\TI_810C'),
+               'o2_flow': cur_signal_value('MEASURES\O2Flow'),
+               'alpha': cur_signal_value('MEASURES\Alpha'),
+               'lambda': cur_signal_value('MEASURES\Lambda'),
+               'standby': cur_signal_value('GENERAL\F711_LOCK'),
+               'power_mode': cur_signal_value('IO\HS1_F711'),
+
+               #фильтр
+               'filter_dp': cur_signal_value('MEASURES\PDI_725'),
+               't_before_filter': cur_signal_value('MEASURES\TI_708'),
+
+               #дымосос
+               'exhauster_dp': cur_signal_value('MEASURES\PDI_729'),
+               'exhauster_pc': cur_signal_value('MEASURES\SI_U721'),
+               
+               #горячий газоход
+               'hotflue_p': cur_signal_value('MEASURES\PI_702') ,
+               'hotflue_t': cur_signal_value('MEASURES\TI_705A'),
+
+               #дроссели
+               'hot_flue_gate': cur_signal_value('MEASURES\PY_702'),
+               'over_door_gate': cur_signal_value('MEASURES\ZI_704'),
+               'exhauster_gate': cur_signal_value('MEASURES\ZI_706'),
+               'round_gate': cur_signal_value('MEASURES\\xvi_v_cech'),
+               'filter3_gate': cur_signal_value('MEASURES\XVI_708'),
+               'drain_gate': cur_signal_value('VALVES\XV702_ZL'),  
+
+                #дельта
+               'over_door_t': cur_signal_value('MEASURES\TI_711Y'),
+               'cold_air_t': cur_signal_value('MEASURES\TI_711X'),
+               'deltaT': cur_signal_value('MEASURES\TI_711Y')[0]  - cur_signal_value('MEASURES\TI_711X')[0],
+
+               #печь
+               'furnace_rotation': cur_signal_value('MEASURES\SY_KL711'),
+               'furnace_current': cur_signal_value('MEASURES\SI_KL711'),
+               'loading_door_half': cur_signal_value('VALVES\XVF711P_ZL'),
+
+               #автоплавка
                'auto_mode': auto_mode,
                'melt_type' : melt_type,
                'melt_step' : melt_step,
                'step_total_time' : step_total_time,
                'step_time_remain' : step_time_remain,
                'deltat_stp' : deltat_stp,
+
+               #Положение ШЗМ
                'shzm_position': shzm_position,
-               'weight_in_shzm' : weight_in_shzm,
+               'weight_in_shzm': cur_signal_value('MEASURES\WI_710'),
               }
 
     return HttpResponse(template.render(context, request))
