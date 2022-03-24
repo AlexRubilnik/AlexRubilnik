@@ -11,7 +11,6 @@ from django.template import loader
 from django.urls import reverse
 from django.db.models import F
 
-from rest_framework.parsers import JSONParser
 from .models import Automelts, AutoMeltsInfo, Daily_gases_consumption, Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable 
 from .serializers import FloattableSerializer, AutomeltsSerializer
 
@@ -470,8 +469,7 @@ def furnace_2_info(request):
 
 def auto_melts_types_info(request, melt_id_1):
 
-    melt_type_list_1 = Melttypes.objects.filter(melt_furnace=1) #Выбираем типы плавок для первой печи(для второй такие же)
-    melt_type_list_2 = Melttypes.objects.filter(melt_furnace=2)
+    melt_type_list = Melttypes.objects.filter(melt_furnace=1) #Выбираем типы плавок для первой печи(для второй такие же)
 
     melt_type_name = Melttypes.objects.filter(melt_id=melt_id_1)[0].melt_name #Узнаём, как называется этот тип плавки
     melt_id_2 = Melttypes.objects.filter(melt_name=melt_type_name, melt_furnace=2)[0].melt_id #По имени вытаскиваем id аналогичной плавки для второй печи
@@ -493,9 +491,9 @@ def auto_melts_types_info(request, melt_id_1):
 
     template = loader.get_template('FregatMonitoringApp/auto_melts_types_info.html')
     context = {
+        'melt_name': melt_type_name,
         'melts_id': [melt_id_1, melt_id_2],
-        'melt_types_1': melt_type_list_1,
-        'melt_types_2': melt_type_list_2,
+        'melt_types': melt_type_list,
         'melt_steps_1': melt_steps_list_1,
         'melt_steps_2': melt_steps_list_2,
         'substeps_1' : substeps_list_1,
@@ -503,6 +501,30 @@ def auto_melts_types_info(request, melt_id_1):
     }
 
     return HttpResponse(template.render(context, request))
+
+
+def auto_melts_add_substep(request, melt_type, melt_step):
+    """Добавляет подшаг к заданному шагу по типу плавки(названию) сразу для обеих печей
+       request - запрос,
+       melt_type - Тип плавки (по названию), к которой будет добавляться подшаг. Добавляем в одинаковые типы плавок для обеих печей
+       melt_step - порядковый номер шага, к которому будет добавлять подшаг
+    """
+
+    melt_1 = Melttypes.objects.get(melt_name=melt_type, melt_furnace=1) #вытаскиваем плавку по типу(названию) для первой печи
+    melt_2 = Melttypes.objects.get(melt_name=melt_type, melt_furnace=2) #вытаскиваем плавкупо типу(названию) для первой печи
+
+    step_1 = Meltsteps.objects.get(step_num=melt_step, melt=melt_1.melt_id) #вытаскиваем шаг по номеру для первой печи для заданного типа плавки
+    step_2 = Meltsteps.objects.get(step_num=melt_step, melt=melt_2.melt_id) #вытаскиваем шаг по номеру для второй печи для заданного типа плавки
+
+    num_of_substeps_1 = Substeps.objects.filter(step=step_1.step_id).count() #считаем сколько в этом шаге подшагов
+    num_of_substeps_2 = Substeps.objects.filter(step=step_2.step_id).count() #считаем сколько в этом шаге подшагов
+
+    substep_melt_1 = Substeps(step=step_1, sub_step_num=num_of_substeps_1+1, sub_step_time=0)
+    substep_melt_1.save()
+    substep_melt_2 = Substeps(step=step_2, sub_step_num=num_of_substeps_2+1, sub_step_time=0)
+    substep_melt_2.save()
+
+    return auto_melts_types_info(request, melt_1.melt_id) 
 
 
 def auto_melts_setpoints(request):
