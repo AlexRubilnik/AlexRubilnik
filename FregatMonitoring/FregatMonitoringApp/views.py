@@ -409,7 +409,7 @@ def furnace_2_info(request):
     deltat_stp = Automelt_info[0].deltat
 
     template = loader.get_template('FregatMonitoringApp/furnace_info.html')
-    context = {'furnace_num': 1,
+    context = {'furnace_num': 2,
 
                #горелка
                'power_sp': cur_signal_value('MEASURES\HY_F710'),
