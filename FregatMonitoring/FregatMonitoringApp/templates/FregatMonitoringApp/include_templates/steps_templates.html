@@ -3,7 +3,8 @@
 <td id="stepid_{{step.step_id}}" class="area-name bottom-line" > {{ step.step_name }} </td>   
 </tr>  
 <tr><td> 
-    <table>  
+    <table> 
+    {% if substeps|length > 0 %} 
     <tr><td width='70px'></td><td></td>
         <td></td>
         <td class="setpoints_text">Время</td>
@@ -12,6 +13,16 @@
         <td class="setpoints_text" >Обогащение</td>
         <td></td>
     </tr>
+    {% else %}
+    <tr><td width='70px'></td><td></td>
+        <td></td>
+        <td> Нет такой стадии в этой плавке</td>
+        <td> </td>
+        <td> </td>
+        <td> </td>
+        <td></td>
+    </tr>
+    {% endif %}
     {% for substep in substeps %}
         {% include "FregatMonitoringApp/include_templates/substeps_templates.html" %}
     {% endfor %} 

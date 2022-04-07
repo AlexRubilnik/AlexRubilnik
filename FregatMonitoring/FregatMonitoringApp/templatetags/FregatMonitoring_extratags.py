@@ -12,7 +12,10 @@ def substebs_by_step(cur_melt_name: str, current_step: Meltsteps, furnace_subste
                current_step - заданный шаг
                furnace_substeps - список пошагов
     """
-    
-    return {'melt_name': cur_melt_name, 'step': current_step, 'substeps': furnace_substep}
+    furnace_substeps = list()
+    for substep in furnace_substep:
+        if substep.step == current_step:
+            furnace_substeps.append(substep)
+    return {'melt_name': cur_melt_name, 'step': current_step, 'substeps': furnace_substeps}
 
  
