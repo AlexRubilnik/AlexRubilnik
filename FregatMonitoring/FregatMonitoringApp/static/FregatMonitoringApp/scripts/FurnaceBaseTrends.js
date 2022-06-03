@@ -85,6 +85,7 @@ function RenderTrends(series_data){
   // Create chart
   // https://www.amcharts.com/docs/v5/charts/xy-chart/
   var chart = root.container.children.push(am5xy.XYChart.new(root, {
+    focusable: true,
     panX: true,
     panY: true,
     wheelX: "panX",
@@ -97,21 +98,87 @@ function RenderTrends(series_data){
   var xAxis = chart.xAxes.push(am5xy.DateAxis.new(root, {
     maxDeviation: 0.2,
     baseInterval: {
-      timeUnit: "minute",
-      count: 1
+      timeUnit: "second",
+      count: 10
     },
     renderer: am5xy.AxisRendererX.new(root, {}),
     tooltip: am5.Tooltip.new(root, {})
   }));
   
-  var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
-    renderer: am5xy.AxisRendererY.new(root, {})
+  var yAxis1 = chart.yAxes.push(
+    am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {
+      //opposite: true,
+      marginBottom: 20,
+    })
+  }));
+  yAxis1.axisHeader.children.push(am5.Label.new(root, {
+    text: " ",
+    fontWeight: "500"
+  }));
+
+  var yAxis2 = chart.yAxes.push(
+    am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {
+      marginBottom: 20, 
+    })
+  }));
+  yAxis2.axisHeader.children.push(am5.Label.new(root, {
+    text: " ",
+    fontWeight: "500"
+  }));
+  var yAxis3 = chart.yAxes.push(
+    am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {
+     // opposite: true,
+     marginBottom: 20,
+    })
+  }));
+  yAxis3.axisHeader.children.push(am5.Label.new(root, {
+    text: " ",
+    fontWeight: "500"
   }));
   
+  chart.leftAxesContainer.set("layout", root.verticalLayout);
+  chart.leftAxesContainer.set("marginBottom", '20px');
   
   // Add series
   // https://www.amcharts.com/docs/v5/charts/xy-chart/series/
   for (var i = 0; i < series_data.length; i++) {
+
+    if (            
+       series_data[i][0][0] == "Альфа" ||
+       series_data[i][0][0] == "Лямбда" ||
+       series_data[i][0][0] == "Круглый дроссель" ||
+       series_data[i][0][0] == "На 3 фильтр" ||
+       series_data[i][0][0] == "Над дверью" ||
+       series_data[i][0][0] == "Горячий дроссель" || 
+       series_data[i][0][0] == "Частота дымососа" ||
+       series_data[i][0][0] == "Т перед фильтром" 
+       ){
+           yAxis = yAxis1
+       } else if (
+        series_data[i][0][0] == "Мощность" ||
+        series_data[i][0][0] == "dP на фильтре" ||
+        series_data[i][0][0] == "dP на дымососе" ||
+        series_data[i][0][0] == "Расход воздуха" ||
+        series_data[i][0][0] == "Расход газа" ||
+        series_data[i][0][0] == "Расход О2"
+       ){
+           yAxis = yAxis2
+       }
+       else if (
+        series_data[i][0][0] == "Ток двигателя" ||
+        series_data[i][0][0] == "Дельта Т" 
+       ){
+           yAxis = yAxis3
+       }
+       else
+       {
+           yAxis = yAxis2
+       }
+      
+
     var series = chart.series.push(am5xy.LineSeries.new(root, {
       name: series_data[i][0][0],
       xAxis: xAxis,
@@ -125,8 +192,6 @@ function RenderTrends(series_data){
       })
     }));
         
-    //var data = generateDatas(100);
-    //series.data.setAll(data);
     series.data.setAll(series_data[i][1]);
   
     // Make stuff animate on load
