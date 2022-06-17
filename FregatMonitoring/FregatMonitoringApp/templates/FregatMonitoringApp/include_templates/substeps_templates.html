@@ -7,7 +7,7 @@
     <td> <input name="Rotation_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.rotation_sp %} value= {{substep.rotation_sp}}> {% else %} value="" {% endif %} </td> 
     <td> <input name="Alpha_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.alpha_sp %} value= {{substep.alpha_sp}}> {% else %} value="" {% endif %} </td> 
     {% if substep.sub_step_num != 1 %}
-    <td> <a href="{% url 'FregatMonitoringApp:auto_melts_add_substep' melt_name step.step_num %}" class="btn"> Удалить шаг </a></td>
+    <td> <a href="{% url 'FregatMonitoringApp:auto_melts_del_substep' melt_name step.step_num substep.sub_step_num %}" class="btn"> Удалить шаг </a></td>
     {% endif%}
     </tr>
 {% endif %}  

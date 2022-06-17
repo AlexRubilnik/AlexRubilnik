@@ -527,6 +527,41 @@ def auto_melts_add_substep(request, melt_type, melt_step):
     return auto_melts_types_info(request, melt_1.melt_id) 
 
 
+def auto_melts_del_substep(request, melt_type, melt_step, melt_substep):
+    '''Удаляет подшаг у заданного шага по типу плавки(названию) сразу для обеих печей
+       request - запрос,
+       melt_type - Тип плавки (по названию), к которой будет добавляться подшаг. Добавляем в одинаковые типы плавок для обеих печей
+       melt_step - порядковый номер шага, к которому будет добавлять подшаг
+       melt_substep - порядковый номер подшага, который нужно удалить
+    '''
+
+    melt_1 = Melttypes.objects.get(melt_name=melt_type, melt_furnace=1) #вытаскиваем плавку по типу(названию) для первой печи
+    melt_2 = Melttypes.objects.get(melt_name=melt_type, melt_furnace=2) #вытаскиваем плавкупо типу(названию) для первой печи
+
+    step_1 = Meltsteps.objects.get(step_num=melt_step, melt=melt_1.melt_id) #вытаскиваем шаг по номеру для первой печи для заданного типа плавки
+    step_2 = Meltsteps.objects.get(step_num=melt_step, melt=melt_2.melt_id) #вытаскиваем шаг по номеру для второй печи для заданного типа плавки
+
+    num_of_substeps_1 = Substeps.objects.filter(step=step_1.step_id).count() #считаем сколько в этом шаге подшагов
+    num_of_substeps_2 = Substeps.objects.filter(step=step_2.step_id).count() #считаем сколько в этом шаге подшагов
+
+    Substeps.objects.filter(step=step_1, sub_step_num = melt_substep).delete()
+    Substeps.objects.filter(step=step_2, sub_step_num = melt_substep).delete()
+
+    if melt_substep < num_of_substeps_1: #если удалённый подшаг был не последним в этом шаге
+        for m_sst in range(melt_substep+1, num_of_substeps_1+1): # для каждого из последующих шагов
+            substep_1 = Substeps.objects.get(step=step_1, sub_step_num = m_sst)
+            substep_1.sub_step_num -= 1 #уменьшаем его порядковый номер на 1, чтобы скорректировать нумерацию с учётом удалённого шага
+            substep_1.save()
+    
+    if melt_substep < num_of_substeps_2: #если удалённый подшаг был не последним в этом шаге
+        for m_sst in range(melt_substep+1, num_of_substeps_2+1): # для каждого из последующих шагов
+            substep_2 = Substeps.objects.get(step=step_2, sub_step_num = m_sst)
+            substep_2.sub_step_num -= 1 #уменьшаем его порядковый номер на 1, чтобы скорректировать нумерацию с учётом удалённого шага
+            substep_2.save()
+
+    return auto_melts_types_info(request, melt_1.melt_id) 
+
+
 def auto_melts_setpoints(request):
     
     template = loader.get_template('FregatMonitoringApp/auto_melts_setpoints.html')
