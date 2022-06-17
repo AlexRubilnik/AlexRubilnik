@@ -11,7 +11,7 @@ from django.template import loader
 from django.urls import reverse
 from django.db.models import F
 
-from .models import Automelts, AutoMeltsInfo, Daily_gases_consumption, Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable 
+from .models import Automelts, Avtoplavka_status, AutoMeltsInfo, Daily_gases_consumption, Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable 
 from .serializers import FloattableSerializer, AutomeltsSerializer
 
 def index(request):
@@ -286,7 +286,7 @@ def furnace_1_info(request):
         shzm_position = "---"
     
     #автоплавка
-    Automelt_info = Automelts.objects.filter(furnace_no=1)
+    Automelt_info = Avtoplavka_status.objects.filter(furnace_no=1)
     auto_mode = "Автомат" if Automelt_info[0].auto_mode else "Ручной"
     try:
         meltid = Melttypes.objects.filter(melt_num = Automelt_info[0].melt_type).filter(melt_furnace = Automelt_info[0].furnace_no)[0].melt_id
@@ -297,12 +297,12 @@ def furnace_1_info(request):
     except:
         melt_type = "---"
     try:
-        melt_step = Meltsteps.objects.filter(melt = meltid).filter(step_num = Automelt_info[0].melt_step)[0].step_name
+        melt_step = Meltsteps.objects.filter(melt = meltid).filter(step_num = Automelt_info[0].current_step)[0].step_name
     except:
         melt_step = "---"
     step_total_time = Automelt_info[0].step_total_time
     step_time_remain = step_total_time - Automelt_info[0].step_time_remain
-    deltat_stp = Automelt_info[0].deltat
+    deltat_stp = Automelt_info[0].delta_t_stp
 
     template = loader.get_template('FregatMonitoringApp/furnace_info.html')
     context = {'furnace_num': 1,
@@ -390,7 +390,7 @@ def furnace_2_info(request):
         shzm_position = "---"
     
     #автоплавка
-    Automelt_info = Automelts.objects.filter(furnace_no=2)
+    Automelt_info = Avtoplavka_status.objects.filter(furnace_no=2)
     auto_mode = "Автомат" if Automelt_info[0].auto_mode else "Ручной"
     try:
         meltid = Melttypes.objects.filter(melt_num = Automelt_info[0].melt_type).filter(melt_furnace = Automelt_info[0].furnace_no)[0].melt_id
@@ -401,12 +401,12 @@ def furnace_2_info(request):
     except:
         melt_type = "---"
     try:
-        melt_step = Meltsteps.objects.filter(melt = meltid).filter(step_num = Automelt_info[0].melt_step)[0].step_name
+        melt_step = Meltsteps.objects.filter(melt = meltid).filter(step_num = Automelt_info[0].current_step)[0].step_name
     except:
         melt_step = "---"
     step_total_time = Automelt_info[0].step_total_time
     step_time_remain = step_total_time - Automelt_info[0].step_time_remain
-    deltat_stp = Automelt_info[0].deltat
+    deltat_stp = Automelt_info[0].delta_t_stp
 
     template = loader.get_template('FregatMonitoringApp/furnace_info.html')
     context = {'furnace_num': 2,
@@ -677,9 +677,9 @@ def furnace_info_s(request, signal_index): # API для обновления д�
 
 def furnace_info_a(request, furnace_no): # API для обновления данных о автоплавке на экране "Печь 1(2)"
 
-    melt_inst = Automelts.objects.filter(furnace_no=furnace_no)[0]
+    melt_inst = Avtoplavka_status.objects.filter(furnace_no=furnace_no)[0]
     melt_type_inst = Melttypes.objects.filter(melt_num = melt_inst.melt_type)[0]
-    step_type_inst = Meltsteps.objects.filter(step_num = melt_inst.melt_step).filter(melt = melt_type_inst.melt_id)[0]
+    step_type_inst = Meltsteps.objects.filter(step_num = melt_inst.current_step).filter(melt = melt_type_inst.melt_id)[0]
 
     #дельта
     if furnace_no == 1:
@@ -698,7 +698,7 @@ def furnace_info_a(request, furnace_no): # API для обновления да�
         step_total_time = melt_inst.step_total_time,
         step_time_remain = melt_inst.step_total_time - melt_inst.step_time_remain,
         deltat = round(deltaT,1),
-        deltat_stp = melt_inst.deltat
+        deltat_stp = melt_inst.delta_t_stp
     )
 
     serializer = AutomeltsSerializer(AMmodel)

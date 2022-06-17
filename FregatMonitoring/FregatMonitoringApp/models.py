@@ -27,9 +27,54 @@ class Gases_consumptions_per_day(models.Model): #Модель для извле�
         managed = False
         db_table = 'GasesConsumptionsPerDay' #Такой таблицы в БД нет. Это нужно чтобы работал router на эту БД для этой модели
 
+class Avtoplavka_status(models.Model):
+    furnace_no = models.SmallIntegerField(db_column='furnace_no', primary_key=True)  # Field name made lowercase.
+    auto_mode = models.BooleanField(db_column='auto_mode', blank=True, null=True)  # Field name made lowercase.
+    melt_type = models.SmallIntegerField(db_column='melt_type', blank=True, null=True)  # Соответствует melt_num в Melttypes(вместе с furnace_no определяет плавку однозначно)
+    current_step = models.SmallIntegerField(db_column='current_step', blank=True, null=True)  # соответствует step_num в Meltsteps
+    current_substep = models.SmallIntegerField(db_column='current_substep', blank=True, null=True)  # соответствует sub_step_num в Substeps
+    step_total_time = models.IntegerField(db_column='step_time_preset', blank=True, null=True)  # Field name made lowercase.
+    step_time_remain = models.SmallIntegerField(db_column='current_step_time_remain', blank=True, null=True)  # Field name made lowercase.
+    delta_t_curent = models.SmallIntegerField(db_column='delta_t_current', blank=True, null=True)  # Field name made lowercase.
+    delta_t_stp = models.SmallIntegerField(db_column='delta_t_stp', blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'Avtoplavka_status'
 
 
-class Automelts(models.Model):
+class Avtoplavka_setpoints(models.Model):
+    furnace_no = models.SmallIntegerField(db_column='furnace_no', primary_key=True)  #
+    auto_mode = models.BooleanField(db_column='auto_mode', blank=True, null=True)  # 
+    melt_type = models.SmallIntegerField(db_column='melt_type', blank=True, null=True)  # Соответствует melt_num в Melttypes(вместе с furnace_no определяет плавку однозначно)
+    num_of_steps = models.SmallIntegerField(db_column='num_of_steps', blank=True, null=True) #
+    num_of_substeps = models.SmallIntegerField(db_column='num_of_substeps', blank=True, null=True)  # 
+    current_step_time = models.IntegerField(db_column='current_step_time', blank=True, null=True)  # 
+    current_substep_time = models.SmallIntegerField(db_column='current_substep_time', blank=True, null=True)  # 
+    delta_t_stp = models.SmallIntegerField(db_column='delta_t_stp', blank=True, null=True)  # 
+    power_sp = models.SmallIntegerField(db_column='power_sp', blank=True, null=True)  # 
+    rotation_sp = models.SmallIntegerField(db_column='rotation_sp', blank=True, null=True)  # 
+    alpha_sp = models.SmallIntegerField(db_column='alpha_sp', blank=True, null=True)  # 
+
+    class Meta:
+        managed = False
+        db_table = 'Avtoplavka_setpoints'
+
+class Autoplavka_log(models.Model):
+    log_id = models.IntegerField(db_column='log_id', primary_key=True)  # 
+    furnace_no = models.SmallIntegerField(db_column='furnace_no')  #
+    melt_number = models.SmallIntegerField(db_column='melt_number', blank=False, null=False) #Порядковый номер плавки по журналу Плавцеха
+    melt_type = models.SmallIntegerField(db_column='melt_type', blank=True, null=True)  # Соответствует melt_num в Melttypes(вместе с furnace_no определяет плавку однозначно)
+    current_step = models.SmallIntegerField(db_column='current_step', blank=True, null=True)  # соответствует step_num в Meltsteps
+    current_substep = models.SmallIntegerField(db_column='current_substep', blank=True, null=True)  # соответствует sub_step_num в Substeps
+    auto_mode = models.BooleanField(db_column='auto_mode', blank=True, null=True)  # 
+    date_time = models.DateTimeField(db_column='date_time', blank=True, null=True)  # 
+
+    class Meta:
+        managed = False
+        db_table = 'Autoplavka_log'
+
+class Automelts(models.Model): #Пережиток прошлого в новых версиях не используется, начиная с перехода на версию _V4 в ПЛК автоплавки
     furnace_no = models.SmallIntegerField(db_column='Furnace_No', primary_key=True)  # Field name made lowercase.
     auto_mode = models.BooleanField(db_column='Auto_mode', blank=True, null=True)  # Field name made lowercase.
     melt_type = models.SmallIntegerField(db_column='Melt_type', blank=True, null=True)  # Соответствует melt_num в Melttypes(вместе с furnace_no определяет плавку однозначно)
