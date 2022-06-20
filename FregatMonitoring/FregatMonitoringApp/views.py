@@ -612,10 +612,10 @@ def auto_melts_save_setpoints(request, furnace_num): #сохраняет изм�
             float(request.POST["DeltaT"+str(furnace_num)+"_stp"]) #"Это число вообще?"
         except:
             return error_message(request) #Ой, что-то пошло не так
-        Melt1 = Automelts.objects.filter(furnace_no = furnace_num)[0]
+        Melt1 = Automelts.objects.filter(furnace_no = furnace_num)[0]  #Пишем в старую таблицу. Теперь это рудимент. Для поддержки старых версий программ ПЛК
         Melt1.deltat = request.POST["DeltaT"+str(furnace_num)+"_stp"]
 
-        Melt = Avtoplavka_setpoints.objects.get(furnace_no = furnace_num)
+        Melt = Avtoplavka_setpoints.objects.get(furnace_no = furnace_num)  #Новая таблица уставок. Передача идёт через эту таблицу
         Melt.delta_t_stp = request.POST["DeltaT"+str(furnace_num)+"_stp"]
     except: #не удалось записать в базу
         return error_message(request) #Ой, что-то пошло не так
