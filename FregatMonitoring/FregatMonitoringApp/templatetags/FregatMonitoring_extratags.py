@@ -18,4 +18,13 @@ def substebs_by_step(cur_melt_name: str, current_step: Meltsteps, furnace_subste
             furnace_substeps.append(substep)
     return {'melt_name': cur_melt_name, 'step': current_step, 'substeps': furnace_substeps}
 
- 
+@register.inclusion_tag('FregatMonitoringApp/include_templates/color_power_sp_if_reduce_template.html', name='color_power_sp_if_reduce')
+def power_color(power_sp, power_cur):
+    if power_sp-power_cur[0] == 0:
+        return {'power_color': 'green', 'power_sp':power_sp, 'power_cur':power_cur}
+    elif  power_sp-power_cur[0] > 0 and power_sp-power_cur[0] <= 200:
+         return {'power_color': 'orange', 'power_sp':power_sp, 'power_cur':power_cur}
+    elif power_sp-power_cur[0] > 200:
+         return {'power_color': 'red', 'power_sp':power_sp, 'power_cur':power_cur}
+    else: 
+         return {'power_color': 'red', 'power_sp':power_sp, 'power_cur':power_cur}

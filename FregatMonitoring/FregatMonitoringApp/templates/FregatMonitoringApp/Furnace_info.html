@@ -1,5 +1,7 @@
 {% extends "FregatMonitoringApp/base.html" %}
 
+{% load FregatMonitoring_extratags %}
+
 {% block furnace_info_script %}
 {% load static %}
 <script src="{% static 'FregatMonitoringApp/scripts/FurnaceInfoUpdate.js' %}"> </script>
@@ -133,7 +135,7 @@
                     <td class="furnace-info-tab-td-top">
                         <table width="200px" class="furnace-info-tab-2" border=0>
                             <tr><td class="area-name bottom-line">Горелка</td><td></td></tr>
-                            <tr><td>Мощность</td>       <td id={{ power_sp.1 }} class="UpdSign">{{ power_sp.0|floatformat}}</td></tr>
+                            {% color_power_sp_if_reduce power_sp_base power_sp %}
                             <tr><td>Газ</td>      <td> <span id={{ gas_flow.1 }} class="UpdSign">{{ gas_flow.0|floatformat }}</span><span> нм3/ч</span></td></tr>
                             <tr><td>Кислород</td> <td> <span id={{ o2_flow.1 }}  class="UpdSign">{{ o2_flow.0|floatformat }}</span><span> нм3/ч</span></td></tr>
                             <tr><td>Воздух</td>   <td> <span id={{ air_flow.1 }}  class="UpdSign">{{ air_flow.0|floatformat }}</span><span> нм3/ч</span></td></tr>
