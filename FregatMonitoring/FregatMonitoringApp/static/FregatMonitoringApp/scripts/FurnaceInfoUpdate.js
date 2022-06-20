@@ -49,11 +49,10 @@ function FindSignals(){
                 } else {
                   tab.innerHTML = text[j].val;
                 }
-              }
             }  
         };
         delete(XHR);  
-           
+      }     
 }
 
 setInterval(FindSignals,300);   
@@ -95,4 +94,24 @@ function AutoMeltInfoUpdate(){
      
 }
 
+function color_power_sp_if_reduce(cur_power_tag_index, power_sp_tag_index){
+  power_cur = document.getElementById(cur_power_tag_index);
+  power_sp = document.getElementById(power_sp_tag_index);
+  
+  if(power_cur != null && power_sp != null)
+      if (Number(power_sp.innerHTML)-Number(power_cur.innerHTML) == 0){
+          power_cur.style.color = "green";
+      } else if (Number(power_sp.innerHTML)-Number(power_cur.innerHTML) > 0 && Number(power_sp.innerHTML)-Number(power_cur.innerHTML) <= 200){
+          power_cur.style.color = "orange";
+      } else if (Number(power_sp.innerHTML)-Number(power_cur.innerHTML)> 200) {
+          power_cur.style.color = "red";
+      }  else {
+          power_cur.style.color = "red";
+      }
+}
+
 setInterval(AutoMeltInfoUpdate,3000); 
+
+//Обновляем цвет значения текущей мощности. Если мощность ниже заданной - постепенно краснеет
+setInterval(()=>color_power_sp_if_reduce("60", "power_sp_base"),1000); //для первой печи
+setInterval(()=>color_power_sp_if_reduce("61", "power_sp_base"),1000); //для второй печи

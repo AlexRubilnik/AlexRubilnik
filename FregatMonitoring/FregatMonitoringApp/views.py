@@ -11,7 +11,7 @@ from django.template import loader
 from django.urls import reverse
 from django.db.models import F
 
-from .models import Automelts, Avtoplavka_status, AutoMeltsInfo, Daily_gases_consumption, Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable 
+from .models import Automelts, Avtoplavka_status, Avtoplavka_setpoints, Autoplavka_log, AutoMeltsInfo, Daily_gases_consumption, Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable 
 from .serializers import FloattableSerializer, AutomeltsSerializer
 
 def index(request):
@@ -287,6 +287,8 @@ def furnace_1_info(request):
     
     #автоплавка
     Automelt_info = Avtoplavka_status.objects.filter(furnace_no=1)
+    Automelt_sp_info = Avtoplavka_setpoints.objects.filter(furnace_no=1)
+
     auto_mode = "Автомат" if Automelt_info[0].auto_mode else "Ручной"
     try:
         meltid = Melttypes.objects.filter(melt_num = Automelt_info[0].melt_type).filter(melt_furnace = Automelt_info[0].furnace_no)[0].melt_id
@@ -302,13 +304,15 @@ def furnace_1_info(request):
         melt_step = "---"
     step_total_time = Automelt_info[0].step_total_time
     step_time_remain = step_total_time - Automelt_info[0].step_time_remain
-    deltat_stp = Automelt_info[0].delta_t_stp
+    deltat_stp = Automelt_info[0].delta_t_stp 
+    power_sp_base = Automelt_sp_info[0].power_sp #базовая уставка мощности (без учёта возможного снижения)
 
     template = loader.get_template('FregatMonitoringApp/furnace_info.html')
     context = {'furnace_num': 1,
 
                #горелка
-               'power_sp': cur_signal_value('MEASURES\HY_F711'),
+               'power_sp': cur_signal_value('MEASURES\HY_F711'), #текущая мощность(с учётом возможного снижения)
+               'power_sp_base': power_sp_base, #базовая уставка мощности (без учёта возможного снижения)
                'gas_flow': cur_signal_value('MEASURES\FL710_NG'),
                'air_flow': cur_signal_value('MEASURES\FL710_AIR'),
                'o2_flow': cur_signal_value('MEASURES\O1Flow'),
@@ -391,6 +395,8 @@ def furnace_2_info(request):
     
     #автоплавка
     Automelt_info = Avtoplavka_status.objects.filter(furnace_no=2)
+    Automelt_sp_info = Avtoplavka_setpoints.objects.filter(furnace_no=2)
+
     auto_mode = "Автомат" if Automelt_info[0].auto_mode else "Ручной"
     try:
         meltid = Melttypes.objects.filter(melt_num = Automelt_info[0].melt_type).filter(melt_furnace = Automelt_info[0].furnace_no)[0].melt_id
@@ -406,13 +412,15 @@ def furnace_2_info(request):
         melt_step = "---"
     step_total_time = Automelt_info[0].step_total_time
     step_time_remain = step_total_time - Automelt_info[0].step_time_remain
-    deltat_stp = Automelt_info[0].delta_t_stp
+    deltat_stp = Automelt_info[0].delta_t_stp 
+    power_sp_base = Automelt_sp_info[0].power_sp #базовая уставка мощности (без учёта возможного снижения)
 
     template = loader.get_template('FregatMonitoringApp/furnace_info.html')
     context = {'furnace_num': 2,
 
                #горелка
-               'power_sp': cur_signal_value('MEASURES\HY_F710'),
+               'power_sp': cur_signal_value('MEASURES\HY_F710'), #текущая мощность(с учётом возможного снижения)
+               'power_sp_base': power_sp_base, #базовая уставка мощности (без учёта возможного снижения)
                'gas_flow': cur_signal_value('MEASURES\TI_810B'),
                'air_flow': cur_signal_value('MEASURES\TI_810C'),
                'o2_flow': cur_signal_value('MEASURES\O2Flow'),
@@ -604,11 +612,15 @@ def auto_melts_save_setpoints(request, furnace_num): #сохраняет изм�
             float(request.POST["DeltaT"+str(furnace_num)+"_stp"]) #"Это число вообще?"
         except:
             return error_message(request) #Ой, что-то пошло не так
-        Melt = Automelts.objects.filter(furnace_no = furnace_num)[0]
-        Melt.deltat = request.POST["DeltaT"+str(furnace_num)+"_stp"]
+        Melt1 = Automelts.objects.filter(furnace_no = furnace_num)[0]
+        Melt1.deltat = request.POST["DeltaT"+str(furnace_num)+"_stp"]
+
+        Melt = Avtoplavka_setpoints.objects.get(furnace_no = furnace_num)
+        Melt.delta_t_stp = request.POST["DeltaT"+str(furnace_num)+"_stp"]
     except: #не удалось записать в базу
         return error_message(request) #Ой, что-то пошло не так
     else:
+        Melt1.save() 
         Melt.save() 
 
     return HttpResponseRedirect(reverse('FregatMonitoringApp:auto_melts_setpoints'))
@@ -622,6 +634,9 @@ def furnace_info_s(request, signal_index): # API для обновления д�
     tag_val = Floattable.objects.filter(tagindex=signal_index).order_by('-dateandtime')[:1]
 
     serializer = FloattableSerializer(tag_val, many=True)
+
+    if signal_index == 60: #нагрузка на печь 
+        serializer.data[0]['val'] = 2800
 
     # если значение сигнала нужно пред-обработать, обрабатываем значение уже внутри сериалайзера
     #----Исключения 1 печь----------------
@@ -678,6 +693,7 @@ def furnace_info_s(request, signal_index): # API для обновления д�
 def furnace_info_a(request, furnace_no): # API для обновления данных о автоплавке на экране "Печь 1(2)"
 
     melt_inst = Avtoplavka_status.objects.filter(furnace_no=furnace_no)[0]
+    melt_inst_sp= Avtoplavka_setpoints.objects.filter(furnace_no=furnace_no)[0]
     melt_type_inst = Melttypes.objects.filter(melt_num = melt_inst.melt_type)[0]
     step_type_inst = Meltsteps.objects.filter(step_num = melt_inst.current_step).filter(melt = melt_type_inst.melt_id)[0]
 
@@ -698,7 +714,8 @@ def furnace_info_a(request, furnace_no): # API для обновления да�
         step_total_time = melt_inst.step_total_time,
         step_time_remain = melt_inst.step_total_time - melt_inst.step_time_remain,
         deltat = round(deltaT,1),
-        deltat_stp = melt_inst.delta_t_stp
+        deltat_stp = melt_inst.delta_t_stp,
+        power_sp_base = melt_inst_sp.power_sp
     )
 
     serializer = AutomeltsSerializer(AMmodel)

@@ -192,4 +192,5 @@ class AutoMeltsInfo(models.Model): #Класс для сериализатора
     step_time_remain = models.IntegerField(blank=True, null=True, default='')
     deltat = models.FloatField(blank=True, null=True, default='')
     deltat_stp = models.IntegerField(blank=True, null=True, default='')
+    power_sp_base = models.IntegerField(blank=True, null=True, default='')
 

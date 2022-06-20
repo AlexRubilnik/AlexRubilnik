@@ -23,6 +23,7 @@ class AutomeltsSerializer(serializers.Serializer):
     step_time_remain = serializers.IntegerField()
     deltat = serializers.FloatField()
     deltat_stp = serializers.IntegerField()
+    power_sp_base = serializers.IntegerField()
 
     def create(self, validated_data):
         """
