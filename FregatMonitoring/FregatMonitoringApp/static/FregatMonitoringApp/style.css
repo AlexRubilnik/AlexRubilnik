@@ -188,6 +188,15 @@
 .melt_setpoints{
     width: 50 px;
 }
+
+.melts_log_filters{
+    font-weight: normal;
+    font-size: 16px;
+    width: 100px;
+    text-align: right;
+    margin-right: 10px;
+}
+
 .orange-text{
     color: rgb(255, 127, 0);
     font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;

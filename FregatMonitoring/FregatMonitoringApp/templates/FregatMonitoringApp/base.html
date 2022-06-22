@@ -5,6 +5,7 @@
       <link rel="stylesheet" type="text/css" href="{% static 'FregatMonitoringApp/style.css' %}">
       {% block furnace_info_script %}{% endblock %}
       {% block furnace_trends_scripts %}{% endblock %}
+      {% block auto_melts_log_scripts %}{% endblock %}
 </head>
 <body>
 
@@ -56,6 +57,7 @@
     {% block furnace_info %}{% endblock %}
     {% block furnace_base_trends%}{% endblock %}
     {% block reports%}{% endblock %}
+    {% block automelts_log %}{% endblock %}
     {% block automelts_info %}{% endblock %}
     {% block melt_mod_card_info %}{% endblock %}
     {% block auto_melts_set_points %}{% endblock %}

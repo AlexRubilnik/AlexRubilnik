@@ -1,13 +1,17 @@
 {% extends "FregatMonitoringApp/base.html" %}
 
+{% block auto_melts_log_scripts %}{% endblock %}
+
 {% block left_side_bar%}
 <div class="left-side-bar">
     <ul style="padding-left: 0px;">
       <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:auto_melts_types_info' 1 %}"> Режимы плавок </a></li>
+      <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:auto_melts_log' %}"> Журнал плавок </a></li>      
       <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:auto_melts_setpoints' %}"> Уставки </a></li>
     </ul>
 </div>
 {% endblock%}   
 
+{% block automelts_log %} {% endblock %}
 {% block automelts_info %} {% endblock %}
 {% block auto_melts_set_points%} {% endblock %}

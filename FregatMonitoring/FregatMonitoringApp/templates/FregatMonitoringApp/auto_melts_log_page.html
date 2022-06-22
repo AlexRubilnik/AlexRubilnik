@@ -1,0 +1,30 @@
+{% extends "FregatMonitoringApp/auto_melts_info.html" %}
+
+{% block auto_melts_log_scripts %}
+<link href="https://unpkg.com/tabulator-tables@5.1.3/dist/css/tabulator.min.css" rel="stylesheet">
+<script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.1.3/dist/js/tabulator.min.js"></script>
+{% load static %}
+{% endblock %}
+
+{% block automelts_log %}
+<div class="content-box">
+  <div id="Meltslog" class="content-page-header">Журнал
+    <div style="width: 20px;"></div>
+    <div class="melts_log_filters">№ Печи</div> 
+    <input style="max-width:50px;" type="number" align="right" id="furnace_no" name="furnace_no" value="{{ furnace_no }}"/> 
+    <div class="melts_log_filters">№ Плавки</div> 
+    <input style="max-width:70px;" type="number" align="right" id="melt_number" name="melt_number" value="{{ melt_number }}"/> 
+    <div class="trend-period">Начальное время</div> 
+    <input align="right" type="datetime-local"  id="start_time" name="start_time" value="{{ Start_time }}"/> 
+    <div class="trend-period">Конечное время</div>
+    <input align="right" type="datetime-local"  id="stop_time" name="stop_time" value="{{ Stop_time }}"/>
+    <input class="btn" id="trend_update_btn" name="ChangeTrendPeriod_btn" value="загрузить" onclick=auto_melts_log_update()>
+  </div>
+  <div style="text-align: left"><span id="data-download-marker" hidden=true> Подождите. Идёт загрузка данных </span><span id="ddm1" hidden=true>.</span><span id="ddm2" hidden=true>.</span><span id="ddm3" hidden=true>.</span></div>
+  <div id="gases-usage-block"> 
+    <div id="gases-usage-table"></div>
+  </div>    
+
+  <script src="{% static 'FregatMonitoringApp/scripts/auto_melts_log_update.js' %}"> </script>
+</div>
+{% endblock %}

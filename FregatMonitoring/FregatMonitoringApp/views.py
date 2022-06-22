@@ -511,6 +511,53 @@ def auto_melts_types_info(request, melt_id_1):
     return HttpResponse(template.render(context, request))
 
 
+def auto_melts_log(request):
+
+    template = loader.get_template('FregatMonitoringApp/auto_melts_log_page.html')
+    context = {
+    }
+
+    return HttpResponse(template.render(context, request))
+
+
+def auto_melts_log_data(request):
+    '''Выдаёт данные о ходе автоматических плавок по трём фильтрам: № печи, № плавки, временной промежуток. Если один, несколько или все фильтры
+    не заданные - выдаёт полную выборку за последний месяц'''
+
+    if request.method == 'GET':
+        start_period = request.GET.get('start', None)
+        stop_period = request.GET.get('stop', None) 
+        furnace_no = request.GET.get('furnace_no', None)
+        melt_number = request.GET.get('melt_number', None) 
+
+    if start_period is None or stop_period is None:
+        start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%d')#предыдущий месяц
+        stop_period = datetime.now().strftime('%Y-%m-%d')#текущий момент  
+    else:
+        start_period = datetime.strptime(start_period, '%Y-%m-%dT%H:%M').strftime('%Y-%m-%d') 
+        stop_period = datetime.strptime(stop_period, '%Y-%m-%dT%H:%M').strftime('%Y-%m-%d') 
+
+    log = Autoplavka_log.objects.filter(date_time__range=(start_period, stop_period))
+    if furnace_no is not None:
+        log = log.filter(furnace_no=furnace_no)
+    if melt_number is not None:
+        log = log.filter(melt_number=melt_number)
+ 
+    log_entrys=list()
+    for i in range(len(list(log))):
+        log_entrys.append({
+            "furnace_no": log[i].furnace_no,
+            "melt_number": log[i].melt_number,
+            "melt_type": log[i].melt_type,
+            "current_step": log[i].current_step,
+            "current_substep": log[i].current_substep,
+            "auto_mode": log[i].auto_mode,
+            "date_time": log[i].date_time
+        })
+    
+    return JsonResponse(log_entrys, safe=False)
+
+
 def auto_melts_add_substep(request, melt_type, melt_step):
     """Добавляет подшаг к заданному шагу по типу плавки(названию) сразу для обеих печей
        request - запрос,
