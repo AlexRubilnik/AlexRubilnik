@@ -2,7 +2,8 @@ from ast import Str
 from calendar import month
 from datetime import datetime, timedelta, date
 import itertools
-from multiprocessing import context 
+from multiprocessing import context
+from os import curdir 
 
 from django.db.models.query_utils import subclasses
 from django.views.decorators.csrf import csrf_exempt
@@ -531,11 +532,11 @@ def auto_melts_log_data(request):
         melt_number = request.GET.get('melt_number', None) 
 
     if start_period is None or stop_period is None:
-        start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%d')#предыдущий месяц
-        stop_period = datetime.now().strftime('%Y-%m-%d')#текущий момент  
+        start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%dT%H:%M')#предыдущий месяц
+        stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M')#текущий момент  
     else:
-        start_period = datetime.strptime(start_period, '%Y-%m-%dT%H:%M').strftime('%Y-%m-%d') 
-        stop_period = datetime.strptime(stop_period, '%Y-%m-%dT%H:%M').strftime('%Y-%m-%d') 
+        start_period = datetime.strptime(start_period, '%Y-%m-%dT%H:%M')
+        stop_period = datetime.strptime(stop_period, '%Y-%m-%dT%H:%M')
 
     log = Autoplavka_log.objects.filter(date_time__range=(start_period, stop_period))
     if furnace_no is not None:
@@ -545,14 +546,34 @@ def auto_melts_log_data(request):
  
     log_entrys=list()
     for i in range(len(list(log))):
+        cur_melt = Melttypes.objects.filter(melt_num = log[i].melt_type, melt_furnace = log[i].furnace_no)[0]
+        cur_step = Meltsteps.objects.filter(step_num = log[i].current_step, melt = cur_melt.melt_id)[0]
+
+        try:
+            if log[i].auto_mode: #отображаем имя шага только когда был автоматический режим
+                cur_sstep = Substeps.objects.filter(sub_step_num = log[i].current_substep, step = cur_step.step_id)[0]
+            else:
+                cur_sstep = "" 
+        except:
+            cur_sstep = ""
+        
+        if log[i].auto_mode:
+            cur_mode = "Автоматический режим"
+        else:
+            cur_mode = "Ручной режим"
+
         log_entrys.append({
             "furnace_no": log[i].furnace_no,
             "melt_number": log[i].melt_number,
-            "melt_type": log[i].melt_type,
-            "current_step": log[i].current_step,
-            "current_substep": log[i].current_substep,
-            "auto_mode": log[i].auto_mode,
-            "date_time": log[i].date_time
+            "melt_type": cur_melt.melt_name ,
+            "current_step": cur_step.step_name if log[i].auto_mode else "", #отображаем имя стадии только когда был автоматический режим
+            "current_substep": cur_sstep.sub_step_num if cur_sstep != "" else "",
+            "auto_mode": cur_mode,
+            "date_time": datetime.strptime(str(log[i].date_time), '%Y-%m-%d %H:%M:%S.%f+00:00').strftime("%Y-%m-%d %H:%M:%S"),
+            "power_sp": cur_sstep.power_sp if cur_sstep != "" else "",
+            "rotation_sp": cur_sstep.rotation_sp if cur_sstep != "" else "",
+            "alpha_sp": cur_sstep.alpha_sp if cur_sstep != "" else "",
+            "sub_step_time": cur_sstep.sub_step_time if cur_sstep != "" else "",
         })
     
     return JsonResponse(log_entrys, safe=False)
