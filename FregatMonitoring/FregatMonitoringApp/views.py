@@ -562,6 +562,12 @@ def auto_melts_log_data(request):
         else:
             cur_mode = "Ручной режим"
 
+        try: 
+            #защита от ситуации, когда %f(миллисекунды в дате) = .0000. Тогда БД возвращает дату без них и не совпадает формат
+            log_dt = datetime.strptime(str(log[i].date_time), '%Y-%m-%d %H:%M:%S.%f+00:00').strftime("%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            log_dt = datetime.strptime(str(log[i].date_time), '%Y-%m-%d %H:%M:%S+00:00').strftime("%Y-%m-%d %H:%M:%S")
+
         log_entrys.append({
             "furnace_no": log[i].furnace_no,
             "melt_number": log[i].melt_number,
@@ -569,7 +575,7 @@ def auto_melts_log_data(request):
             "current_step": cur_step.step_name if log[i].auto_mode else "", #отображаем имя стадии только когда был автоматический режим
             "current_substep": cur_sstep.sub_step_num if cur_sstep != "" else "",
             "auto_mode": cur_mode,
-            "date_time": datetime.strptime(str(log[i].date_time), '%Y-%m-%d %H:%M:%S.%f+00:00').strftime("%Y-%m-%d %H:%M:%S"),
+            "date_time": log_dt,
             "power_sp": cur_sstep.power_sp if cur_sstep != "" else "",
             "rotation_sp": cur_sstep.rotation_sp if cur_sstep != "" else "",
             "alpha_sp": cur_sstep.alpha_sp if cur_sstep != "" else "",
