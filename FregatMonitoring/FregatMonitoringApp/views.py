@@ -763,10 +763,27 @@ def furnace_info_s(request, signal_index): # API для обновления д�
 
 def furnace_info_a(request, furnace_no): # API для обновления данных о автоплавке на экране "Печь 1(2)"
 
-    melt_inst = Avtoplavka_status.objects.filter(furnace_no=furnace_no)[0]
-    melt_inst_sp= Avtoplavka_setpoints.objects.filter(furnace_no=furnace_no)[0]
-    melt_type_inst = Melttypes.objects.filter(melt_num = melt_inst.melt_type)[0]
-    step_type_inst = Meltsteps.objects.filter(step_num = melt_inst.current_step).filter(melt = melt_type_inst.melt_id)[0]
+    try:
+        melt_inst = Avtoplavka_status.objects.filter(furnace_no=furnace_no)[0]
+    except:
+        melt_inst = None
+        melt_type_inst = None
+        step_type_inst = None
+        
+    try:    
+        melt_inst_sp= Avtoplavka_setpoints.objects.filter(furnace_no=furnace_no)[0]
+    except:
+        melt_inst_sp = None
+
+    try:
+        melt_type_inst = Melttypes.objects.filter(melt_num = melt_inst.melt_type)[0]
+    except:
+        melt_type_inst = None
+
+    try:
+        step_type_inst = Meltsteps.objects.filter(step_num = melt_inst.current_step).filter(melt = melt_type_inst.melt_id)[0]
+    except:
+        step_type_inst = None
 
     #дельта
     if furnace_no == 1:
@@ -779,14 +796,14 @@ def furnace_info_a(request, furnace_no): # API для обновления да�
     
     AMmodel = AutoMeltsInfo(
         furnace_no = furnace_no,
-        auto_mode = "Автомат" if melt_inst.auto_mode else "Ручной",
-        melt_name = melt_type_inst.melt_name,
-        step_name = step_type_inst.step_name,
-        step_total_time = melt_inst.step_total_time,
-        step_time_remain = melt_inst.step_total_time - melt_inst.step_time_remain,
+        auto_mode = "---" if melt_inst is None else "Автомат" if melt_inst.auto_mode else "Ручной",
+        melt_name = "---" if melt_type_inst is None else melt_type_inst.melt_name,
+        step_name = "---" if step_type_inst is None else step_type_inst.step_name,
+        step_total_time = "---" if melt_inst is None else melt_inst.step_total_time,
+        step_time_remain = "---" if melt_inst is None else melt_inst.step_total_time - melt_inst.step_time_remain,
         deltat = round(deltaT,1),
-        deltat_stp = melt_inst.delta_t_stp,
-        power_sp_base = melt_inst_sp.power_sp
+        deltat_stp = "---" if melt_inst is None else melt_inst.delta_t_stp,
+        power_sp_base = "---" if melt_inst is None else melt_inst_sp.power_sp
     )
 
     serializer = AutomeltsSerializer(AMmodel)
