@@ -148,6 +148,21 @@ class Floattable(models.Model):
     def __str__(self):
         return str(self.tagindex) + '=' + str(self.val)     
 
+class Rarefaction_P2(models.Model):
+    rf_fur2_point1 = models.IntegerField(db_column='rf_fur2_point1')
+    rf_fur2_point2 = models.IntegerField(db_column='rf_fur2_point2')
+    rf_fur2_point3 = models.IntegerField(db_column='rf_fur2_point3')
+    rf_fur2_point4 = models.IntegerField(db_column='rf_fur2_point4')
+    rf_fur2_point5 = models.IntegerField(db_column='rf_fur2_point5')
+    rf_fur2_point6 = models.IntegerField(db_column='rf_fur2_point6')
+    rf_in_furnace = models.IntegerField(db_column='rf_in_furnace')
+    rf_in_ciclone_2pech = models.IntegerField(db_column='rf_in_ciclone_2pech')
+    timestamp = models.DateTimeField(db_column='timestamp')
+
+    class Meta:
+        managed = False
+        db_table = 'Rarefaction_P2'
+
 class Meltsteps(models.Model):
     melt = models.ForeignKey('Melttypes', models.DO_NOTHING, db_column='MELT_ID')  # IDплавки (по смыслу заключает в себе номер печи и номер плавки)
     step_id = models.AutoField(db_column='STEP_ID', primary_key=True)  # ID шага плавки

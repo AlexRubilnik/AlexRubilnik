@@ -2,7 +2,7 @@ class FregatMonitoringAppRouter:
     """Роутер для определения, какой БД пользоваться приложению, и в каких случаях"""
 
     def db_for_read(self, model, **hints):
-        if model._meta.db_table in ('AutoMelts','Avtoplavka_status','Avtoplavka_setpoints','Autoplavka_log','FloatTable','TagTable','MeltTypes','MeltSteps','SubSteps','DailyGasesConsumption','GasesConsumptionsPerDay'):
+        if model._meta.db_table in ('AutoMelts','Avtoplavka_status','Avtoplavka_setpoints','Autoplavka_log','FloatTable','TagTable','MeltTypes','MeltSteps','SubSteps','DailyGasesConsumption','GasesConsumptionsPerDay', 'Rarefaction_P2'):
             return 'production_fx'
         return 'default'
 

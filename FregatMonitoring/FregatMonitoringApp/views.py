@@ -12,7 +12,7 @@ from django.template import loader
 from django.urls import reverse
 from django.db.models import F
 
-from .models import Automelts, Avtoplavka_status, Avtoplavka_setpoints, Autoplavka_log, AutoMeltsInfo, Daily_gases_consumption, Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable 
+from .models import Automelts, Avtoplavka_status, Avtoplavka_setpoints, Autoplavka_log, AutoMeltsInfo, Daily_gases_consumption, Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable, Rarefaction_P2 
 from .serializers import FloattableSerializer, AutomeltsSerializer
 
 def index(request):
@@ -183,7 +183,13 @@ def furnace_base_trends_data(request, furnace_no): #готовит и отпра
                         tagindex=Tagtable.objects.filter(tagname=signal_name)[0].tagindex
                         ).filter(dateandtime__range=(period_start,period_stop)).order_by('dateandtime')
         return signal_value
-    
+
+    def LoadRarefactionValuesByPeriod(furnace_no, rarefaction_point_name, period_start, period_stop, **kwards):
+        #возвращает выборку значений разряжений с метками времени за определённый период времени
+        if furnace_no == 2:
+            signal_value = Rarefaction_P2.objects.annotate(dateandtime=F('timestamp')).annotate(value=F(rarefaction_point_name)).filter(timestamp__range=(period_start,period_stop)
+            ).order_by('dateandtime')
+        return signal_value
     #Список сигналов, отображаемых на тренде. Чтобы добавить новый сигнал, нужно внести для него строку в этот блок
     signals = list()
 
@@ -225,6 +231,12 @@ def furnace_base_trends_data(request, furnace_no): #готовит и отпра
         signals.append(("Частота дымососа", LoadSignalValuesByPeriod('MEASURES\SI_U721', start_period, stop_period)))
         signals.append(("Т перед фильтром", LoadSignalValuesByPeriod('MEASURES\TI_708', start_period, stop_period)))
 
+        signals.append(("Разряжение т.1", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point1', start_period, stop_period)))
+        signals.append(("Разряжение т.2", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point2', start_period, stop_period)))
+        signals.append(("Разряжение т.3", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point3', start_period, stop_period)))
+        signals.append(("Разряжение т.4", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point4', start_period, stop_period)))
+        signals.append(("Разряжение т.5", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point5', start_period, stop_period))) 
+
         signals.append(("Т над дверью", LoadSignalValuesByPeriod('MEASURES\TI_711Y', start_period, stop_period))) #эти два сигнала должны быть в списке последними
         signals.append(("Т воздух цех", LoadSignalValuesByPeriod('MEASURES\TI_711X', start_period, stop_period))) #эти два сигнала должны быть в списке последними
 
@@ -235,13 +247,19 @@ def furnace_base_trends_data(request, furnace_no): #готовит и отпра
         if signals[i][0] not in {"Т над дверью","Т воздух цех"}: #для случая вычисления разности(или другой операции) между двумя сигналами
             series.append([[signals[i][0]], []])
             for j in range(0, len(signals[i][1]), detalization):
-                dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S+00:00')
+                try:
+                    dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S.%f+00:00')
+                except:
+                    dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S+00:00')
                 point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value, 2)}
                 series[i][1].append(point)
         elif signals[i][0] in {"Т над дверью"}: #исключение для вычисления дельты температур
             series.append([["Дельта Т"], []])
             for a,b in itertools.zip_longest(signals[i][1], signals[i+1][1]): #шагаем сразу по двум спискам. Для ускорения вычислений
-                dat = datetime.strptime(str(a.dateandtime), '%Y-%m-%d %H:%M:%S+00:00')
+                try:
+                    dat = datetime.strptime(str(a.dateandtime), '%Y-%m-%d %H:%M:%S.%f+00:00')
+                except:
+                    dat = datetime.strptime(str(a.dateandtime), '%Y-%m-%d %H:%M:%S+00:00')
                 point={"date":dat.timestamp()*1000, "value":round(a.value-b.value, 2)}
                 series[i][1].append(point)
 
@@ -769,7 +787,7 @@ def furnace_info_a(request, furnace_no): # API для обновления да�
         melt_inst = None
         melt_type_inst = None
         step_type_inst = None
-        
+
     try:    
         melt_inst_sp= Avtoplavka_setpoints.objects.filter(furnace_no=furnace_no)[0]
     except:
