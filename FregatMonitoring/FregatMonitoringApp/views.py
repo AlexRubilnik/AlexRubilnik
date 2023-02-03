@@ -434,6 +434,9 @@ def furnace_2_info(request):
     deltat_stp = Automelt_info[0].delta_t_stp 
     power_sp_base = Automelt_sp_info[0].power_sp #базовая уставка мощности (без учёта возможного снижения)
 
+    #разряжения
+    rf_fur = Rarefaction_P2.objects.order_by('-timestamp')[0]
+
     template = loader.get_template('FregatMonitoringApp/furnace_info.html')
     context = {'furnace_num': 2,
 
@@ -485,6 +488,13 @@ def furnace_2_info(request):
                'step_total_time' : step_total_time,
                'step_time_remain' : step_time_remain,
                'deltat_stp' : deltat_stp,
+
+               #разряжения
+               'rf_fur2_point1': rf_fur.rf_fur2_point1, #точка 1
+               'rf_fur2_point2': rf_fur.rf_fur2_point2, #точка 2
+               'rf_fur2_point3': rf_fur.rf_fur2_point3, #точка 3
+               'rf_fur2_point4': rf_fur.rf_fur2_point4, #точка 4
+               'rf_fur2_point5': rf_fur.rf_fur2_point5, #точка 5
 
                #Положение ШЗМ
                'shzm_position': shzm_position,
