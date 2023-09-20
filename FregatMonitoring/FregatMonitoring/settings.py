@@ -89,6 +89,17 @@ DATABASES = {
         'OPTIONS': {
             'driver': 'SQL Server Native Client 11.0'
         }
+    },
+    'zebra': {
+        'ENGINE': 'sql_server.pyodbc',
+        'HOST': "FRGV202X\PRODUCTION",
+        'USER': "Zebra", #ZebraReader
+        'PASSWORD': "123456", #123456
+        'NAME': "ZebraNew",
+        'PORT': "",
+        'OPTIONS': {
+            'driver': 'SQL Server Native Client 11.0'
+        }
     }
 }
 
