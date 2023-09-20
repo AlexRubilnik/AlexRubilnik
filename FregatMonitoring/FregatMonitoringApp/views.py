@@ -12,7 +12,7 @@ from django.template import loader
 from django.urls import reverse
 from django.db.models import F
 
-from .models import Automelts, Avtoplavka_status, Avtoplavka_setpoints, Autoplavka_log, AutoMeltsInfo, Daily_gases_consumption, Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable, Rarefaction_P2 
+from .models import Automelts, Avtoplavka_status, Avtoplavka_setpoints, Autoplavka_log, AutoMeltsInfo, Daily_gases_consumption, Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable, Rarefaction_P2, Bottling 
 from .serializers import FloattableSerializer, AutomeltsSerializer
 
 def index(request):
@@ -503,6 +503,55 @@ def furnace_2_info(request):
 
     return HttpResponse(template.render(context, request))
 
+def bottling_page(request):
+    template = loader.get_template('FregatMonitoringApp/bottling_page.html')
+
+    context = {}
+    return HttpResponse(template.render(context, request))
+
+def bottling_page_data(request):
+    "Грузит страницу журнала розливов"
+
+    template = loader.get_template('FregatMonitoringApp/bottling_journal_page.html')
+    grades_list = sorted([i[0] for i in set(Bottling.objects.values_list('grade')) if i[0]!=None])
+    context = {'grades_list': grades_list}
+    return HttpResponse(template.render(context, request))
+
+def bottling_journal_data(request):
+    '''Выдаёт журнал розлива по четырём фильтрам: Год, № розлива, марка сплава, дата розлива. Если один, несколько или все фильтры
+    не заданные - выдаёт полную выборку из БД за последний год'''
+
+    if request.method == 'GET':
+        bottling_year = request.GET.get('bottling_year', None)
+        bottling_lot = request.GET.get('bottling_lot', None) 
+        bottling_grade = request.GET.get('bottling_grade', None)
+
+    if not(bottling_year) and not(bottling_lot) and not(bottling_grade): #Если ни один фильтр не задан
+        bottling_year = datetime.today().year #выводим всё за текущий год
+        
+    journal = Bottling.objects
+    
+    if bottling_year is not None:
+        journal=journal.filter(proddate__gte = str(bottling_year)+'-01-01 00:00:00').filter(proddate__lte = str(int(bottling_year)+1)+'-01-01 00:00:00') 
+    if bottling_lot is not None:
+        journal = journal.filter(lot=bottling_lot+'/'+bottling_year[2:])
+    if bottling_grade is not None:
+        journal = journal.filter(grade=bottling_grade)
+
+    journal_entrys = list()
+    for i in range(len(list(journal))):
+        entry = journal[i]
+        if entry.grade != None:   
+            journal_entrys.append({
+                "grade":entry.grade,
+                "lot":entry.lot,
+                "data":entry.proddate,
+                "bundle":entry.bundle,
+                "weight":entry.weight
+            })
+        
+    return JsonResponse(journal_entrys, safe=False)
+
 
 def auto_melts_types_info(request, melt_id_1):
 
@@ -560,7 +609,7 @@ def auto_melts_log_data(request):
         melt_number = request.GET.get('melt_number', None) 
 
     if start_period is None or stop_period is None:
-        start_period = (datetime.now()-timedelta(hours=30*24) ).strftime('%Y-%m-%dT%H:%M')#предыдущий месяц
+        start_period = (datetime.now()-timedelta(hours=30*24)).strftime('%Y-%m-%dT%H:%M')#предыдущий месяц
         stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M')#текущий момент  
     else:
         start_period = datetime.strptime(start_period, '%Y-%m-%dT%H:%M')

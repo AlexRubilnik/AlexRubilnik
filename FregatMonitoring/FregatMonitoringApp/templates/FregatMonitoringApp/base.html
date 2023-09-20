@@ -6,6 +6,7 @@
       {% block furnace_info_script %}{% endblock %}
       {% block furnace_trends_scripts %}{% endblock %}
       {% block auto_melts_log_scripts %}{% endblock %}
+      {% block bottling_journal_scripts %}{% endblock %}
 </head>
 <body>
 
@@ -46,7 +47,7 @@
     <a href="{% url 'FregatMonitoringApp:furnace_2_info' %}" class="top_menu_btn">Печь №2</a> 
     <a href="{% url 'FregatMonitoringApp:auto_melts_types_info' 1 %}" class="top_menu_btn">Автоплавка</a> 
     <a href="{% url 'FregatMonitoringApp:sorry_page' %}" class="top_menu_btn">Рафинировка</a> 
-    <a href="{% url 'FregatMonitoringApp:sorry_page' %}" class="top_menu_btn">Розлив</a> 
+    <a href="{% url 'FregatMonitoringApp:bottling_page' %}" class="top_menu_btn">Розлив</a> 
     <a href="{% url 'FregatMonitoringApp:sorry_page' %}" class="top_menu_btn">Шнека</a> 
     <a href="{% url 'FregatMonitoringApp:reports_page' %}" class="top_menu_btn">Отчёты</a>    
   </div>
@@ -61,6 +62,7 @@
     {% block automelts_info %}{% endblock %}
     {% block melt_mod_card_info %}{% endblock %}
     {% block auto_melts_set_points %}{% endblock %}
+    {% block bottling_journal %}{% endblock %}
   </div>
 </div>
 

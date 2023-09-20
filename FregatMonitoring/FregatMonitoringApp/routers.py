@@ -4,6 +4,8 @@ class FregatMonitoringAppRouter:
     def db_for_read(self, model, **hints):
         if model._meta.db_table in ('AutoMelts','Avtoplavka_status','Avtoplavka_setpoints','Autoplavka_log','FloatTable','TagTable','MeltTypes','MeltSteps','SubSteps','DailyGasesConsumption','GasesConsumptionsPerDay', 'Rarefaction_P2'):
             return 'production_fx'
+        elif model._meta.db_table in ('Zebra',):
+            return 'zebra'
         return 'default'
 
     def db_for_write(self, model, **hints):

@@ -7,6 +7,18 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 
+class Bottling(models.Model):
+    id = models.BigAutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
+    proddate = models.DateTimeField(db_column='ProdDate', blank=True, null=True)
+    grade = models.CharField(db_column='Grade', blank=True, null=True, max_length=50)
+    weight = models.CharField(db_column='Weight', blank=True, null=True, max_length=50)
+    lot = models.CharField(db_column='Lot', blank=True, null=True, max_length=50)
+    bundle = models.CharField(db_column='Bundle', blank=True, null=True, max_length=50)
+
+    class Meta:
+        managed = False
+        db_table = 'Zebra'
+
 class Daily_gases_consumption(models.Model):
     id = models.SmallIntegerField(db_column='Id', primary_key=True)
     data = models.DateField(db_column='Data', blank=False, null=False)
@@ -41,8 +53,7 @@ class Avtoplavka_status(models.Model):
     class Meta:
         managed = False
         db_table = 'Avtoplavka_status'
-
-
+       
 class Avtoplavka_setpoints(models.Model):
     furnace_no = models.SmallIntegerField(db_column='furnace_no', primary_key=True)  #
     auto_mode = models.BooleanField(db_column='auto_mode', blank=True, null=True)  # 

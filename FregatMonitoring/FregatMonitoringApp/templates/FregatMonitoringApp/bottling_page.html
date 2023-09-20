@@ -1,0 +1,16 @@
+{% extends "FregatMonitoringApp/base.html" %}
+
+{% block bottling_journal_scripts %}{% endblock %}
+
+{% block left_side_bar%}
+<div class="left-side-bar">
+    <ul style="padding-left: 0px;">
+      <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:sorry_page' %}"> Текущий розлив </a></li>
+      <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:bottling_page_data' %}"> Журнал розливов </a></li>      
+      <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:auto_melts_setpoints' %}"> Назад </a></li>
+    </ul>
+</div>
+{% endblock%}  
+
+{% block bottling_journal %}{% endblock %}
+  
