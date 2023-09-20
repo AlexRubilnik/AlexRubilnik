@@ -1,3 +1,5 @@
 FregatMonitoring/db.sqlite3
 
 **/__pycache__/
+FregatMonitoringKill.bat
+FregatMonitoringStart.bat
