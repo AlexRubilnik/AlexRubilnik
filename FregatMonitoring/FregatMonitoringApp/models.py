@@ -220,3 +220,18 @@ class AutoMeltsInfo(models.Model): #Класс для сериализатора
     deltat_stp = models.IntegerField(blank=True, null=True, default='')
     power_sp_base = models.IntegerField(blank=True, null=True, default='')
 
+class Furnace1_errors_log(models.Model):
+    faults1 = models.SmallIntegerField(db_column='Faults1', blank=True, null=True) 
+    faults2 = models.SmallIntegerField(db_column='Faults2', blank=True, null=True) 
+    faults3 = models.SmallIntegerField(db_column='Faults3', blank=True, null=True) 
+    faults4 = models.SmallIntegerField(db_column='Faults4', blank=True, null=True) 
+    ng_press = models.SmallIntegerField(db_column='NGPress', blank=True, null=True) 
+    o2_press = models.SmallIntegerField(db_column='O2Press', blank=True, null=True) 
+    ng_flow = models.SmallIntegerField(db_column='NGFlow', blank=True, null=True) 
+    o2_flow = models.SmallIntegerField(db_column='O2Flow', blank=True, null=True) 
+    air_flow = models.SmallIntegerField(db_column='AirFlow', blank=True, null=True) 
+    timestamp = models.DateTimeField(db_column='Timestamp', blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'Furnace1_errors_log'

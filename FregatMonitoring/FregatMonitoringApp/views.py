@@ -12,8 +12,11 @@ from django.template import loader
 from django.urls import reverse
 from django.db.models import F
 
-from .models import Automelts, Avtoplavka_status, Avtoplavka_setpoints, Autoplavka_log, AutoMeltsInfo, Daily_gases_consumption, Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable, Rarefaction_P2, Bottling 
+from .models import Automelts, Avtoplavka_status, Avtoplavka_setpoints, Autoplavka_log, AutoMeltsInfo, Daily_gases_consumption, Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable, Rarefaction_P2, Bottling, Furnace1_errors_log 
 from .serializers import FloattableSerializer, AutomeltsSerializer
+
+from . import furnace_errors
+from .furnace_errors import furnace1_errors_list
 
 def index(request):
     return furnace_1_info(request)
@@ -170,6 +173,62 @@ def furnace_base_trends(request, furnace_no, **kwards):  #отображает �
     }
     return HttpResponse(template.render(context, request))
 
+def furnace_errors_log(request, furnace_no, **kwards): #отображает шаблон журнала ошибок для печи
+    template = loader.get_template('FregatMonitoringApp/furnace_errors_log_page.html')
+    if(kwards.get('start_time') is not None and kwards.get('stop_time') is not None):
+        start_period = kwards.get('start_time') 
+        stop_period = kwards.get('stop_time')
+    else:    
+        start_period = (datetime.now()-timedelta(days=1)).strftime('%Y-%m-%dT%H:%M')#предыдущий час
+        stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M')#текущий момент
+    context = {
+        'Furnace_No': furnace_no,
+        'Start_time': start_period,
+        'Stop_time': stop_period
+    }
+    return HttpResponse(template.render(context, request))
+
+def furnace_errors_log_data(request, furnace_no):
+    if request.method == 'GET':
+        start_period = request.GET['start']
+        stop_period = request.GET['stop']
+
+    start_period = datetime.strptime(start_period, '%Y-%m-%dT%H:%M')
+    stop_period = datetime.strptime(stop_period, '%Y-%m-%dT%H:%M')
+
+    def load_furnace_errors_log_by_period(furnace_no, period_start, period_stop, **kwards):
+        #возвращает ошибки по печи за определённый период времени
+        if furnace_no == 1:
+            errors_arr = Furnace1_errors_log.objects.filter(timestamp__range=(period_start,period_stop)).order_by('timestamp')
+        elif furnace_no == 2:
+            pass
+        return errors_arr
+
+    log_strings = list()
+    err_query = load_furnace_errors_log_by_period(furnace_no, start_period, stop_period)
+
+    for i in range(len(list(err_query))):
+        try: #приведение метки времени в красивый вид
+            #защита от ситуации, когда %f(миллисекунды в дате) = .0000. Тогда БД возвращает дату без них и не совпадает формат
+            timestamp = datetime.strptime(str(err_query[i].timestamp), '%Y-%m-%d %H:%M:%S.%f+00:00').strftime("%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            timestamp = datetime.strptime(str(err_query[i].timestamp), '%Y-%m-%d %H:%M:%S+00:00').strftime("%Y-%m-%d %H:%M:%S")
+        
+        if furnace_no == 1:
+            errors = furnace1_errors_list(err_query[i])
+        
+        for j in range(len(errors)):
+            log_strings.append({
+                        "timestamp" : timestamp,
+                        "error" : errors[j],
+                        "ng_press" : err_query[i].ng_press,
+                        "o2_press" : err_query[i].o2_press,
+                        "ng_flow" : err_query[i].ng_flow,
+                        "o2_flow" : err_query[i].o2_flow,
+                        "air_flow" : err_query[i].air_flow,
+            })
+
+    return JsonResponse(log_strings, safe=False)
 
 def furnace_base_trends_data(request, furnace_no): #готовит и отправляет данные сигналов для трендов за указанный период времени
     if request.method == 'GET':
