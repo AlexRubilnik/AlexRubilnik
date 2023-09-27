@@ -12,11 +12,11 @@ from django.template import loader
 from django.urls import reverse
 from django.db.models import F
 
-from .models import Automelts, Avtoplavka_status, Avtoplavka_setpoints, Autoplavka_log, AutoMeltsInfo, Daily_gases_consumption, Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable, Rarefaction_P2, Bottling, Furnace1_errors_log 
+from .models import Automelts, Avtoplavka_status, Avtoplavka_setpoints, Autoplavka_log, AutoMeltsInfo, Daily_gases_consumption, Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable, Rarefaction_P2, Bottling, Furnace1_errors_log, Furnace2_errors_log
 from .serializers import FloattableSerializer, AutomeltsSerializer
 
 from . import furnace_errors
-from .furnace_errors import furnace1_errors_list
+from .furnace_errors import furnace1_errors_list, furnace2_errors_list
 
 def index(request):
     return furnace_1_info(request)
@@ -201,7 +201,7 @@ def furnace_errors_log_data(request, furnace_no):
         if furnace_no == 1:
             errors_arr = Furnace1_errors_log.objects.filter(timestamp__range=(period_start,period_stop)).order_by('timestamp')
         elif furnace_no == 2:
-            pass
+            errors_arr = Furnace2_errors_log.objects.filter(timestamp__range=(period_start,period_stop)).order_by('timestamp')
         return errors_arr
 
     log_strings = list()
@@ -216,6 +216,8 @@ def furnace_errors_log_data(request, furnace_no):
         
         if furnace_no == 1:
             errors = furnace1_errors_list(err_query[i])
+        elif furnace_no == 2:
+            errors = furnace2_errors_list(err_query[i])
         
         for j in range(len(errors)):
             log_strings.append({

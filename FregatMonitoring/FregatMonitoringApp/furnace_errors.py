@@ -110,4 +110,80 @@ def furnace1_errors_list(err_query):
         errors.append("49: Модуль сигналов выхода в режиме защиты")
 
     return errors
+
+
+def furnace2_errors_list(err_query):
+    # Принимает массив ошибок faults1, faults2
+    # Возвращает расшифрованный список ошибок в текстовом виде
+    errors = list()
+
+    #FAULTS1
+    if err_query.faults1 & 1:
+        errors.append("1: Низкое давление ПГ")
+    if err_query.faults1 & 2:
+        errors.append("2: Низкое давление О2")
+    if err_query.faults1 & 4:
+        errors.append("3: Низкое давление воздуха")
+    if err_query.faults1 & 8:
+        errors.append("4: Высокое давление ПГ")
+    if err_query.faults1 & 16:
+        errors.append("5: Высокое давление О2")
+    if err_query.faults1 & 32:
+        errors.append("6: Ошибка измерения давления ПГ")
+    if err_query.faults1 & 64:
+        errors.append("7: Ошибка измерения давления О2")
+    if err_query.faults1 & 128:
+        errors.append("8: Ошибка измерения расхода ПГ")
+    if err_query.faults1 & 256:
+        errors.append("9: Ошибка измерения расхода О2")
+    if err_query.faults1 & 512:
+        errors.append("10: Ошибка контроля герметичности")
+    if err_query.faults1 & 1024:
+        errors.append("11: Ошибка соотношения ПГ/О2")
+    if err_query.faults1 & 2048:
+        errors.append("12: Ошибка пилотной горелки")
+    if err_query.faults1 & 4096:
+        errors.append("13: Ошибка основной горелки")
+    if err_query.faults1 & 8192:
+        errors.append("14: Ошибка шкафа управления")
+    if err_query.faults1 & 16384:
+        errors.append("20: Ошибка конфигурации")
+    if err_query.faults1 & 32768:
+        errors.append("15: Несоответствие расхода ПГ уставке")
+    
+    #FAULTS2
+    if err_query.faults2 & 1:
+        errors.append("16: Несоответствие расхода О2 уставке")
+    if err_query.faults2 & 2:
+        errors.append("18: Limit S. valves KV100-KV200")
+    if err_query.faults2 & 4:
+        errors.append("Ошибка глаза")
+    if err_query.faults2 & 8:
+        errors.append("Отклонение от заданной температуры")
+    if err_query.faults2 & 16:
+        errors.append("Ошибка измерения температуры")
+    if err_query.faults2 & 32:
+        errors.append("19: Limit S. valves PCV100-PCV200")
+    if err_query.faults2 & 64:
+        errors.append("21: Ошибка питания")
+    if err_query.faults2 & 128:
+        errors.append("22: Температура О2 слишком низкая")
+    if err_query.faults2 & 256:
+        errors.append("23: Воздуходувка не готова")
+    if err_query.faults2 & 512:
+        errors.append("24: Несоответствие расхода воздуха уставке")
+    if err_query.faults2 & 1024:
+        errors.append("17: Ошибка чтения по UDP")
+    if err_query.faults2 & 2048:
+        errors.append("27: Слишком много ошибок розжига")
+    if err_query.faults2 & 4096:
+        pass #errors.append("29: ")
+    if err_query.faults2 & 8192:
+        pass #errors.append("30: ")
+    if err_query.faults2 & 16384:
+        pass #errors.append("31: ")
+    if err_query.faults2 & 32768:
+        pass #errors.append("32: ")    
+
+    return errors
         
