@@ -12,8 +12,10 @@
     <ul style="padding-left: 0px;">
       {% if furnace_num == 1 %}                                                                                            
           <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:furnace_base_trends' 1%}"> Тренды </a></li>
+          <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:furnace_errors_log' 1%}"> Журнал ошибок </a></li>
       {% elif furnace_num == 2%}
           <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:furnace_base_trends' 2%}"> Тренды </a></li>
+          <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:furnace_errors_log' 2%}"> Журнал ошибок </a></li>
       {% endif %}
       <li class="left-side-bar-list"><a href="{% url 'FregatMonitoringApp:auto_melts_types_info' 1 %}"> Режимы плавок </a></li>
     </ul>
