@@ -250,6 +250,7 @@ def furnace_base_trends_data(request, furnace_no): #готовит и отпра
         if furnace_no == 2:
             signal_value = Rarefaction_P2.objects.annotate(dateandtime=F('timestamp')).annotate(value=F(rarefaction_point_name)).filter(timestamp__range=(period_start,period_stop)
             ).order_by('dateandtime')
+
         return signal_value
     #Список сигналов, отображаемых на тренде. Чтобы добавить новый сигнал, нужно внести для него строку в этот блок
     signals = list()
@@ -297,6 +298,7 @@ def furnace_base_trends_data(request, furnace_no): #готовит и отпра
         signals.append(("Разряжение т.3", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point3', start_period, stop_period)))
         signals.append(("Разряжение т.4", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point4', start_period, stop_period)))
         signals.append(("Разряжение т.5", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point5', start_period, stop_period))) 
+        signals.append(("Разряжение в печи", LoadRarefactionValuesByPeriod(furnace_no, 'rf_in_furnace', start_period, stop_period))) 
 
         signals.append(("Т над дверью", LoadSignalValuesByPeriod('MEASURES\TI_711Y', start_period, stop_period))) #эти два сигнала должны быть в списке последними
         signals.append(("Т воздух цех", LoadSignalValuesByPeriod('MEASURES\TI_711X', start_period, stop_period))) #эти два сигнала должны быть в списке последними
@@ -312,7 +314,10 @@ def furnace_base_trends_data(request, furnace_no): #готовит и отпра
                     dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S.%f+00:00')
                 except:
                     dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S+00:00')
-                point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value, 2)}
+                if signals[i][0] == "Разряжение в печи":
+                    point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value/100, 2)} #Этот сигнал хранится в БД умноженным на 100 для большей точности
+                else:
+                    point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value, 2)}
                 series[i][1].append(point)
         elif signals[i][0] in {"Т над дверью"}: #исключение для вычисления дельты температур
             series.append([["Дельта Т"], []])
@@ -323,6 +328,8 @@ def furnace_base_trends_data(request, furnace_no): #готовит и отпра
                     dat = datetime.strptime(str(a.dateandtime), '%Y-%m-%d %H:%M:%S+00:00')
                 point={"date":dat.timestamp()*1000, "value":round(a.value-b.value, 2)}
                 series[i][1].append(point)
+
+
 
     return JsonResponse(series, safe=False)
 
