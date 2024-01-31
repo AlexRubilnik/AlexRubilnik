@@ -30,5 +30,6 @@ urlpatterns = [
     path('getGasesUsageData_hourly/', views.get_gases_usage_data_hourly, name='get_gases_usage_data_hourly'),
     path('bottling_page/', views.bottling_page, name='bottling_page'),
     path('bottling_page_data/', views.bottling_page_data, name='bottling_page_data'),
+    path('current_bottling_page/', views.current_bottling_page, name='current_bottling_page'),
     path('bottling_journal_data/', views.bottling_journal_data, name='bottling_journal_data'),
 ]   

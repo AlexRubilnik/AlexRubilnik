@@ -6,7 +6,7 @@ class FregatMonitoringAppRouter:
                                     'MeltSteps','SubSteps','DailyGasesConsumption','GasesConsumptionsPerDay', 'Rarefaction_P2', 'Furnace1_errors_log', 
                                     'Furnace2_errors_log'):
             return 'production_fx'
-        elif model._meta.db_table in ('Zebra',):
+        elif model._meta.db_table in ('Zebra','CurrentBottlingTable'):
             return 'zebra'
         return 'default'
 

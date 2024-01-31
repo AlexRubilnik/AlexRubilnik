@@ -19,6 +19,18 @@ class Bottling(models.Model):
         managed = False
         db_table = 'Zebra'
 
+class CurrentBottling(models.Model):
+    id = models.BigAutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
+    proddate = models.DateTimeField(db_column='ProdDate', blank=True, null=True)
+    grade = models.CharField(db_column='Grade', blank=True, null=True, max_length=50)
+    weight = models.CharField(db_column='Weight', blank=True, null=True, max_length=50)
+    lot = models.CharField(db_column='Lot', blank=True, null=True, max_length=50)
+    bundle = models.CharField(db_column='Bundle', blank=True, null=True, max_length=50)
+
+    class Meta:
+        managed = False
+        db_table = 'CurrentBottlingTable'
+
 class Daily_gases_consumption(models.Model):
     id = models.SmallIntegerField(db_column='Id', primary_key=True)
     data = models.DateField(db_column='Data', blank=False, null=False)
@@ -167,6 +179,7 @@ class Rarefaction_P2(models.Model):
     rf_fur2_point5 = models.IntegerField(db_column='rf_fur2_point5')
     rf_fur2_point6 = models.IntegerField(db_column='rf_fur2_point6')
     rf_in_furnace = models.IntegerField(db_column='rf_in_furnace')
+    rf_in_furnace_filtr = models.IntegerField(db_column='rf_in_furnace_filtr')
     rf_in_ciclone_2pech = models.IntegerField(db_column='rf_in_ciclone_2pech')
     timestamp = models.DateTimeField(db_column='timestamp')
 

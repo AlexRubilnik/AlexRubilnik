@@ -12,7 +12,7 @@ from django.template import loader
 from django.urls import reverse
 from django.db.models import F
 
-from .models import Automelts, Avtoplavka_status, Avtoplavka_setpoints, Autoplavka_log, AutoMeltsInfo, Daily_gases_consumption, Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable, Rarefaction_P2, Bottling, Furnace1_errors_log, Furnace2_errors_log
+from .models import Automelts, Avtoplavka_status, Avtoplavka_setpoints, Autoplavka_log, AutoMeltsInfo, Daily_gases_consumption, Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable, Rarefaction_P2, Bottling, CurrentBottling, Furnace1_errors_log, Furnace2_errors_log
 from .serializers import FloattableSerializer, AutomeltsSerializer
 
 from . import furnace_errors
@@ -299,6 +299,8 @@ def furnace_base_trends_data(request, furnace_no): #готовит и отпра
         signals.append(("Разряжение т.4", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point4', start_period, stop_period)))
         signals.append(("Разряжение т.5", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point5', start_period, stop_period))) 
         signals.append(("Разряжение в печи", LoadRarefactionValuesByPeriod(furnace_no, 'rf_in_furnace', start_period, stop_period))) 
+        signals.append(("Разряжение в печи_ск.ср.", LoadRarefactionValuesByPeriod(furnace_no, 'rf_in_furnace_filtr', start_period, stop_period))) 
+        signals.append(("Разряжение в циклоне", LoadRarefactionValuesByPeriod(furnace_no, 'rf_in_ciclone_2pech', start_period, stop_period)))
 
         signals.append(("Т над дверью", LoadSignalValuesByPeriod('MEASURES\TI_711Y', start_period, stop_period))) #эти два сигнала должны быть в списке последними
         signals.append(("Т воздух цех", LoadSignalValuesByPeriod('MEASURES\TI_711X', start_period, stop_period))) #эти два сигнала должны быть в списке последними
@@ -314,8 +316,8 @@ def furnace_base_trends_data(request, furnace_no): #готовит и отпра
                     dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S.%f+00:00')
                 except:
                     dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S+00:00')
-                if signals[i][0] == "Разряжение в печи":
-                    point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value/100, 2)} #Этот сигнал хранится в БД умноженным на 100 для большей точности
+                if signals[i][0] == "Разряжение в печи_ск.ср.":
+                    point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value*10, 2)} #Умножение на коэффициент для масштабирования на графике
                 else:
                     point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value, 2)}
                 series[i][1].append(point)
@@ -583,6 +585,22 @@ def bottling_page_data(request):
     template = loader.get_template('FregatMonitoringApp/bottling_journal_page.html')
     grades_list = sorted([i[0] for i in set(Bottling.objects.values_list('grade')) if i[0]!=None])
     context = {'grades_list': grades_list}
+    return HttpResponse(template.render(context, request))
+
+def current_bottling_page(request):
+    "Грузит страницу текущего розлива"
+
+    template = loader.get_template('FregatMonitoringApp/current_bottling_page.html')
+    current_bundle = CurrentBottling.objects.get()
+    current_bottling_journal = Bottling.objects.filter(lot=current_bundle.lot).filter(proddate__gte=str(current_bundle.proddate.strftime("%Y"))+'-01-01 00:00:00')
+
+    context = {'cur_bundle': current_bundle.bundle,
+               'cur_grade': current_bundle.grade,
+               'cur_lot': current_bundle.lot,
+               'cur_weight': current_bundle.weight,
+               'cur_proddate': current_bundle.proddate.strftime("%d-%m-%Y %H:%M:%S"),
+               'bottling_year': str(current_bundle.proddate.strftime("%Y"))
+    }
     return HttpResponse(template.render(context, request))
 
 def bottling_journal_data(request):
