@@ -9,7 +9,7 @@ def furnace1_errors_list(err_query):
     if err_query.faults1 & 2:
         pass #errors.append("2: ")
     if err_query.faults1 & 4:
-        errors.append("3: Ошибка давления воздуха")
+        errors.append("3: Ошибка давления воздуха (PSL300)")
     if err_query.faults1 & 8:
         errors.append("4: Высокое давление ПГ")
     if err_query.faults1 & 16:

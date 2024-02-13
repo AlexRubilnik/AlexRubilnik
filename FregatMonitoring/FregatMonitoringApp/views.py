@@ -317,7 +317,7 @@ def furnace_base_trends_data(request, furnace_no): #готовит и отпра
                 except:
                     dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S+00:00')
                 if signals[i][0] == "Разряжение в печи_ск.ср.":
-                    point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value*10, 2)} #Умножение на коэффициент для масштабирования на графике
+                    point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value*100, 2)} #Умножение на коэффициент для масштабирования на графике
                 else:
                     point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value, 2)}
                 series[i][1].append(point)
