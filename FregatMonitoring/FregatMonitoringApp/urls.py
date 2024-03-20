@@ -32,4 +32,7 @@ urlpatterns = [
     path('bottling_page_data/', views.bottling_page_data, name='bottling_page_data'),
     path('current_bottling_page/', views.current_bottling_page, name='current_bottling_page'),
     path('bottling_journal_data/', views.bottling_journal_data, name='bottling_journal_data'),
+    path('shzm_page/', views.shzm_page, name='shzm_page'),
+    path('shzm_journal_page/', views.shzm_journal_page, name='shzm_journal_page'),
+    path('shzm_journal_page_data/', views.shzm_journal_page_data, name='shzm_journal_page_data'),
 ]   

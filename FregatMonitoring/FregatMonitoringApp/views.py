@@ -12,7 +12,9 @@ from django.template import loader
 from django.urls import reverse
 from django.db.models import F
 
-from .models import Automelts, Avtoplavka_status, Avtoplavka_setpoints, Autoplavka_log, AutoMeltsInfo, Daily_gases_consumption, Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable, Rarefaction_P2, Bottling, CurrentBottling, Furnace1_errors_log, Furnace2_errors_log
+from .models import Automelts, Avtoplavka_status, Avtoplavka_setpoints, Autoplavka_log, AutoMeltsInfo, Daily_gases_consumption 
+from .models import Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable, Rarefaction_P2, Bottling
+from .models import CurrentBottling, Furnace1_errors_log, Furnace2_errors_log, Melts
 from .serializers import FloattableSerializer, AutomeltsSerializer
 
 from . import furnace_errors
@@ -638,6 +640,68 @@ def bottling_journal_data(request):
         
     return JsonResponse(journal_entrys, safe=False)
 
+def shzm_page(request):
+    template = loader.get_template('FregatMonitoringApp/shzm_page.html')
+
+    context = {}
+    return HttpResponse(template.render(context, request))
+
+def shzm_journal_page(request):
+    "Грузит страницу журнала загрузок"
+    context = {}
+    template = loader.get_template('FregatMonitoringApp/shzm_journal_page.html')
+    return HttpResponse(template.render(context, request))
+
+def shzm_journal_page_data(request):
+    '''Выдаёт данные о загрузках печей по трём фильтрам: № печи, № плавки, временной промежуток. Если один, несколько или все фильтры
+    не заданные - выдаёт полную выборку за последний месяц'''
+
+    if request.method == 'GET':
+        start_period = request.GET.get('start', None)
+        stop_period = request.GET.get('stop', None) 
+        furnace_no = request.GET.get('furnace_no', None)
+        melt_number = request.GET.get('melt_number', None) 
+
+    if start_period is None:
+        start_period = (datetime.now()-timedelta(hours=30*24)).strftime('%Y-%m-%dT%H:%M')#предыдущий месяц
+    else:
+        start_period = datetime.strptime(start_period, '%Y-%m-%dT%H:%M')
+    if  stop_period is None:
+        stop_period = datetime.now().strftime('%Y-%m-%dT%H:%M')#текущий момент  
+    else:
+        stop_period = datetime.strptime(stop_period, '%Y-%m-%dT%H:%M')
+
+    log = Melts.objects.filter(startmelt__range=(start_period, stop_period)).order_by("-startmelt")
+    if furnace_no is not None:
+        log = log.filter(furnace=furnace_no)
+    if melt_number is not None:
+        log = log.filter(meltno=melt_number)
+ 
+    log_entrys=list()
+    for i in range(len(list(log))):
+        try: 
+            #защита от ситуации, когда %f(миллисекунды в дате) = .0000. Тогда БД возвращает дату без них и не совпадает формат
+            startmelt = datetime.strptime(str(log[i].startmelt), '%Y-%m-%d %H:%M:%S.%f+00:00').strftime("%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            startmelt = datetime.strptime(str(log[i].startmelt), '%Y-%m-%d %H:%M:%S+00:00').strftime("%Y-%m-%d %H:%M:%S")
+
+        log_entrys.append({             
+            "startmelt": startmelt,
+            "meltno": log[i].meltno,
+            "furnace_no": log[i].furnace,
+            "total": log[i].total/100,
+            "pasta": log[i].pasta/100,
+            "coal": log[i].coal/100,
+            "soda": log[i].soda/100,
+            "iron": log[i].iron/100,
+            "dust": log[i].dust/100,
+            "oxides": log[i].oxides/100,
+            "slurry": log[i].slurry/100,
+            "fraction": log[i].fraction/100,
+            "pbmat": log[i].pbmat/100,
+        })
+    
+    return JsonResponse(log_entrys, safe=False)
 
 def auto_melts_types_info(request, melt_id_1):
 
