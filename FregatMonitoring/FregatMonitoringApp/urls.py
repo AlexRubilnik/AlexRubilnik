@@ -10,6 +10,7 @@ urlpatterns = [
     path('SorryPage/', views.sorry_page, name='sorry_page'),
     path('Furnace_1_info/', views.furnace_1_info, name='furnace_1_info'),
     path('Furnace_2_info/', views.furnace_2_info, name='furnace_2_info'),
+    path('Furnace_info_r/<int:furnace_no>/', views.furnace_info_r, name='furnace_info_r'),
     path('FurnaceBaseTrends/<int:furnace_no>/', views.furnace_base_trends, name='furnace_base_trends'),
     path('FurnaceErrorsLog/<int:furnace_no>/', views.furnace_errors_log, name='furnace_errors_log'),
     path('FurnaceErrorsLogData/<int:furnace_no>/', views.furnace_errors_log_data, name='furnace_errors_log_data'),

@@ -94,6 +94,43 @@ function AutoMeltInfoUpdate(){
      
 }
 
+function RarefactionsInfoUpdate(){ 
+  var XHR = new XMLHttpRequest()
+  fur_no = document.getElementById("FurnaceNo");
+  if(fur_no){
+      if (fur_no.innerHTML=="Печь №1. Основные параметры"){
+        //КОгда будут разряжения на 1 печи //XHR.open('GET', '/FregatMonitoringApp/Furnace_info_r/1/', true);
+      } else {
+        XHR.open('GET', '/FregatMonitoringApp/Furnace_info_r/2/', true);
+      }  
+      XHR.timeout = 2000;
+      XHR.send();
+  } 
+
+  XHR.onreadystatechange = function() {
+      if (this.readyState == 4) {
+        cur_queue=cur_queue+1; //запрос завершён
+        if (cur_queue >= updSignals.length){
+          cur_queue=0;
+        } 
+      }           
+      if (this.readyState != 4) return;
+
+      if (this.status != 200) return;
+        
+      data = JSON.parse(this.responseText);
+      for (text in data){
+        var tab = document.getElementById(text);
+        if(tab!=null){
+            tab.innerHTML = tab.innerHTML.slice(0,6)+data[text];
+        }
+      }  
+        
+  };
+  delete(XHR);  
+     
+}
+
 function color_power_sp_if_reduce(cur_power_tag_index, power_sp_tag_index){
   power_cur = document.getElementById(cur_power_tag_index);
   power_sp = document.getElementById(power_sp_tag_index);
@@ -111,6 +148,7 @@ function color_power_sp_if_reduce(cur_power_tag_index, power_sp_tag_index){
 }
 
 setInterval(AutoMeltInfoUpdate,3000); 
+setInterval(RarefactionsInfoUpdate,3000);
 
 //Обновляем цвет значения текущей мощности. Если мощность ниже заданной - постепенно краснеет
 setInterval(()=>color_power_sp_if_reduce("60", "power_sp_base"),1000); //для первой печи

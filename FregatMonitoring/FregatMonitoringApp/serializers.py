@@ -13,6 +13,25 @@ class MelttypesSerializer(serializers.ModelSerializer):
         model = Melttypes
         fields = ['melt_num', 'melt_furnace', 'melt_name']
 
+class RarefactionP2Serializer(serializers.Serializer):
+    rf_fur2_point1 = serializers.IntegerField()
+    rf_fur2_point2 = serializers.IntegerField()
+    rf_fur2_point3 = serializers.IntegerField()
+    rf_fur2_point4 = serializers.IntegerField()
+    rf_fur2_point5 = serializers.IntegerField()
+    rf_fur2_point6 = serializers.IntegerField()
+    rf_in_furnace = serializers.IntegerField()
+    rf_in_furnace_filtr = serializers.IntegerField()
+    rf_in_ciclone_2pech = serializers.IntegerField()
+    timestamp = serializers.DateTimeField()
+
+    def create(self, validated_data):
+        """
+        Create and return a new `Snippet` instance, given the validated data.
+        """
+        return AutoMeltsInfo.objects.create(**validated_data)
+
+
 class AutomeltsSerializer(serializers.Serializer):
 
     furnace_no = serializers.IntegerField()

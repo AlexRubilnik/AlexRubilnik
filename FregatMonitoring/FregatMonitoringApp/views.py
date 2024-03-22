@@ -15,7 +15,7 @@ from django.db.models import F
 from .models import Automelts, Avtoplavka_status, Avtoplavka_setpoints, Autoplavka_log, AutoMeltsInfo, Daily_gases_consumption 
 from .models import Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable, Rarefaction_P2, Bottling
 from .models import CurrentBottling, Furnace1_errors_log, Furnace2_errors_log, Melts
-from .serializers import FloattableSerializer, AutomeltsSerializer
+from .serializers import FloattableSerializer, AutomeltsSerializer, RarefactionP2Serializer
 
 from . import furnace_errors
 from .furnace_errors import furnace1_errors_list, furnace2_errors_list
@@ -961,7 +961,7 @@ def furnace_info_s(request, signal_index): # API для обновления д�
     if signal_index == 123: #дроссель дымососа
         serializer.data[0]['val'] = serializer.data[0]['val']-1792
 
-    #----Исключения 1 печь----------------
+    #----Исключения 2 печь----------------
     if signal_index == 14: #нагрузка на печь
         serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
     if signal_index == 17: #вращение печи
@@ -1035,4 +1035,12 @@ def furnace_info_a(request, furnace_no): # API для обновления да�
 
     serializer = AutomeltsSerializer(AMmodel)
 
+    return JsonResponse(serializer.data, safe=False)
+
+def furnace_info_r(request, furnace_no): # API для обновления данных о разряжениях на экране "Печь 1(2)"
+    #furnace_no - подвязать, когда будут разряжения на печи 1
+    rf_fur = Rarefaction_P2.objects.order_by('-timestamp')[0]
+
+    serializer = RarefactionP2Serializer(rf_fur)
+ 
     return JsonResponse(serializer.data, safe=False)
