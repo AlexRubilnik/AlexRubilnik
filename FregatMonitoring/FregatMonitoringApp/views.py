@@ -289,7 +289,7 @@ def furnace_base_trends_data(request, furnace_no): #готовит и отпра
         signals.append(("Круглый дроссель", LoadSignalValuesByPeriod('MEASURES\\xvi_v_cech', start_period, stop_period)))
         signals.append(("На 3 фильтр", LoadSignalValuesByPeriod('MEASURES\XVI_708', start_period, stop_period)))
         signals.append(("Над дверью", LoadSignalValuesByPeriod('MEASURES\ZI_704', start_period, stop_period)))
-        signals.append(("Горячий дроссель", LoadSignalValuesByPeriod('MEASURES\PY_702', start_period, stop_period)))
+        signals.append(("Горячий дроссель", LoadSignalValuesByPeriod('MEASURES\ZI_702', start_period, stop_period)))
         signals.append(("dP на фильтре", LoadSignalValuesByPeriod('MEASURES\PDI_725', start_period, stop_period)))
         signals.append(("dP на дымососе", LoadSignalValuesByPeriod('MEASURES\PDI_729', start_period, stop_period)))
         signals.append(("Частота дымососа", LoadSignalValuesByPeriod('MEASURES\SI_U721', start_period, stop_period)))
@@ -536,7 +536,7 @@ def furnace_2_info(request):
                'hotflue_t': cur_signal_value('MEASURES\TI_705A'),
 
                #дроссели
-               'hot_flue_gate': cur_signal_value('MEASURES\PY_702'),
+               'hot_flue_gate': cur_signal_value('MEASURES\ZI_702'),
                'over_door_gate': cur_signal_value('MEASURES\ZI_704'),
                'exhauster_gate': cur_signal_value('MEASURES\ZI_706'),
                'round_gate': cur_signal_value('MEASURES\\xvi_v_cech'),
