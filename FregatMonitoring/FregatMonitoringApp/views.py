@@ -967,7 +967,7 @@ def furnace_info_s(request, signal_index): # API для обновления д�
     if signal_index == 17: #вращение печи
         serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
     if signal_index == 75: #дроссель горячего газохода
-        serializer.data[0]['val'] = round(serializer.data[0]['val'],0)
+        serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
     if signal_index == 27: #температура гор.газохода
         serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
     if signal_index == 31: #температура перед фильтром
