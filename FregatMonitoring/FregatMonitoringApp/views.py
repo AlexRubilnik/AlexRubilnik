@@ -536,7 +536,7 @@ def furnace_2_info(request):
                'hotflue_t': cur_signal_value('MEASURES\TI_705A'),
 
                #дроссели
-               'hot_flue_gate': cur_signal_value('MEASURES\ZI_702'),
+               'hot_flue_gate': cur_signal_value('MEASURES\PY_702'),
                'over_door_gate': cur_signal_value('MEASURES\ZI_704'),
                'exhauster_gate': cur_signal_value('MEASURES\ZI_706'),
                'round_gate': cur_signal_value('MEASURES\\xvi_v_cech'),
@@ -943,7 +943,7 @@ def furnace_info_s(request, signal_index): # API для обновления д�
     if signal_index == 51: #вращение печи
         serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
     if signal_index == 52: #дроссель горячего газохода
-        serializer.data[0]['val'] = round(serializer.data[0]['val'],0)
+        serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
     if signal_index == 25: #температура гор.газохода
         serializer.data[0]['val'] = round(serializer.data[0]['val'],1)
     if signal_index == 26: #температура перед фильтром
