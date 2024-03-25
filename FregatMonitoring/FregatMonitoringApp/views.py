@@ -175,6 +175,7 @@ def furnace_base_trends(request, furnace_no, **kwards):  #отображает �
     }
     return HttpResponse(template.render(context, request))
 
+
 def furnace_errors_log(request, furnace_no, **kwards): #отображает шаблон журнала ошибок для печи
     template = loader.get_template('FregatMonitoringApp/furnace_errors_log_page.html')
     if(kwards.get('start_time') is not None and kwards.get('stop_time') is not None):
@@ -189,6 +190,7 @@ def furnace_errors_log(request, furnace_no, **kwards): #отображает ш�
         'Stop_time': stop_period
     }
     return HttpResponse(template.render(context, request))
+
 
 def furnace_errors_log_data(request, furnace_no):
     if request.method == 'GET':
@@ -233,6 +235,7 @@ def furnace_errors_log_data(request, furnace_no):
             })
 
     return JsonResponse(log_strings, safe=False)
+
 
 def furnace_base_trends_data(request, furnace_no): #готовит и отправляет данные сигналов для трендов за указанный период времени
     if request.method == 'GET':
@@ -295,12 +298,13 @@ def furnace_base_trends_data(request, furnace_no): #готовит и отпра
         signals.append(("Частота дымососа", LoadSignalValuesByPeriod('MEASURES\SI_U721', start_period, stop_period)))
         signals.append(("Т перед фильтром", LoadSignalValuesByPeriod('MEASURES\TI_708', start_period, stop_period)))
 
-        signals.append(("Разряжение т.1", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point1', start_period, stop_period)))
-        signals.append(("Разряжение т.2", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point2', start_period, stop_period)))
+        #signals.append(("Разряжение т.1", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point1', start_period, stop_period)))
+        #signals.append(("Разряжение т.2", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point2', start_period, stop_period)))
         signals.append(("Разряжение т.3", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point3', start_period, stop_period)))
         signals.append(("Разряжение т.4", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point4', start_period, stop_period)))
         signals.append(("Разряжение т.5", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point5', start_period, stop_period))) 
-        signals.append(("Разряжение в печи", LoadRarefactionValuesByPeriod(furnace_no, 'rf_in_furnace', start_period, stop_period))) 
+        signals.append(("Разряжение в ГГ",  LoadSignalValuesByPeriod('MEASURES\PI_702', start_period, stop_period)))
+        #signals.append(("Разряжение в печи", LoadRarefactionValuesByPeriod(furnace_no, 'rf_in_furnace', start_period, stop_period))) 
         signals.append(("Разряжение в печи_ск.ср.", LoadRarefactionValuesByPeriod(furnace_no, 'rf_in_furnace_filtr', start_period, stop_period))) 
         signals.append(("Разряжение в циклоне", LoadRarefactionValuesByPeriod(furnace_no, 'rf_in_ciclone_2pech', start_period, stop_period)))
 
@@ -318,7 +322,7 @@ def furnace_base_trends_data(request, furnace_no): #готовит и отпра
                     dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S.%f+00:00')
                 except:
                     dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S+00:00')
-                if signals[i][0] == "Разряжение в печи_ск.ср.":
+                if signals[i][0] in ("Разряжение в печи_ск.ср.", "Разряжение в ГГ"):
                     point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value*100, 2)} #Умножение на коэффициент для масштабирования на графике
                 else:
                     point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value, 2)}
@@ -575,11 +579,13 @@ def furnace_2_info(request):
 
     return HttpResponse(template.render(context, request))
 
+
 def bottling_page(request):
     template = loader.get_template('FregatMonitoringApp/bottling_page.html')
 
     context = {}
     return HttpResponse(template.render(context, request))
+
 
 def bottling_page_data(request):
     "Грузит страницу журнала розливов"
@@ -588,6 +594,7 @@ def bottling_page_data(request):
     grades_list = sorted([i[0] for i in set(Bottling.objects.values_list('grade')) if i[0]!=None])
     context = {'grades_list': grades_list}
     return HttpResponse(template.render(context, request))
+
 
 def current_bottling_page(request):
     "Грузит страницу текущего розлива"
@@ -604,6 +611,7 @@ def current_bottling_page(request):
                'bottling_year': str(current_bundle.proddate.strftime("%Y"))
     }
     return HttpResponse(template.render(context, request))
+
 
 def bottling_journal_data(request):
     '''Выдаёт журнал розлива по четырём фильтрам: Год, № розлива, марка сплава, дата розлива. Если один, несколько или все фильтры
@@ -640,17 +648,20 @@ def bottling_journal_data(request):
         
     return JsonResponse(journal_entrys, safe=False)
 
+
 def shzm_page(request):
     template = loader.get_template('FregatMonitoringApp/shzm_page.html')
 
     context = {}
     return HttpResponse(template.render(context, request))
 
+
 def shzm_journal_page(request):
     "Грузит страницу журнала загрузок"
     context = {}
     template = loader.get_template('FregatMonitoringApp/shzm_journal_page.html')
     return HttpResponse(template.render(context, request))
+
 
 def shzm_journal_page_data(request):
     '''Выдаёт данные о загрузках печей по трём фильтрам: № печи, № плавки, временной промежуток. Если один, несколько или все фильтры
@@ -702,6 +713,7 @@ def shzm_journal_page_data(request):
         })
     
     return JsonResponse(log_entrys, safe=False)
+
 
 def auto_melts_types_info(request, melt_id_1):
 
@@ -1036,6 +1048,7 @@ def furnace_info_a(request, furnace_no): # API для обновления да�
     serializer = AutomeltsSerializer(AMmodel)
 
     return JsonResponse(serializer.data, safe=False)
+
 
 def furnace_info_r(request, furnace_no): # API для обновления данных о разряжениях на экране "Печь 1(2)"
     #furnace_no - подвязать, когда будут разряжения на печи 1
