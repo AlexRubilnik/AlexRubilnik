@@ -322,10 +322,13 @@ def furnace_base_trends_data(request, furnace_no): #готовит и отпра
                     dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S.%f+00:00')
                 except:
                     dat = datetime.strptime(str(signals[i][1][j].dateandtime), '%Y-%m-%d %H:%M:%S+00:00')
-                if signals[i][0] in ("Разряжение в печи_ск.ср.", "Разряжение в ГГ"):
-                    point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value*100, 2)} #Умножение на коэффициент для масштабирования на графике
-                else:
-                    point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value, 2)}
+                try:
+                    if signals[i][0] in ("Разряжение в печи_ск.ср.", "Разряжение в ГГ"):
+                        point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value*100, 2)} #Умножение на коэффициент для масштабирования на графике
+                    else:
+                        point={"date":dat.timestamp()*1000, "value":round(signals[i][1][j].value, 2)}
+                except:
+                    pass #для случаев, когда таких сигналов не было в БД
                 series[i][1].append(point)
         elif signals[i][0] in {"Т над дверью"}: #исключение для вычисления дельты температур
             series.append([["Дельта Т"], []])
