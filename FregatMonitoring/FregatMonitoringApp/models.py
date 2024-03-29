@@ -60,7 +60,10 @@ class Avtoplavka_status(models.Model):
     step_total_time = models.IntegerField(db_column='step_time_preset', blank=True, null=True)  # Field name made lowercase.
     step_time_remain = models.SmallIntegerField(db_column='current_step_time_remain', blank=True, null=True)  # Field name made lowercase.
     delta_t_curent = models.SmallIntegerField(db_column='delta_t_current', blank=True, null=True)  # Field name made lowercase.
-    delta_t_stp = models.SmallIntegerField(db_column='delta_t_stp', blank=True, null=True)  # Field name made lowercase.
+    delta_t_stp = models.FloatField(db_column='delta_t_stp', blank=True, null=True)  # Field name made lowercase.
+    hotflue_p_sp = models.FloatField(db_column='hotflue_p_sp', blank=True, null=True)  # Field name made lowercase.
+    aspiration_p_sp = models.FloatField(db_column='aspiration_p_sp', blank=True, null=True)  # Field name made lowercase.
+    melt_no = models.IntegerField(db_column='melt_no', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False

@@ -512,6 +512,10 @@ def furnace_2_info(request):
     step_time_remain = step_total_time - Automelt_info[0].step_time_remain
     deltat_stp = Automelt_info[0].delta_t_stp 
     power_sp_base = Automelt_sp_info[0].power_sp #базовая уставка мощности (без учёта возможного снижения)
+    try:
+        hotflue_p_sp = Automelt_info[0].hotflue_p_sp #Уставка разряжения в ГГ
+    except:
+        pass
 
     #разряжения
     rf_fur = Rarefaction_P2.objects.order_by('-timestamp')[0]
@@ -540,6 +544,7 @@ def furnace_2_info(request):
                
                #горячий газоход
                'hotflue_p': cur_signal_value('MEASURES\PI_702') ,
+               'hotflue_p_sp': hotflue_p_sp, #уставка разряжения в ГГ
                'hotflue_t': cur_signal_value('MEASURES\TI_705A'),
 
                #дроссели

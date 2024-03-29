@@ -43,7 +43,7 @@
                     <td width="25%" class="furnace-info-tab-td-top">
                                     <table align="left" class="furnace-info-tab-2" border=0>
                                     <tr><td class="area-name bottom-line">Горячий газоход</td><td></td></tr>
-                                    <tr><td>Рязряжение</td><td> <span id={{ hotflue_p.1 }} class="UpdSign">{{hotflue_p.0|floatformat:1}}</span><span> Па</span></td></tr>
+                                    {% color_rarefaction_in_hotgate hotflue_p hotflue_p_sp %}
                                     <tr><td>Дроссель ГГ</td><td> <span id={{ hot_flue_gate.1 }} class="UpdSign"> {{hot_flue_gate.0|floatformat}}</span><span> %</span></td></tr>
                                     <tr><td>Температура ГГ</td><td> <span id={{ hotflue_t.1 }} class="UpdSign"> {{hotflue_t.0|floatformat:1}}</span><span> С</span></td></tr>
                                     </table>
