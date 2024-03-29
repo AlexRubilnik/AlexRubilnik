@@ -516,6 +516,11 @@ def furnace_2_info(request):
         hotflue_p_sp = Automelt_info[0].hotflue_p_sp #Уставка разряжения в ГГ
     except:
         pass
+    try:
+        melt_no = Automelt_info[0].melt_no
+    except:
+        melt_no = "---"
+
 
     #разряжения
     rf_fur = Rarefaction_P2.objects.order_by('-timestamp')[0]
@@ -572,6 +577,7 @@ def furnace_2_info(request):
                'step_total_time' : step_total_time,
                'step_time_remain' : step_time_remain,
                'deltat_stp' : deltat_stp,
+               'melt_no': melt_no,
 
                #разряжения
                'rf_fur2_point1': rf_fur.rf_fur2_point1, #точка 1
