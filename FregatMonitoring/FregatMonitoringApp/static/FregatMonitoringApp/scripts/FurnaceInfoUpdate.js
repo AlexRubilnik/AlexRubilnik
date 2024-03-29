@@ -169,3 +169,6 @@ setInterval(RarefactionsInfoUpdate,3000);
 //Обновляем цвет значения текущей мощности. Если мощность ниже заданной - постепенно краснеет
 setInterval(()=>color_power_sp_if_reduce("60", "power_sp_base"),1000); //для первой печи
 setInterval(()=>color_power_sp_if_reduce("61", "power_sp_base"),1000); //для второй печи
+
+//Обновляем цвет значения текущего разряжения в ГГ. Если ниже заданной - постепенно краснеет
+setInterval(()=>color_rarefaction_in_hotgate("12", "hotflue_p"),1000); //для второй печи
