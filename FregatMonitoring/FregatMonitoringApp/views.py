@@ -1018,10 +1018,12 @@ def furnace_info_a(request, furnace_no): # API для обновления да�
 
     try:
         melt_inst = Avtoplavka_status.objects.filter(furnace_no=furnace_no)[0]
+        melt_no_inst = melt_inst.melt_no
     except:
         melt_inst = None
         melt_type_inst = None
         step_type_inst = None
+        melt_no_inst = None
 
     try:    
         melt_inst_sp= Avtoplavka_setpoints.objects.filter(furnace_no=furnace_no)[0]
@@ -1056,7 +1058,8 @@ def furnace_info_a(request, furnace_no): # API для обновления да�
         step_time_remain = "---" if melt_inst is None else melt_inst.step_total_time - melt_inst.step_time_remain,
         deltat = round(deltaT,1),
         deltat_stp = "---" if melt_inst is None else melt_inst.delta_t_stp,
-        power_sp_base = "---" if melt_inst is None else melt_inst_sp.power_sp
+        power_sp_base = "---" if melt_inst is None else melt_inst_sp.power_sp,
+        melt_no = "---" if melt_no_inst is None else melt_no_inst
     )
 
     serializer = AutomeltsSerializer(AMmodel)

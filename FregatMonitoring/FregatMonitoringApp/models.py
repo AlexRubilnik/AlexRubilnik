@@ -235,6 +235,7 @@ class AutoMeltsInfo(models.Model): #Класс для сериализатора
     deltat = models.FloatField(blank=True, null=True, default='')
     deltat_stp = models.IntegerField(blank=True, null=True, default='')
     power_sp_base = models.IntegerField(blank=True, null=True, default='')
+    melt_no = models.IntegerField(blank=True, null=True, default='')
 
 class Furnace1_errors_log(models.Model):
     faults1 = models.SmallIntegerField(db_column='Faults1', blank=True, null=True) 
