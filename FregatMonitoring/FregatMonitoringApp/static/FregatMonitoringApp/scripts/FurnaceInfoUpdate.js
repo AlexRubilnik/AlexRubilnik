@@ -152,11 +152,11 @@ function color_rarefaction_in_hotgate(hotflue_p_tag_index, hotflue_p_sp_tag_inde
   p_sp = document.getElementById(hotflue_p_sp_tag_index);
   
   if(p_cur != null && p_sp != null)
-      if (Number(p_sp.innerHTML)-Number(p_cur.innerHTML) <= 1){
+      if (Math.abs(Math.abs(Number(p_sp.innerHTML))-Math.abs(Number(p_cur.innerHTML))) <= 1){
         p_cur.style.color = "green";
-      } else if (Number(p_sp.innerHTML)-Number(p_cur.innerHTML) > 1 && Number(p_sp.innerHTML)-Number(p_cur.innerHTML) <= 3){
+      } else if (Math.abs(Math.abs(Number(p_sp.innerHTML))-Math.abs(Number(p_cur.innerHTML))) > 1 && Math.abs(Math.abs(Number(p_sp.innerHTML))-Math.abs(Number(p_cur.innerHTML))) <= 3){
         p_cur.style.color = "orange";
-      } else if (Number(p_sp.innerHTML)-Number(p_cur.innerHTML)> 3) {
+      } else if (Math.abs(Math.abs(Number(p_sp.innerHTML))-Math.abs(Number(p_cur.innerHTML)))> 3) {
         p_cur.style.color = "red";
       }  else {
         p_cur.style.color = "red";
