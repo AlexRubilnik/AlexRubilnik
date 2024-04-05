@@ -43,6 +43,8 @@ class AutomeltsSerializer(serializers.Serializer):
     deltat = serializers.FloatField()
     deltat_stp = serializers.IntegerField()
     power_sp_base = serializers.IntegerField()
+    hotflue_p_sp = serializers.FloatField()  
+    aspiration_p_sp = serializers.FloatField() 
     melt_no = serializers.IntegerField()
 
     def create(self, validated_data):
