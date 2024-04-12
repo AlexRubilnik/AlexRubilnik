@@ -102,9 +102,10 @@ function RarefactionsInfoUpdate(){
         //КОгда будут разряжения на 1 печи //XHR.open('GET', '/FregatMonitoringApp/Furnace_info_r/1/', true);
       } else {
         XHR.open('GET', '/FregatMonitoringApp/Furnace_info_r/2/', true);
+        XHR.timeout = 2000;
+        XHR.send();
       }  
-      XHR.timeout = 2000;
-      XHR.send();
+      
   } 
 
   XHR.onreadystatechange = function() {

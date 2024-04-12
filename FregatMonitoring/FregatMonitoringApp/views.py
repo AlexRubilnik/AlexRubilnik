@@ -1059,9 +1059,9 @@ def furnace_info_a(request, furnace_no): # API для обновления да�
         deltat = round(deltaT,1),
         deltat_stp = "---" if melt_inst is None else melt_inst.delta_t_stp,
         power_sp_base = "---" if melt_inst is None else melt_inst_sp.power_sp,
-        hotflue_p_sp = round(melt_inst.hotflue_p_sp, 1),
-        aspiration_p_sp = round(melt_inst.aspiration_p_sp< 1),
-        melt_no = "---" if melt_no_inst is None else melt_no_inst
+        hotflue_p_sp = 0.0 if melt_inst.hotflue_p_sp is None else round(melt_inst.hotflue_p_sp, 1),
+        aspiration_p_sp = 0.0 if melt_inst.aspiration_p_sp is None else round(melt_inst.aspiration_p_sp< 1),
+        melt_no = 0 if melt_no_inst is None else melt_no_inst
     )
 
     serializer = AutomeltsSerializer(AMmodel)
