@@ -1,13 +1,22 @@
 {% if substep.step == step %}
     <tr>  
     <td>  </td> <td>  </td>
-    <td class="setpoints_text" width='70px'> Шаг {{substep.sub_step_num}} </td> 
-    <td> <input name="Time_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.sub_step_time != 'null' %} value= {{substep.sub_step_time}}> {% else %} value="" {% endif %} </td> 
-    <td> <input name="Power_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.power_sp %} value= {{substep.power_sp}}> {% else %} value="" {% endif %} </td> 
-    <td> <input name="Rotation_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.rotation_sp %} value= {{substep.rotation_sp}}> {% else %} value="" {% endif %} </td> 
-    <td> <input name="Alpha_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.alpha_sp %} value= {{substep.alpha_sp}}> {% else %} value="" {% endif %} </td> 
+    <td class="setpoints_text" width='70px'> Шаг {{read_only}} {{substep.sub_step_num}} </td> 
+    {% if not user.is_authenticated or not perms.FregatMonitoringApp.change_avtoplavka_setpoints %}
+       <td> <input readonly disabled name="Time_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.sub_step_time != 'null' %} value= {{substep.sub_step_time}}> {% else %} value="" {% endif %} </td> 
+       <td> <input readonly disabled  name="Power_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.power_sp %} value= {{substep.power_sp}}> {% else %} value="" {% endif %} </td> 
+       <td> <input readonly disabled  name="Rotation_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.rotation_sp %} value= {{substep.rotation_sp}}> {% else %} value="" {% endif %} </td> 
+       <td> <input readonly disabled  name="Alpha_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.alpha_sp %} value= {{substep.alpha_sp}}> {% else %} value="" {% endif %} </td> 
+    {% else %}
+       <td> <input name="Time_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.sub_step_time != 'null' %} value= {{substep.sub_step_time}}> {% else %} value="" {% endif %} </td> 
+       <td> <input name="Power_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.power_sp %} value= {{substep.power_sp}}> {% else %} value="" {% endif %} </td> 
+       <td> <input name="Rotation_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.rotation_sp %} value= {{substep.rotation_sp}}> {% else %} value="" {% endif %} </td> 
+       <td> <input name="Alpha_substepid_{{substep.substep_id}}" size="5" class="melt_setpoints" {% if substep.alpha_sp %} value= {{substep.alpha_sp}}> {% else %} value="" {% endif %} </td> 
+    {% endif %}
     {% if substep.sub_step_num != 1 %}
+      {% if user.is_authenticated and perms.FregatMonitoringApp.change_avtoplavka_setpoints %}
     <td> <a href="{% url 'FregatMonitoringApp:auto_melts_del_substep' melt_name step.step_num substep.sub_step_num %}" class="btn"> Удалить шаг </a></td>
+      {% endif %}
     {% endif%}
     </tr>
 {% endif %}  

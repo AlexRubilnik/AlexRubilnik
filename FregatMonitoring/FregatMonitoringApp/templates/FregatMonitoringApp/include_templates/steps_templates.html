@@ -28,7 +28,9 @@
     {% endfor %} 
     <tr class="melt_step_add">
     <td> </td> <td>  </td><td>  </td><td>  </td><td>  </td><td>  </td> <td>  </td> 
-    <td><a href="{% url 'FregatMonitoringApp:auto_melts_add_substep' melt_name step.step_num %}" class="btn"> Добавить шаг</a></td>      
+    {% if user.is_authenticated and perms.FregatMonitoringApp.change_avtoplavka_setpoints %}
+    <td><a href="{% url 'FregatMonitoringApp:auto_melts_add_substep' melt_name step.step_num %}" class="btn"> Добавить шаг</a></td>    
+    {% endif %}  
     </tr>
     </table>
     </td>

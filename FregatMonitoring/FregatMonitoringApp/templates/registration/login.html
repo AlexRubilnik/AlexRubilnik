@@ -1,0 +1,16 @@
+{% extends 'FregatMonitoringApp/base.html' %}
+
+{% block login %}
+<div class="login-div">
+	<form method="post" class="login-form" novalidate>
+	  	{% csrf_token %}
+	    <h1 style="text-align: center; margin-bottom: 30px;">Вход</h1>
+		<p><label class='login-tag' for="id_username">Имя пользователя:</label></p>
+		<p><input class='login-tag' type="text" name="username" autofocus="" autocapitalize="none" autocomplete="username" maxlength="150" required="" id="id_username"></p>
+		<p><label class='login-tag' for="id_password">Пароль:</label></p>
+		<p><input class='login-tag' type="password" name="password" autocomplete="current-password" required="" id="id_password"></p>
+		<p><input class='login-tag btn' style="font-size: 18px;" type="submit" value="Вход"></p>
+	</form>
+</div>
+
+{% endblock login %}

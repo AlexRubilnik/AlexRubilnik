@@ -23,7 +23,7 @@
         <tr><td>
             <table><tr><td>
                       {% for step in melt_steps_1 %}
-                          {% get_substebs_by_step melt_name step substeps_1 %}
+                          {% get_substebs_by_step user perms melt_name step substeps_1 %}
                       {% endfor %}  
                    </td></tr>            
             </table>
@@ -32,7 +32,7 @@
             <td>
             <table><tr><td>
                       {% for step in melt_steps_2 %}
-                          {% get_substebs_by_step melt_name step substeps_2 %}     
+                          {% get_substebs_by_step user perms melt_name step substeps_2 %}     
                       {% endfor %}    
                    </td></tr>             
             </table>
@@ -40,7 +40,9 @@
       </table>
       </div>
       <div class="save_btn_bar"> 
+          {% if user.is_authenticated and perms.FregatMonitoringApp.change_avtoplavka_setpoints %}
           <input class="btn" type="submit" value="Сохранить изменения">
+          {% endif %}
       </div>
   </form>
 </div>

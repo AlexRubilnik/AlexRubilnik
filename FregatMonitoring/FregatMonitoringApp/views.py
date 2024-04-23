@@ -7,10 +7,14 @@ from os import curdir
 
 from django.db.models.query_utils import subclasses
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.views import LoginView
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.template import loader
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.db.models import F
+from django.shortcuts import get_object_or_404
 
 from .models import Automelts, Avtoplavka_status, Avtoplavka_setpoints, Autoplavka_log, AutoMeltsInfo, Daily_gases_consumption 
 from .models import Floattable, Gases_consumptions_per_day, Melttypes, Meltsteps, Substeps, Tagtable, Rarefaction_P2, Bottling
@@ -20,17 +24,28 @@ from .serializers import FloattableSerializer, AutomeltsSerializer, RarefactionP
 from . import furnace_errors
 from .furnace_errors import furnace1_errors_list, furnace2_errors_list
 
+class MyLoginView(LoginView):
+    redirect_authenticated_user = True
+    
+    def get_success_url(self):
+        return reverse_lazy('FregatMonitoringApp:index') 
+    
+    def form_invalid(self, form):
+        messages.error(self.request,'Неправильное имя пользователя или пароль!')
+        return self.render_to_response(self.get_context_data(form=form))
+
+@login_required
 def index(request):
     return furnace_1_info(request)
 
-
+@login_required
 def reports_page(request):
     template = loader.get_template('FregatMonitoringApp/reports_page.html')
     context = None
 
     return HttpResponse(template.render(context, request))
 
-
+@login_required
 def gases_usage_report(request, **kwards): #Загружает первоначальный шаблон отчёт с данными по умолчанию   
     template = loader.get_template('FregatMonitoringApp/gases_usage_report.html')
     
@@ -49,7 +64,7 @@ def gases_usage_report(request, **kwards): #Загружает первонач�
 
     return HttpResponse(template.render(context, request))
 
-
+@login_required
 def get_gases_usage_data_hourly(request, **kwards):
     '''Выдаёт данные по запросу клиента за выбранный период по часам. 
        Считает почасовые расходы газов, на основе данных о мгновенных расходах, которые регистрируются в таблице БД FloatTable каждые 10 секунд'''
@@ -123,7 +138,7 @@ def get_gases_usage_data_hourly(request, **kwards):
 
     return JsonResponse(series, safe=False)
     
-
+@login_required
 def get_gases_usage_data_daily(request, **kwards):
     '''Выдаёт данные по запросу клиента за выбранный период по дням. Достаёт данные из заранее подготовленной таблицы в БД: DailyGasesConsumption.
        Таблица содержит суточные расходы газов, рассчитанные (на основе данных о мгновенных расходах) хранимой процедурой по заданию ежедневно в 23:59'''
@@ -159,7 +174,7 @@ def get_gases_usage_data_daily(request, **kwards):
 
     return JsonResponse(series, safe=False)
 
-
+@login_required
 def furnace_base_trends(request, furnace_no, **kwards):  #отображает шаблон экрана трендов для печи
     template = loader.get_template('FregatMonitoringApp/furnace_trends_page.html')
     if(kwards.get('start_time') is not None and kwards.get('stop_time') is not None):
@@ -175,7 +190,7 @@ def furnace_base_trends(request, furnace_no, **kwards):  #отображает �
     }
     return HttpResponse(template.render(context, request))
 
-
+@login_required
 def furnace_errors_log(request, furnace_no, **kwards): #отображает шаблон журнала ошибок для печи
     template = loader.get_template('FregatMonitoringApp/furnace_errors_log_page.html')
     if(kwards.get('start_time') is not None and kwards.get('stop_time') is not None):
@@ -191,7 +206,7 @@ def furnace_errors_log(request, furnace_no, **kwards): #отображает ш�
     }
     return HttpResponse(template.render(context, request))
 
-
+@login_required
 def furnace_errors_log_data(request, furnace_no):
     if request.method == 'GET':
         start_period = request.GET['start']
@@ -236,7 +251,7 @@ def furnace_errors_log_data(request, furnace_no):
 
     return JsonResponse(log_strings, safe=False)
 
-
+@login_required
 def furnace_base_trends_data(request, furnace_no): #готовит и отправляет данные сигналов для трендов за указанный период времени
     if request.method == 'GET':
         start_period = request.GET['start']
@@ -344,19 +359,19 @@ def furnace_base_trends_data(request, furnace_no): #готовит и отпра
 
     return JsonResponse(series, safe=False)
 
-
+@login_required
 def error_message(request):
     template = loader.get_template('FregatMonitoringApp/error_message.html')
     context = None
     return HttpResponse(template.render(context, request))
 
-
+@login_required
 def sorry_page(request):
     template = loader.get_template('FregatMonitoringApp/sorry_page.html')
-    context = None
+    context=None
     return HttpResponse(template.render(context, request))
 
-
+@login_required
 def furnace_1_info(request):
     
     def cur_signal_value(signal_name: str, **kwards):
@@ -464,7 +479,7 @@ def furnace_1_info(request):
 
     return HttpResponse(template.render(context, request))
 
-
+@login_required
 def furnace_2_info(request):
     
     def cur_signal_value(signal_name: str, **kwards):
@@ -593,14 +608,14 @@ def furnace_2_info(request):
 
     return HttpResponse(template.render(context, request))
 
-
+@login_required
 def bottling_page(request):
     template = loader.get_template('FregatMonitoringApp/bottling_page.html')
 
     context = {}
     return HttpResponse(template.render(context, request))
 
-
+@login_required
 def bottling_page_data(request):
     "Грузит страницу журнала розливов"
 
@@ -609,7 +624,7 @@ def bottling_page_data(request):
     context = {'grades_list': grades_list}
     return HttpResponse(template.render(context, request))
 
-
+@login_required
 def current_bottling_page(request):
     "Грузит страницу текущего розлива"
 
@@ -626,7 +641,7 @@ def current_bottling_page(request):
     }
     return HttpResponse(template.render(context, request))
 
-
+@login_required
 def bottling_journal_data(request):
     '''Выдаёт журнал розлива по четырём фильтрам: Год, № розлива, марка сплава, дата розлива. Если один, несколько или все фильтры
     не заданные - выдаёт полную выборку из БД за последний год'''
@@ -662,21 +677,21 @@ def bottling_journal_data(request):
         
     return JsonResponse(journal_entrys, safe=False)
 
-
+@login_required
 def shzm_page(request):
     template = loader.get_template('FregatMonitoringApp/shzm_page.html')
 
     context = {}
     return HttpResponse(template.render(context, request))
 
-
+@login_required
 def shzm_journal_page(request):
     "Грузит страницу журнала загрузок"
     context = {}
     template = loader.get_template('FregatMonitoringApp/shzm_journal_page.html')
     return HttpResponse(template.render(context, request))
 
-
+@login_required
 def shzm_journal_page_data(request):
     '''Выдаёт данные о загрузках печей по трём фильтрам: № печи, № плавки, временной промежуток. Если один, несколько или все фильтры
     не заданные - выдаёт полную выборку за последний месяц'''
@@ -728,7 +743,7 @@ def shzm_journal_page_data(request):
     
     return JsonResponse(log_entrys, safe=False)
 
-
+@login_required
 def auto_melts_types_info(request, melt_id_1):
 
     melt_type_list = Melttypes.objects.filter(melt_furnace=1) #Выбираем типы плавок для первой печи(для второй такие же)
@@ -764,7 +779,7 @@ def auto_melts_types_info(request, melt_id_1):
 
     return HttpResponse(template.render(context, request))
 
-
+@login_required
 def auto_melts_log(request):
 
     template = loader.get_template('FregatMonitoringApp/auto_melts_log_page.html')
@@ -773,7 +788,7 @@ def auto_melts_log(request):
 
     return HttpResponse(template.render(context, request))
 
-
+@login_required
 def auto_melts_log_data(request):
     '''Выдаёт данные о ходе автоматических плавок по трём фильтрам: № печи, № плавки, временной промежуток. Если один, несколько или все фильтры
     не заданные - выдаёт полную выборку за последний месяц'''
@@ -837,7 +852,7 @@ def auto_melts_log_data(request):
     
     return JsonResponse(log_entrys, safe=False)
 
-
+@login_required
 def auto_melts_add_substep(request, melt_type, melt_step):
     """Добавляет подшаг к заданному шагу по типу плавки(названию) сразу для обеих печей
        request - запрос,
@@ -861,7 +876,7 @@ def auto_melts_add_substep(request, melt_type, melt_step):
 
     return auto_melts_types_info(request, melt_1.melt_id) 
 
-
+@login_required
 def auto_melts_del_substep(request, melt_type, melt_step, melt_substep):
     '''Удаляет подшаг у заданного шага по типу плавки(названию) сразу для обеих печей
        request - запрос,
@@ -896,10 +911,11 @@ def auto_melts_del_substep(request, melt_type, melt_step, melt_substep):
 
     return auto_melts_types_info(request, melt_1.melt_id) 
 
-
+@login_required
 def auto_melts_setpoints(request):
     
     template = loader.get_template('FregatMonitoringApp/auto_melts_setpoints.html')
+
     try:
         deltaT1_stp = Automelts.objects.filter(furnace_no=1)[0].deltat
         deltaT2_stp = Automelts.objects.filter(furnace_no=2)[0].deltat
@@ -912,7 +928,7 @@ def auto_melts_setpoints(request):
     }
     return HttpResponse(template.render(context, request))
 
-
+@login_required
 def auto_melts_save_settings(request, melt_id_1, melt_id_2): #сохраняет изменение режимов автоплаки в базе
     
     melt_steps_list = Meltsteps.objects.filter(melt__in=[melt_id_1, melt_id_2]) #Выбираем шаги для нужных плавок
@@ -932,7 +948,7 @@ def auto_melts_save_settings(request, melt_id_1, melt_id_2): #сохраняет
 
     return HttpResponseRedirect(reverse('FregatMonitoringApp:auto_melts_types_info', args=(melt_id_1,)))
 
-
+@login_required
 def auto_melts_save_setpoints(request, furnace_num): #сохраняет изменение уставки Дельты в базе
     try:
         try: 

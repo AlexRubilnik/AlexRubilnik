@@ -2,9 +2,13 @@ from unicodedata import name
 from django.urls import path
 
 from . import views
+from .views import MyLoginView
+from django.contrib.auth.views import LogoutView
 
 app_name = 'FregatMonitoringApp'
 urlpatterns = [
+    path('login/', MyLoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(next_page='FregatMonitoringApp:login'), name='logout'),
     path('', views.index, name='index'),
     path('ErrorMessage/', views.error_message, name='error_message'),
     path('SorryPage/', views.sorry_page, name='sorry_page'),
