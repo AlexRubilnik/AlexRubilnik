@@ -8,7 +8,11 @@
   {% csrf_token %}
       <div> 
       {% for melt in melt_types %} <!--Типы плавок выводим только для первой печи, для второй такие же-->
+        {% if melt_name == melt.melt_name%}
+          <a href="{% url 'FregatMonitoringApp:auto_melts_types_info' melt.melt_id %}" class="btn" style="background-color: orange"> {{ melt.melt_name }} </a>
+        {% else %}
           <a href="{% url 'FregatMonitoringApp:auto_melts_types_info' melt.melt_id %}" class="btn"> {{ melt.melt_name }} </a>
+        {% endif %}
       {% endfor %} 
       </div>
       <div class="auto-melts-types-box">
