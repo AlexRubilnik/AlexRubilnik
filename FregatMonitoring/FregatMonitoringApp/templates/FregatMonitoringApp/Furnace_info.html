@@ -43,7 +43,7 @@
                     <td width="25%" class="furnace-info-tab-td-top">
                                     <table align="left" class="furnace-info-tab-2" border=0>
                                     <tr><td class="area-name bottom-line">Горячий газоход</td><td></td></tr>
-                                    {% color_rarefaction_in_hotgate hotflue_p hotflue_p_sp %}
+                                    {% color_rarefaction_in_hotgate hotflue_p hotflue_p_sp furnace_num %}
                                     <tr><td>Дроссель ГГ</td><td> <span id={{ hot_flue_gate.1 }} class="UpdSign"> {{hot_flue_gate.0|floatformat}}</span><span> %</span></td></tr>
                                     <tr><td>Температура ГГ</td><td> <span id={{ hotflue_t.1 }} class="UpdSign"> {{hotflue_t.0|floatformat:1}}</span><span> С</span></td></tr>
                                     </table>
@@ -82,10 +82,10 @@
                                     <tr><td>      </td>      <td></td></tr>
                                     <tr><td>      </td>      <td></td></tr>
                                     <tr><td>      </td>      <td></td></tr>
-                                    <tr><td><span id="rf_fur2_point5" class="UpdSign_2">Рт.5=-{{rf_fur2_point5}}</span></td>
-                                        <td></td><td><span id="rf_fur2_point4" class="UpdSign_2">Рт.4=-{{rf_fur2_point4}}</span></td>
-                                        <td></td><td><span id="rf_fur2_point3" class="UpdSign_2">Рт.3=-{{rf_fur2_point3}}</span></td> 
-                                        <td></td><td><span id="rf_fur2_point2" class="UpdSign_2">Рт.2=-{{rf_fur2_point2}}</span></td></tr>      
+                                    <tr><td>Рт.5=-<span id="rf_fur{{furnace_num}}_point5" class="UpdSign_2">{{rf_fur_point5}}</span></td>
+                                        <td></td><td>Рт.4=-<span id="rf_fur{{furnace_num}}_point4" class="UpdSign_2">{{rf_fur_point4}}</span></td>
+<!--Исправить "rf_fur2_point1" на "rf_fur{{furnace_num}}_point3"--><td></td><td>Рт.3=-<span id="rf_fur2_point1" class="UpdSign_2">{{rf_fur_point3}}</span></td> 
+                                        <td></td><td>Рт.2=-<span id="rf_fur{{furnace_num}}_point2" class="UpdSign_2">{{rf_fur_point2}}</span></td></tr>      
                                     </table>
                     </td>
                     <td class="furnace-info-tab-td-top">
@@ -108,7 +108,7 @@
                                     <tr><td>      </td>      <td></td></tr>
                                     <tr><td>      </td>      <td></td></tr>
                                     <tr><td>      </td>      <td></td></tr>
-                                    <tr><td> </td> <td> <span id="rf_fur2_point1" class="UpdSign_2">Рт.1=-{{rf_fur2_point1}}</span></td></tr>                             
+                                    <tr><td> </td> <td> Рт.1=-<span id="rf_fur{{furnace_num}}_point1" class="UpdSign_2">{{rf_fur_point1}}</span></td></tr>                             
                                     </table>
                     </td>
                 </tr>

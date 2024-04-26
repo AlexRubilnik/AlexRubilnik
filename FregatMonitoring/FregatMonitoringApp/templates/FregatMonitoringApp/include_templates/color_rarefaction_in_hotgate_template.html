@@ -1,4 +1,8 @@
 <tr><td>Рязряжение</td>       <td>
-                               <span id = {{ hotflue_p.1 }} class='UpdSign' style="color: {{p_cur_color}};">{{hotflue_p.0|floatformat:0}}</span>
+                               {% if fur_no == 2 %}
+                               <span id = {{ hotflue_p.1 }} class='UpdSign' style="color: {{p_cur_color}};">{{hotflue_p.0|floatformat:1}}</span>
+                               {% else %}
+                               <span id = "rf_fur2_point6" class='UpdSign_2' style="color: {{p_cur_color}};">{{hotflue_p|floatformat:1}}</span> <!--исправить id при переходе датчика в ШУ разряжений печи 1-->
+                               {% endif %}
                                (<span id="hotflue_p_sp" class='UpdSign_1' style="font-size: 11px">{{ hotflue_p_sp|floatformat:1 }}</span>)<span> Па</span>
                             </td></tr>

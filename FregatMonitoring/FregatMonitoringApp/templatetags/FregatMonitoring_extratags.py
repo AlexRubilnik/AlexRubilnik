@@ -35,15 +35,15 @@ def power_color(power_sp, power_cur):
         return {'power_color': 'red', 'power_sp':power_sp, 'power_cur':power_cur}
 
 @register.inclusion_tag('FregatMonitoringApp/include_templates/color_rarefaction_in_hotgate_template.html', name='color_rarefaction_in_hotgate')
-def power_color(hotflue_p, hotflue_p_sp):
+def power_color(hotflue_p, hotflue_p_sp, fur_no):
     try:
         if abs(abs(hotflue_p_sp)-abs(hotflue_p[0])) < 1:
-            return {'p_cur_color': 'green', 'hotflue_p_sp':hotflue_p_sp, 'hotflue_p':hotflue_p}
+            return {'p_cur_color': 'green', 'hotflue_p_sp':hotflue_p_sp, 'hotflue_p':hotflue_p, 'fur_no': fur_no}
         elif  abs(abs(hotflue_p_sp)-abs(hotflue_p[0])) > 1 and abs(abs(hotflue_p_sp)-abs(hotflue_p[0])) <= 3:
-            return {'p_cur_color': 'orange', 'hotflue_p_sp':hotflue_p_sp, 'hotflue_p':hotflue_p}
+            return {'p_cur_color': 'orange', 'hotflue_p_sp':hotflue_p_sp, 'hotflue_p':hotflue_p, 'fur_no': fur_no}
         elif abs(abs(hotflue_p_sp)-abs(hotflue_p[0])) > 3:
-            return {'p_cur_color': 'red', 'hotflue_p_sp':hotflue_p_sp, 'hotflue_p':hotflue_p}
+            return {'p_cur_color': 'red', 'hotflue_p_sp':hotflue_p_sp, 'hotflue_p':hotflue_p, 'fur_no': fur_no}
         else: 
-            return {'p_cur_color': 'red', 'hotflue_p_sp':hotflue_p_sp, 'hotflue_p':hotflue_p}
+            return {'p_cur_color': 'red', 'hotflue_p_sp':hotflue_p_sp, 'hotflue_p':hotflue_p, 'fur_no': fur_no}
     except:
-        return {'p_cur_color': 'red', 'hotflue_p_sp':hotflue_p_sp, 'hotflue_p':hotflue_p}
+        return {'p_cur_color': 'red', 'hotflue_p_sp':hotflue_p_sp, 'hotflue_p':hotflue_p, 'fur_no': fur_no}

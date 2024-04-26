@@ -99,7 +99,9 @@ function RarefactionsInfoUpdate(){
   fur_no = document.getElementById("FurnaceNo");
   if(fur_no){
       if (fur_no.innerHTML=="Печь №1. Основные параметры"){
-        //КОгда будут разряжения на 1 печи //XHR.open('GET', '/FregatMonitoringApp/Furnace_info_r/1/', true);
+        XHR.open('GET', '/FregatMonitoringApp/Furnace_info_r/2/', true); //изменить когда появится шкаф разряжений на печи 1
+        XHR.timeout = 2000;
+        XHR.send();
       } else {
         XHR.open('GET', '/FregatMonitoringApp/Furnace_info_r/2/', true);
         XHR.timeout = 2000;
@@ -123,7 +125,8 @@ function RarefactionsInfoUpdate(){
       for (text in data){
         var tab = document.getElementById(text);
         if(tab!=null){
-            tab.innerHTML = tab.innerHTML.slice(0,6)+data[text];
+            //tab.innerHTML = tab.innerHTML.slice(0,6)+data[text];
+            tab.innerHTML = data[text];
         }
       }  
         
