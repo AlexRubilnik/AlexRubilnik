@@ -175,4 +175,5 @@ setInterval(()=>color_power_sp_if_reduce("60", "power_sp_base"),1000); //для 
 setInterval(()=>color_power_sp_if_reduce("61", "power_sp_base"),1000); //для второй печи
 
 //Обновляем цвет значения текущего разряжения в ГГ. Если ниже заданной - постепенно краснеет
+setInterval(()=>color_rarefaction_in_hotgate("rf_fur2_point6", "hotflue_p_sp"),1000); //для первой печи -поправить, когда появится Шу разряжений на 1 печи
 setInterval(()=>color_rarefaction_in_hotgate("12", "hotflue_p_sp"),1000); //для второй печи

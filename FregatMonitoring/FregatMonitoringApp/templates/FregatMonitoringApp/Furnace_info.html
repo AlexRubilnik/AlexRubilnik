@@ -84,7 +84,11 @@
                                     <tr><td>      </td>      <td></td></tr>
                                     <tr><td>Рт.5=-<span id="rf_fur{{furnace_num}}_point5" class="UpdSign_2">{{rf_fur_point5}}</span></td>
                                         <td></td><td>Рт.4=-<span id="rf_fur{{furnace_num}}_point4" class="UpdSign_2">{{rf_fur_point4}}</span></td>
+                                    {% if furnace_num == 1%}    
 <!--Исправить "rf_fur2_point1" на "rf_fur{{furnace_num}}_point3"--><td></td><td>Рт.3=-<span id="rf_fur2_point1" class="UpdSign_2">{{rf_fur_point3}}</span></td> 
+                                    {% else %}
+                                        <td></td><td>Рт.3=-<span id="rf_fur2_point3" class="UpdSign_2">{{rf_fur_point3}}</span></td> 
+                                    {% endif %}
                                         <td></td><td>Рт.2=-<span id="rf_fur{{furnace_num}}_point2" class="UpdSign_2">{{rf_fur_point2}}</span></td></tr>      
                                     </table>
                     </td>
