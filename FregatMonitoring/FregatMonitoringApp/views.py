@@ -267,8 +267,8 @@ def furnace_base_trends_data(request, furnace_no): #готовит и отпра
 
     def LoadRarefactionValuesByPeriod(furnace_no, rarefaction_point_name, period_start, period_stop, **kwards):
         #возвращает выборку значений разряжений с метками времени за определённый период времени
-        if furnace_no == 2:
-            signal_value = Rarefaction_P2.objects.annotate(dateandtime=F('timestamp')).annotate(value=F(rarefaction_point_name)).filter(timestamp__range=(period_start,period_stop)
+        #if furnace_no == 2: - раскомментировать, когда появится шкаф разряжений для 1 печи
+        signal_value = Rarefaction_P2.objects.annotate(dateandtime=F('timestamp')).annotate(value=F(rarefaction_point_name)).filter(timestamp__range=(period_start,period_stop)
             ).order_by('dateandtime')
 
         return signal_value
@@ -292,6 +292,9 @@ def furnace_base_trends_data(request, furnace_no): #готовит и отпра
         signals.append(("dP на дымососе", LoadSignalValuesByPeriod('MEASURES\PDI_724', start_period, stop_period)))
         signals.append(("Частота дымососа", LoadSignalValuesByPeriod('MEASURES\SI_U720', start_period, stop_period)))
         signals.append(("Т перед фильтром", LoadSignalValuesByPeriod('MEASURES\TI_704', start_period, stop_period)))
+
+        signals.append(("Разряжение т.3", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point1', start_period, stop_period)))
+        signals.append(("Разряжение в ГГ", LoadRarefactionValuesByPeriod(furnace_no, 'rf_fur2_point6', start_period, stop_period)))
 
         signals.append(("Т над дверью", LoadSignalValuesByPeriod('MEASURES\TI_712Y', start_period, stop_period))) #эти два сигнала должны быть в списке последними
         signals.append(("Т воздух цех", LoadSignalValuesByPeriod('MEASURES\TI_712X', start_period, stop_period))) #эти два сигнала должны быть в списке последними
