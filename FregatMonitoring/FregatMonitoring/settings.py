@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-y+w2ww$#!c-s)gm2d@77q9h0(j34kq6%w^)64ahh^(ui7(035p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "frgs005x", "192.168.88.238", "frgv006a", "192.168.88.234", "frgv008a", '10.112.1.2', '10.112.1.234']
+ALLOWED_HOSTS = ["127.0.0.1", "frgs005x", "192.168.88.238", "frgv006a", "192.168.88.234", "frgv008a", 'frgv008a.fregat.local', 'frgv006a.fregat.local', '10.112.1.2', '10.112.1.234']
 
 LOGIN_URL = 'FregatMonitoringApp:login'
 
